@@ -1,0 +1,22 @@
+{
+    "name": "Golem Task Light",
+    "type": "Blender",
+    "subtasks": 10,
+    "options": {
+        "frame_count": 1,
+        "output_path": "",
+        "format": "PNG",
+        "resolution": [
+            1500,
+            1000
+        ],
+        "frames": "1",
+        "compositing": false
+    },
+    "timeout": "4:00:00",
+    "subtask_timeout": "0:20:00",
+    "bid": 10.0,
+    "resources": [
+        "/Users/ascherik/Downloads/golem-header.blend"
+    ]
+}

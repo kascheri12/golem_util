@@ -1,0 +1,33 @@
+{
+    "duration": 3600,
+    "name": "ForYou Task 1000",
+    "type": "Blender",
+    "subtasks": 100,
+    "options": {
+        "frame_count": 100,
+        "output_path": "/Users/ascherik/Downloads",
+        "format": "GIF",
+        "resolution": [
+            1000,
+            666
+        ],
+        "frames": "1-100",
+        "compositing": false
+    },
+    "timeout": "23:00:00",
+    "subtask_timeout": "0:15:00",
+    "bid": 10.0,
+    "resources": [
+        "/Users/ascherik/Downloads/Golem Airplane/output/Golem Task airplane abcd.PNG",
+        "/Users/ascherik/Downloads/Golem Airplane/golem.png",
+        "/Users/ascherik/Downloads/Golem Airplane/Golem_Airplane_WindowsDoors.png",
+        "/Users/ascherik/Downloads/Golem Airplane/Golem_Airplane_UV.png",
+        "/Users/ascherik/Downloads/Golem Airplane/Golem_Airplane_UV.psd",
+        "/Users/ascherik/Downloads/Golem Airplane/Golem_Airplane.blend",
+        "/Users/ascherik/Downloads/Golem Airplane/Golem_Airplane_Decal.png",
+        "/Users/ascherik/Downloads/Golem Airplane/Boeing 747-400.gif",
+        "/Users/ascherik/Downloads/Golem Airplane/Golem_Airplane_panels.png",
+        "/Users/ascherik/Downloads/Golem Airplane/Golem_Airplane.blend1",
+        "/Users/ascherik/Downloads/Golem Airplane/10447508895_e99ec8bb6e_o.jpg"
+    ]
+}

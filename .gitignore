@@ -1,0 +1,12 @@
+
+config.py
+
+*.pyc
+
+*.html
+
+*.csv
+
+*.log
+
+*.blend

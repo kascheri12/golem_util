@@ -1,0 +1,22 @@
+{
+    "name": "Golem Header Task 3000",
+    "type": "Blender",
+    "subtasks": 5,
+    "options": {
+        "frame_count": 1,
+        "output_path": "",
+        "format": "PNG",
+        "resolution": [
+            3000,
+            2000
+        ],
+        "frames": "1",
+        "compositing": false
+    },
+    "timeout": "20:00:00",
+    "subtask_timeout": "00:40:00",
+    "bid": 10.0,
+    "resources": [
+        "/Users/ascherik/Downloads/golem-header.blend"
+    ]
+}
