@@ -1,12 +1,7 @@
-
-import csv
-import os
+import csv, os, time, sys
 from distutils.version import LooseVersion
 import pandas as pd
-import sys
-import plotly
 import plotly.plotly as py
-import time
 from datetime import datetime as dt
 from random import *
 import igraph as ig
@@ -213,13 +208,15 @@ def print_node_success_over_time_graph(d):
   filename = 'golem-network-success-report.html'
   
   # load distinct list of timestamps from column 0.
-  x_axis = sorted(list(set([x[0] for x in d['data']])))
+  ts_index = d['header'].index('timestamp')
+  success_index = d['header'].index('subtasks_success')
+  x_axis = sorted(list(set([x[ts_index] for x in d['data']])))
   y_axis_dict = {}
   traces = []
   for timestamp in x_axis:
     # for each record in the list of data points cooresponding to the timestamp
     # and the node's total success are greater than the threshold
-    for record in [x for x in nodes['data'] if x[0] == timestamp and float(x[3]) >= SUCCESS_THRESHOLD]:
+    for record in [x for x in nodes['data'] if x[ts_index] == timestamp and float(x[success_index]) >= SUCCESS_THRESHOLD]:
       # Define the key as the node's name plus first 10 characters of the node_id
       key = get_node_name(record)
       # Check if this dict key exists in the dict of nodes to be plotted
@@ -265,17 +262,22 @@ def find_max_version(d_in):
   return vl[-1]
 
 def load_data():
-  d = load_raw_data()
-  for i in range(len(d['data'])):
-    try:
-      d['data'][i][0] = int(d['data'][i][0])
-    except IndexError:
-      d['data'][i][0] = 0 
+  d = load_new_data()
     
+  for i in range(len(d['data'])):
+    # Eliminate null values in the timestamp column
+    ts_index = d['header'].index('timestamp')
     try:
-      d['data'][i][3] = float(d['data'][i][3])
+      d['data'][i][ts_index] = int(d['data'][i][ts_index])
     except IndexError:
-      d['data'][i][3] = 0
+      d['data'][i][ts_index] = 0 
+    
+    # Eliminate null values in subtask_success column
+    ss_index = d['header'].index('subtask_success')
+    try:
+      d['data'][i][ss_index] = float(d['data'][i][ss_index])
+    except IndexError:
+      d['data'][i][ss_index] = 0
   return d
 
 def load_new_data():
@@ -283,14 +285,16 @@ def load_new_data():
     'data':[],
     'header':[]
   }
-  for filename in [x for x in os.listdir('node_logs/') if x.find('network') != -1]:
+  for filename in [x for x in os.listdir('node_logs/') if x.find('network') != -1 or x.find('old_logs.log') != -1]:
     try:
       with open('node_logs/'+filename,'rt') as f:
         reader = csv.reader(f,delimiter=',')
         d = []
         first_row = True
         for row in reader:
-          # This is to check whether column 3, node_id exists.
+          # This call is to check whether column 3, node_id exists.
+          # Might not be needed anymore. It was caused by empty files that were written during network outage.
+          # I've since added try/catch so those files won't exist in the future.
           row[3]
           if first_row:
             first_row = False
@@ -324,6 +328,34 @@ def load_raw_data():
     except IndexError:
       print("Catching exception because file is empty and no data found.")
   return all_data
+
+def format_old_log_data():
+  filename = "old_logs.log"
+  directory = "node_logs/"
+  filepath = directory + filename
+  d = load_raw_data()
+  new_header = load_new_data()['header']
+  nodes_to_write = []
+  for i in range(len(d['data'])):
+    new_node = []
+    for j in range(len(new_header)):
+      try:
+        h_index = d['header'].index(new_header[j])
+      except ValueError:
+        h_index = -1
+      if h_index > -1:
+        new_node.append(d['data'][i][h_index])
+      else:
+        new_node.append('')
+    nodes_to_write.append(new_node)
+  try:
+    with open(filepath,'w') as f:
+      f.write("%s\n" % (','.join(new_header)))
+      for node in nodes_to_write:
+        f.write("%s\n" % (','.join(node)))
+  except:
+    print("Error writing the new log file with old log data")
+
 
 def fix_files_again(filenames):
   from os import remove
