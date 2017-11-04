@@ -14,46 +14,46 @@
 3. Follow installation instructions for Docker here:
   * https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-16-04
 
-    ```sh
+```sh
 
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 sudo apt-get update
 sudo apt-get install -y docker-ce
 
-    ```
+```
 
 
 4. Install Golem
   * https://github.com/golemfactory/golem/wiki/Installation-on-Ubuntu
 
-    ```sh
+```sh
 
 wget https://raw.githubusercontent.com/golemfactory/golem/develop/Installer/Installer_Linux/install.sh
 chmod +x install.sh
 sudo ./install.sh -dev
 
-    ```
+```
 
 5. Reboot System
 
-  ```sh
+```sh
 
 sudo shutdown -r now
 
-  ```
+```
 
 6. Rollback Geth version to 1.6.7
   * Geth download page: https://geth.ethereum.org/downloads/
   * At time of writing this, it was required for Golem 0.8.0 to run.
 
-    ```sh
+```sh
 
 wget https://gethstore.blob.core.windows.net/builds/geth-alltools-linux-amd64-1.6.7-ab5646c5.tar.gz
 tar xvzf geth-alltools-linux-amd64-1.6.7-ab5646c5.tar.gz
 sudo cp geth-alltools-linux-amd64-1.6.7-ab5646c5/geth /usr/bin
 
-    ```
+```
 
 
 7. Run Golem
@@ -83,13 +83,13 @@ sudo ./install.sh -dev
     * http://golem.timjones.id.au/golem-header.zip
   * Unzip Contents
     
-    ```sh
+```sh
     
 sudo apt-get install unzip
 unzip golem-header.zip -d golem-header
 cd golem-header
     
-    ```
+```
     
   * Prepare task.task file
 
