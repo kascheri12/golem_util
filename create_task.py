@@ -7,8 +7,7 @@ import getpass as gp
 import sys
 import config
 
-timeout = 10 * 60.0 # xx minutes @ Sixty seconds
-# pword =  str.encode(gp.getpass())
+timeout = 60 * 60.0 # xx minutes @ Sixty seconds
 
 def __main__(argv):
 
@@ -18,8 +17,11 @@ def __main__(argv):
     reactor.run()
 
 def add_new_task():
-  proc = Popen('python3 ~/GitHub/kascheri12/golem/golemcli.py tasks create sample_tasks/task.task', shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-  print(proc.communicate(str.encode(config.password+'\n')))
-
+  # proc = Popen('sudo -S golemcli tasks create sample_tasks/task.task', shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+  # print(proc.communicate(str.encode(config.password+'\n')))
+  
+  proc = Popen('~/golem-0.9.0/golemcli tasks create sample_tasks/task.task', shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+  
+  
 if __name__ == '__main__':
     __main__(sys.argv[1:])

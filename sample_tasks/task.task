@@ -1,7 +1,7 @@
 {
-    "name": "Golem Task 3000",
+    "name": "Golem Task Sample",
     "type": "Blender",
-    "subtasks": 20,
+    "subtasks": 100,
     "options": {
         "frame_count": 1,
         "output_path": "",
@@ -13,10 +13,12 @@
         "frames": "1",
         "compositing": false
     },
-    "timeout": "5:00:00",
-    "subtask_timeout": "0:20:00",
+    "timeout": "8:00:00",
+    "subtask_timeout": "0:15:00",
     "bid": 10.0,
     "resources": [
-        "/Users/kennethascheri/Downloads/golem-header/golem-header.blend"
+        "/Users/ascherik/Downloads/golem-header/golem-header.blend",
+        "/home/kenneth/golem-header.blend",
+        "/home/kascheri12002/golem-header.blend"
     ]
 }
