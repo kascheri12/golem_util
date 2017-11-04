@@ -1,4 +1,9 @@
 {
+    "resources": [
+        "/Users/ascherik/Downloads/golem-header/golem-header.blend",
+        "/home/kenneth/golem-header.blend",
+        "/home/kascheri12002/golem-header.blend"
+    ]
     "name": "Golem Task Sample",
     "type": "Blender",
     "subtasks": 100,
@@ -15,10 +20,5 @@
     },
     "timeout": "8:00:00",
     "subtask_timeout": "0:15:00",
-    "bid": 10.0,
-    "resources": [
-        "/Users/ascherik/Downloads/golem-header/golem-header.blend",
-        "/home/kenneth/golem-header.blend",
-        "/home/kascheri12002/golem-header.blend"
-    ]
+    "bid": 10.0
 }
