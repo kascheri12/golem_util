@@ -8,7 +8,7 @@ from shutil import move
 import analyze_logs as al
 import os, traceback, sys
 
-timeout = 5.0 # Thirty @ Sixty seconds
+timeout = 30 * 60.0 # Thirty @ Sixty seconds
 
 def main():
     l = task.LoopingCall(take_network_snapshot)
@@ -16,7 +16,7 @@ def main():
 
     rg = task.LoopingCall(refresh_graph)
     rg.start(timeout)
-    
+
     reactor.run()
 
 def check_for_node_log_dir():
@@ -33,7 +33,7 @@ def take_network_snapshot():
   log_dir = 'node_logs/'
   file_path = log_dir+filename
   append_param = 'a'
-  
+
   # Finalize file_name
   # If filesize exceeds the limit
   if os.path.exists(file_path):
@@ -81,24 +81,28 @@ def add_node_count_log():
 
 
 def refresh_graph():
+  filename = ''
+  d = []
+  a = al.Analyze_Logs()
+
   try:
-    d = al.load_data()
+    d = a.load_data()
   except:
-    print("Error retreiving data")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>Error retreiving data<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     traceback.print_exc(file=sys.stdout)
 
   try:
-    filename = al.print_node_success_over_time_graph(d)
+    filename = a.print_node_success_over_time_graph(d)
   except:
-    print("Error creating graph")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     traceback.print_exc(file=sys.stdout)
 
   try:
     move(filename,'/Volumes/C/wamp64/www/kennethascheri/public_html/golem/index.html')
   except:
-    print("Error printing and/or moving graph.")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     traceback.print_exc(file=sys.stdout)
-    
+
 
 if __name__ == '__main__':
     main()
