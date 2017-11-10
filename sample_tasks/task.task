@@ -20,5 +20,5 @@
     },
     "timeout": "8:00:00",
     "subtask_timeout": "0:15:00",
-    "bid": 10.0
+    "bid": 1.0
 }
