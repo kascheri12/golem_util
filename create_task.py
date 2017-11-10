@@ -5,9 +5,9 @@ from subprocess import Popen, PIPE
 import os
 import getpass as gp
 import sys
-import config
+# import config
 
-timeout = 60 * 60.0 # xx minutes @ Sixty seconds
+timeout = 180 * 60.0 # xx minutes @ Sixty seconds
 
 def __main__(argv):
 
@@ -16,10 +16,7 @@ def __main__(argv):
 
     reactor.run()
 
-def add_new_task():
-  # proc = Popen('sudo -S golemcli tasks create sample_tasks/task.task', shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-  # print(proc.communicate(str.encode(config.password+'\n')))
-  
+def add_new_task():  
   proc = Popen('~/golem-0.9.0/golemcli tasks create sample_tasks/task.task', shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
   
   
