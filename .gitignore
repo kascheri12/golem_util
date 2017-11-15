@@ -10,3 +10,5 @@ config.py
 *.log
 
 *.blend
+
+tmp.task
