@@ -203,23 +203,17 @@ class Analyze_Logs:
     name = str(node[nn_index])+"("+node[id_index][:10]+")"
     return name
 
-  def print_node_success_over_time_graph(self,d):
+  def build_y_axis_dict(self,d,x_axis,ts_index,success_index):
     SUCCESS_THRESHOLD = 5
     nodes = d
-    filename = 'golem-network-success-report.html'
-
-    # load distinct list of timestamps from column 0.
-    ts_index = d['header'].index('timestamp')
-    success_index = d['header'].index('subtasks_success')
-    x_axis = sorted(list(set([x[ts_index] for x in d['data']])))
     y_axis_dict = {}
-    traces = []
+
     for timestamp in x_axis:
       # for each record in the list of data points cooresponding to the timestamp
       # and the node's total success are greater than the threshold
       for record in [x for x in nodes['data'] if x[ts_index] == timestamp and float(x[success_index]) >= SUCCESS_THRESHOLD]:
         # Define the key as the node's name plus first 10 characters of the node_id
-        key = self.get_node_name(d['header'],record)
+        key = self.get_node_name(nodes['header'],record)
         # Check if this dict key exists in the dict of nodes to be plotted
         # Init dict value as list
         if y_axis_dict.get(key) is None:
@@ -227,14 +221,26 @@ class Analyze_Logs:
         # Append the specific x-y coordinate with the formatted
         # timestamp and the number of successful subtasks
         y_axis_dict[key].append([self.get_formatted_time(timestamp),record[success_index] or None])
+    return y_axis_dict
+
+  def print_node_success_over_time_graph(self,d):
+    filename = 'golem-network-success-report.html'
+
+    # load distinct list of timestamps from column 0.
+    ts_index = d['header'].index('timestamp')
+    success_index = d['header'].index('subtasks_success')
+    x_axis = sorted(list(set([x[ts_index] for x in d['data']])))
+    y_axis_dict = self.build_y_axis_dict(d,x_axis,ts_index,success_index)
+    traces = []
 
     # For each node to be plotted
-    for key in y_axis_dict.keys():
+    for key in sorted(y_axis_dict.keys()):
       # Append a scatter plot for the specific node based on time and subtasks successes
       traces.append(go.Scatter(
       x = [x[0] for x in y_axis_dict[key]],
       y = [x[1] for x in y_axis_dict[key]],
       mode='lines',
+      connectgaps=False,
       name=key
       ))
 

@@ -84,24 +84,29 @@ def refresh_graph():
   filename = ''
   d = []
   a = al.Analyze_Logs()
+  lt = time.localtime()
+  pt = "%s%s%s-%s:%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min)
 
   try:
     d = a.load_data()
   except:
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>Error retreiving data<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>Error retreiving data<<<<<<<<<<<<<<<<<<<<<<<<<<< - " + pt)
     traceback.print_exc(file=sys.stdout)
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>Error retreiving data<<<<<<<<<<<<<<<<<<<<<<<<<<< - " + pt)
 
   try:
     filename = a.print_node_success_over_time_graph(d)
   except:
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<< - " + pt)
     traceback.print_exc(file=sys.stdout)
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<< - " + pt)
 
   try:
     move(filename,'/Volumes/C/wamp64/www/kennethascheri/public_html/golem/index.html')
   except:
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<< - " + pt)
     traceback.print_exc(file=sys.stdout)
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<< - " + pt)
 
 
 if __name__ == '__main__':
