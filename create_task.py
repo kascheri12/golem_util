@@ -8,9 +8,9 @@ import getpass as gp
 class Create_Task:
   timeout = 120 * 60.0 # xx minutes @ Sixty seconds
   difficulty_level = 2
-  res_golem_header = "/Users/ascherik/Downloads/golem-header.blend"
-  res_airplane = "/Users/ascherik/Downloads/Golem\ Airplane/"
-  path_to_golemcli = "~/Downloads/golem-0.9.0/golemcli"
+  res_golem_header = ["/home/kascheri12001/golem-header.blend"]
+  res_airplane = ["/Users/ascherik/Downloads/Golem\ Airplane/"]
+  path_to_golemcli = "~/golem-0.9.0/golemcli"
   filename = "tmp.task"
   
   def __init__(self):
@@ -47,9 +47,7 @@ class Create_Task:
       "timeout": "20:00:00",
       "subtask_timeout": "0:35:00",
       "bid": 5.0,
-      "resources": [
-          self.res_golem_header
-      ]
+      "resources": self.res_golem_header
     }
     with open(self.filename,'w') as f:
       f.write(json.dumps(ts))
