@@ -17,7 +17,7 @@ class Create_Task:
     pass
 
   def add_new_task(self):
-    command_str = " ".join("~/Downloads/golem-0.9.0/golemcli","tasks","create",self.build_golem_header_task(2))
+    command_str = " ".join(["~/Downloads/golem-0.9.0/golemcli","tasks","create",self.build_golem_header_task(2)])
     proc = Popen(command_str, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
 
   def build_golem_header_task(self,level):
