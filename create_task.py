@@ -1,23 +1,23 @@
-import time
 from twisted.internet import task
 from twisted.internet import reactor
 from subprocess import Popen, PIPE
-import os
+import os, time, sys, json
 import getpass as gp
-import sys
 
 
 class Create_Task:
   timeout = 120 * 60.0 # xx minutes @ Sixty seconds
+  difficulty_level = 2
   res_golem_header = "/Users/ascherik/Downloads/golem-header.blend"
-  res_airplane = "/Users/ascherik/Downloads/Golem\ Airplane"
+  res_airplane = "/Users/ascherik/Downloads/Golem\ Airplane/"
+  path_to_golemcli = "~/Downloads/golem-0.9.0/golemcli"
   filename = "tmp.task"
   
   def __init__(self):
     pass
 
   def add_new_task(self):
-    command_str = " ".join(["~/Downloads/golem-0.9.0/golemcli","tasks","create",self.build_golem_header_task(2)])
+    command_str = " ".join([self.path_to_golemcli,"tasks","create",self.build_golem_header_task(self.difficulty_level)])
     proc = Popen(command_str, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
 
   def build_golem_header_task(self,level):
@@ -52,7 +52,7 @@ class Create_Task:
       ]
     }
     with open(self.filename,'w') as f:
-      f.write(str(ts))
+      f.write(json.dumps(ts))
     return self.filename
 
 
@@ -60,7 +60,7 @@ def __main__(argv):
 
   ct = Create_Task()
   l = task.LoopingCall(ct.add_new_task)
-  l.start(timeout) # call every sixty seconds
+  l.start(ct.timeout) # call every sixty seconds
 
   reactor.run()
 
