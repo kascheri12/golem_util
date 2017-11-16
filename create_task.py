@@ -6,10 +6,12 @@ import getpass as gp
 
 
 class Create_Task:
+  username = "kascheri12001"
+  init_start_timeout = 20
   timeout = 120 * 60.0 # xx minutes @ Sixty seconds
   difficulty_level = 2
-  res_golem_header = ["/home/kascheri12001/golem-header.blend"]
-  res_airplane = ["/Users/ascherik/Downloads/Golem\ Airplane/"]
+  res_golem_header = ["".joing(["/home/",username,"/golem-header.blend"])]
+  res_airplane = ["".joing(["/Users/",username,"/Downloads/Golem\ Airplane/"])]
   path_to_golemcli = "~/golem-0.9.0/golemcli"
   filename = "tmp.task"
   
@@ -23,7 +25,7 @@ class Create_Task:
   def build_golem_header_task(self,level):
     ght = None
     if level == 1:
-      ght = self.build_simple_golem_header_task(10,300,200)
+      ght = self.build_simple_golem_header_task(1,300,200)
     elif level == 2:
       ght = self.build_simple_golem_header_task(100,3000,2000)
     return ght
@@ -45,8 +47,8 @@ class Create_Task:
           "compositing": False
       },
       "timeout": "20:00:00",
-      "subtask_timeout": "0:35:00",
-      "bid": 5.0,
+      "subtask_timeout": "1:00:00",
+      "bid": 3.0,
       "resources": self.res_golem_header
     }
     with open(self.filename,'w') as f:
