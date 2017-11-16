@@ -28,6 +28,8 @@ class Create_Task:
     if level == 1:
       ght = self.build_simple_golem_header_task(1,300,200)
     elif level == 2:
+      ght = self.build_simple_golem_header_task(5,3000,2000)
+    elif level == 3:
       ght = self.build_simple_golem_header_task(100,3000,2000)
     return ght
 
@@ -59,9 +61,8 @@ class Create_Task:
 
 def __main__(argv):
 
-  sleep(init_start_timeout)
-  
   ct = Create_Task()
+  sleep(ct.init_start_timeout)
   l = task.LoopingCall(ct.add_new_task)
   l.start(ct.timeout) # call every sixty seconds
 
