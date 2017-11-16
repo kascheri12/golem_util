@@ -3,6 +3,7 @@ from twisted.internet import reactor
 from subprocess import Popen, PIPE
 import os, time, sys, json
 import getpass as gp
+from time import sleep
 
 
 class Create_Task:
@@ -10,8 +11,8 @@ class Create_Task:
   init_start_timeout = 20
   timeout = 120 * 60.0 # xx minutes @ Sixty seconds
   difficulty_level = 2
-  res_golem_header = ["".joing(["/home/",username,"/golem-header.blend"])]
-  res_airplane = ["".joing(["/Users/",username,"/Downloads/Golem\ Airplane/"])]
+  res_golem_header = ["".join(["/home/",username,"/golem-header.blend"])]
+  res_airplane = ["".join(["/Users/",username,"/Downloads/Golem\ Airplane/"])]
   path_to_golemcli = "~/golem-0.9.0/golemcli"
   filename = "tmp.task"
   
@@ -58,6 +59,8 @@ class Create_Task:
 
 def __main__(argv):
 
+  sleep(init_start_timeout)
+  
   ct = Create_Task()
   l = task.LoopingCall(ct.add_new_task)
   l.start(ct.timeout) # call every sixty seconds
