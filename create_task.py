@@ -7,13 +7,13 @@ from time import sleep
 
 
 class Create_Task:
-  username = "ascherik"
-  init_start_timeout = 0
+  username = "kascheri12001"
+  init_start_timeout = 20
   timeout = 120 * 60.0 # xx minutes @ Sixty seconds
-  difficulty_level = 2 
-  res_golem_header = ["".join(["/Users/",username,"/Downloads/golem-header.blend"])]
+  difficulty_level = 2
+  res_golem_header = ["".join(["/home/",username,"/golem-header.blend"])]
   res_airplane = ["".join(["/Users/",username,"/Downloads/Golem\ Airplane/"])]
-  path_to_golemcli = "~/Downloads/golem-0.9.0/golemcli"
+  path_to_golemcli = "~/golem-0.9.0/golemcli"
   filename = "tmp.task"
   
   def __init__(self):
@@ -28,8 +28,6 @@ class Create_Task:
     if level == 1:
       ght = self.build_simple_golem_header_task(1,300,200)
     elif level == 2:
-      ght = self.build_simple_golem_header_task(5,3000,2000)
-    elif level == 3:
       ght = self.build_simple_golem_header_task(100,3000,2000)
     return ght
 
@@ -49,8 +47,8 @@ class Create_Task:
           "frames": "1",
           "compositing": False
       },
-      "timeout": "8:00:00",
-      "subtask_timeout": "0:20:00",
+      "timeout": "20:00:00",
+      "subtask_timeout": "1:00:00",
       "bid": 3.0,
       "resources": self.res_golem_header
     }
@@ -61,8 +59,9 @@ class Create_Task:
 
 def __main__(argv):
 
+  sleep(init_start_timeout)
+  
   ct = Create_Task()
-  sleep(ct.init_start_timeout)
   l = task.LoopingCall(ct.add_new_task)
   l.start(ct.timeout) # call every sixty seconds
 
