@@ -5,6 +5,8 @@ from datetime import datetime as dt
 from random import *
 import igraph as ig
 import plotly.graph_objs as go
+from os import remove
+from shutil import move
 
 class Analyze_Logs:
   def __init__(self):
@@ -255,7 +257,28 @@ class Analyze_Logs:
     fig = dict(data=data,layout=layout)
 
     plotly.offline.plot(fig, filename=filename, auto_open=False)
+    self.inject_google_analytics(filename)
     return filename
+
+  def inject_google_analytics(self,filename):
+    analytics_string = '''
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-109439081-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-109439081-1');
+</script>
+'''
+    
+    with open(filename,'rt') as f:
+      r = f.read()
+      with open(filename+'.tmp','w') as f2:
+        f2.write(''.join(r[:-14])+analytics_string+''.join(r[-14:]))
+    remove(filename)
+    move(filename+'.tmp', filename)
 
   def get_formatted_time(self,timestamp):
     t = time.localtime(timestamp)
@@ -377,9 +400,6 @@ class Analyze_Logs:
 
 
   def fix_files_again(self,filenames):
-    from os import remove
-    from shutil import move
-
     for filename in filenames:
       with open('node_logs/'+filename,'rt') as f:
         r = f.read()
@@ -389,9 +409,6 @@ class Analyze_Logs:
       move('node_logs/'+filename+'.tmp', 'node_logs/'+filename)
 
   def last_fix_maybe(self,filenames):
-    from os import remove
-    from shutil import move
-
     for filename in filenames:
       with open('node_logs/'+filename,'rt') as f:
         r = f.read()
@@ -401,9 +418,6 @@ class Analyze_Logs:
       move('node_logs/'+filename+'.tmp','node_logs/'+filename)
 
   def fix_files(self,filenames):
-    from os import remove
-    from shutil import move
-
     for filename in filenames:
       with open('node_logs/'+filename,'rt') as f:
         r = f.read()
