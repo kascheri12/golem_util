@@ -12,10 +12,13 @@ class Node_Logging():
 
   _timeout = 30 * 60.0 # Thirty @ Sixty seconds
 
+  def __init__(self):
+    pass
+
   def check_for_node_log_dir(self):
     if not os.path.exists('node_logs'):
       os.makedirs('node_logs')
-
+  
   def take_network_snapshot(self):
     self.check_for_node_log_dir()
     FILE_SIZE_LIMIT = 999999999  # 999MB
@@ -30,15 +33,17 @@ class Node_Logging():
     append_param = 'a'
 
     # Finalize file_name
-    # If filesize exceeds the limit
+    # append_param has been initialized to a
+    # If the file exists
     if os.path.exists(file_path):
+      # If the filesize exceeds the limit
       if os.stat(file_path).st_size >= FILE_SIZE_LIMIT:
         # Move the file and rename it with today's date
         move(file_path,file_path[:-4]+pretty_date+file_path[-4:])
         append_param = 'w'
     else:
       append_param = 'w'
-
+      
     # Try retreiving the active nodes in the network
     try:
       active_nodes = sn.get_active_node_list()
@@ -49,7 +54,7 @@ class Node_Logging():
     try:
       with open(file_path,append_param) as f:
         # Check that there are nodes on the network..
-        if len(active_nodes) > 0:
+        if active_nodes is not None and len(active_nodes) > 0:
           # Is this the first line of the file? If so, write the header
           if append_param == 'w':
             f.write("%s\n" % (",".join(["timestamp"]+list(x for x in active_nodes[0].keys()))))
@@ -62,7 +67,7 @@ class Node_Logging():
       traceback.print_exc(file=sys.stdout)
       print(pt + " - Error with writing the file...")
 
-  # Not used anymore.
+  # 20171118 - Not used anymore
   def add_node_count_log(self):
     timestamp = str(round(time.time()))
     try:
@@ -116,18 +121,16 @@ class Node_Logging():
       traceback.print_exc(file=sys.stdout)
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-
 def main():
+    
+    nl = Node_Logging()
+    l = task.LoopingCall(nl.take_network_snapshot)
+    l.start(nl._timeout) # call every sixty seconds
 
-  nl = Node_Logging()
+    rg = task.LoopingCall(nl.refresh_graph)
+    rg.start(nl._timeout)
 
-  l = task.LoopingCall(nl.take_network_snapshot)
-  l.start(nl._timeout) # call every sixty seconds
-
-  rg = task.LoopingCall(nl.refresh_graph)
-  rg.start(nl._timeout)
-
-  reactor.run()
+    reactor.run()
 
 if __name__ == '__main__':
     main()
