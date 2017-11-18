@@ -9,15 +9,15 @@ import analyze_logs as al
 import os, traceback, sys
 
 class Node_Logging():
-    
+
   _timeout = 30 * 60.0 # Thirty @ Sixty seconds
-  
+
   def check_for_node_log_dir(self):
     if not os.path.exists('node_logs'):
       os.makedirs('node_logs')
-  
+
   def take_network_snapshot(self):
-    check_for_node_log_dir()
+    self.check_for_node_log_dir()
     FILE_SIZE_LIMIT = 999999999  # 999MB
     timestamp = str(round(time.time()))
     d = date.fromtimestamp(time.time())
@@ -28,7 +28,7 @@ class Node_Logging():
     log_dir = 'node_logs/'
     file_path = log_dir+filename
     append_param = 'a'
-  
+
     # Finalize file_name
     # If filesize exceeds the limit
     if os.path.exists(file_path):
@@ -38,13 +38,13 @@ class Node_Logging():
         append_param = 'w'
     else:
       append_param = 'w'
-  
+
     # Try retreiving the active nodes in the network
     try:
       active_nodes = sn.get_active_node_list()
     except:
       print(pt + " - Error getting active nodes.. probably network connection")
-  
+
     # Try writing the data to the file
     try:
       with open(file_path,append_param) as f:
@@ -61,7 +61,7 @@ class Node_Logging():
       print("append_param:"+append_param)
       traceback.print_exc(file=sys.stdout)
       print(pt + " - Error with writing the file...")
-  
+
   # Not used anymore.
   def add_node_count_log(self):
     timestamp = str(round(time.time()))
@@ -74,31 +74,30 @@ class Node_Logging():
             f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (timestamp,str(node['version']),str(node['node_name']),str(node['subtasks_success']),node['os'],str(node['node_id']),str(node['performance_lux']),str(node['performance_blender']),str(node['performance_general']),str(node['cpu_cores'])))
     except:
       print("Error somewhere... probably network connection.")
-  
+
   def refresh_graph(self):
     filename = ''
     d = []
     a = al.Analyze_Logs()
     lt = time.localtime()
     pt = "%s%s%s-%s:%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min)
-  
+
     try:
       d = a.load_data()
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error retreiving data<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error retreiving data<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-  
+
     try:
       filename = a.print_node_success_over_time_graph(d)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-  
+
     try:
-      copy(filename,my_webserver_file_loc)
-      copy(filename,kascheri12_github_io_file_loc)
+      copy(filename,config.kascheri12_github_io_file_loc)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
@@ -121,7 +120,7 @@ class Node_Logging():
 def main():
 
   nl = Node_Logging()
-  
+
   l = task.LoopingCall(nl.take_network_snapshot)
   l.start(nl._timeout) # call every sixty seconds
 
