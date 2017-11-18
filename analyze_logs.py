@@ -251,6 +251,11 @@ class Analyze_Logs:
               yaxis = dict(title = 'Successful Subtask Computations on Golem Network'),
               )
 
+    layout = dict(title = 'Successful Subtask Computations by Node as of '+pt+'PST',
+                  xaxis = dict(title = 'Time'),
+                  yaxis = dict(title = 'Successful Subtask Computations'),
+              )
+
     data = traces
     fig = dict(data=data,layout=layout)
 
