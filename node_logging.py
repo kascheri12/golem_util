@@ -97,8 +97,7 @@ class Node_Logging():
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
     try:
-      copy(filename,my_webserver_file_loc)
-      copy(filename,kascheri12_github_io_file_loc)
+      copy(filename,config.kascheri12_github_io_file_loc)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
