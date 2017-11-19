@@ -92,7 +92,7 @@ def load_recent_data():
 def load_kascheri_data():
   context = []
   rtd = load_realtime_data()
-  kd = load_kascheri_node_info()
+  kd = None #load_kascheri_node_info()
   for i in range(len(kd)):
     context.append(kd[i].copy())
     for r in rtd:
@@ -152,37 +152,6 @@ def get_float(s):
     return float(s)
   except ValueError:
     return 0.0
-
-def load_kascheri_node_info():
-  node_data = [
-    {'node_name':'kascheri12','instance_name':'Macbook Pro Old','digital_loc':'Laptop','physical_loc':'Springfield,OR'}
-    ,{'node_name':'kascheri12/100','instance_name':'instance-6','digital_loc':'Google','physical_loc':'us-west1-a (Dallas, OR)'}
-    ,{'node_name':'kascheri12/101','instance_name':'instance-7','digital_loc':'Google','physical_loc':'us-west1-a (Dallas, OR)'}
-    ,{'node_name':'kascheri12/102','instance_name':'instance-8','digital_loc':'Google','physical_loc':'us-west1-a (Dallas, OR)'}
-    ,{'node_name':'kascheri12/103','instance_name':'instance-9','digital_loc':'Google','physical_loc':'us-west1-a (Dallas, OR)'}
-    ,{'node_name':'kascheri12/104','instance_name':'instance-10','digital_loc':'Google','physical_loc':'us-west1-a (Dallas, OR)'}
-    ,{'node_name':'kascheri12/105','instance_name':'instance-11','digital_loc':'Google','physical_loc':'us-west1-a (Dallas, OR)'}
-    ,{'node_name':'kascheri12/106','instance_name':'instance-12','digital_loc':'Google','physical_loc':'southamerica-east1-a'}
-    ,{'node_name':'kascheri12/107','instance_name':'instance-13','digital_loc':'Google','physical_loc':'southamerica-east1-a'}
-    ,{'node_name':'kascheri12/108','instance_name':'instance-14','digital_loc':'Google','physical_loc':'southamerica-east1-a'}
-    ,{'node_name':'kascheri12/109','instance_name':'instance-15','digital_loc':'Google','physical_loc':'europe-west3-a'}
-    ,{'node_name':'kascheri12/110','instance_name':'instance-16','digital_loc':'Google','physical_loc':'europe-west3-a'}
-    ,{'node_name':'kascheri12/111','instance_name':'instance-17','digital_loc':'Google','physical_loc':'europe-west3-a'}
-    ,{'node_name':'kascheri12/112','instance_name':'instance-3-v8-u16-euwest','digital_loc':'Google','physical_loc':'europe-west2-a'}
-    ,{'node_name':'kascheri12/113','instance_name':'instance-4','digital_loc':'Google','physical_loc':'europe-west2-a'}
-    ,{'node_name':'kascheri12/114','instance_name':'instance-18','digital_loc':'Google','physical_loc':'us-west1-b'}
-    ,{'node_name':'kascheri12/115','instance_name':'instance-19','digital_loc':'Google','physical_loc':'europe-west1-b'}
-    ,{'node_name':'kascheri12/2','instance_name':'Windows','digital_loc':'Rack Server','physical_loc':'Springfield,OR'}
-    ,{'node_name':'kascheri12/200','instance_name':'Ubuntu','digital_loc':'golem-ubuntu-1','physical_loc':'Springfield,OR'}
-    ,{'node_name':'kascheri12/201','instance_name':'Ubuntu','digital_loc':'golem-ubuntu-2','physical_loc':'Springfield,OR'}
-    ,{'node_name':'kascheri12/202','instance_name':'Ubuntu','digital_loc':'golem-ubuntu-3','physical_loc':'Springfield,OR'}
-    ,{'node_name':'kascheri12/203','instance_name':'Ubuntu','digital_loc':'golem-ubuntu-4','physical_loc':'Springfield,OR'}
-    ,{'node_name':'kascheri12/204','instance_name':'MBPUbuntu','digital_loc':'golem-mac-1','physical_loc':'Springfield,OR'}
-    ,{'node_name':'kascheri12/205','instance_name':'MBPUbuntu','digital_loc':'golem-mac-2','physical_loc':'Springfield,OR'}
-    ,{'node_name':'kascheri12/3','instance_name':'Macbook Pro Work','digital_loc':'Laptop','physical_loc':'Springfield,OR'}
-    ,{'node_name':'kascheri12/4','instance_name':'Windows PC Work','digital_loc':'Desktop','pystical_loc':'Eugene,OR'}
-  ]
-  return node_data
 
 
 if __name__ == "__main__":
