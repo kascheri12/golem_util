@@ -27,7 +27,7 @@ class Node_Logging():
     d = date.fromtimestamp(time.time())
     pretty_date = "%s%s%s" % (d.year,d.month,d.day)
     lt = time.localtime()
-    pt = "%s%s%s-%s:%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min)
+    pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
     filename = 'network.log'
     log_dir = 'node_logs/'
     file_path = log_dir+filename
@@ -86,7 +86,7 @@ class Node_Logging():
     d = []
     a = al.Analyze_Logs()
     lt = time.localtime()
-    pt = "%s%s%s-%s:%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min)
+    pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
 
     try:
       d = a.load_data()
