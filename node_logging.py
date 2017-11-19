@@ -11,6 +11,7 @@ import os, traceback, sys
 class Node_Logging():
 
   _timeout = 30 * 60.0 # Thirty @ Sixty seconds
+  _refresh_graph_timeout = 120 * 60 # 2 hours
 
   def __init__(self):
     pass
@@ -18,7 +19,7 @@ class Node_Logging():
   def check_for_node_log_dir(self):
     if not os.path.exists('node_logs'):
       os.makedirs('node_logs')
-  
+
   def take_network_snapshot(self):
     self.check_for_node_log_dir()
     FILE_SIZE_LIMIT = 999999999  # 999MB
@@ -43,7 +44,7 @@ class Node_Logging():
         append_param = 'w'
     else:
       append_param = 'w'
-      
+
     # Try retreiving the active nodes in the network
     try:
       active_nodes = sn.get_active_node_list()
@@ -122,13 +123,13 @@ class Node_Logging():
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
 def main():
-    
+
     nl = Node_Logging()
     l = task.LoopingCall(nl.take_network_snapshot)
     l.start(nl._timeout) # call every sixty seconds
 
     rg = task.LoopingCall(nl.refresh_graph)
-    rg.start(nl._timeout)
+    rg.start(nl._refresh_graph_timeout)
 
     reactor.run()
 

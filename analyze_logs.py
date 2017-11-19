@@ -235,7 +235,7 @@ class Analyze_Logs:
     y_axis_dict = self.build_y_axis_dict(d,x_axis,ts_index,success_index)
     traces = []
     lt = time.localtime()
-    pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
+    pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
 
     # For each node to be plotted
     for key in sorted(y_axis_dict.keys()):
@@ -247,7 +247,7 @@ class Analyze_Logs:
       connectgaps=False,
       name=key
       ))
-    
+
     layout = dict(title = 'Golem Network Successful Subtask Computations by Node as of ' + pt,
               xaxis = dict(title = 'Time'),
               yaxis = dict(title = 'Successful Subtask Computations on Golem Network'),
@@ -272,7 +272,7 @@ class Analyze_Logs:
   gtag('config', 'UA-109439081-1');
 </script>
 '''
-    
+
     with open(filename,'rt') as f:
       r = f.read()
       with open(filename+'.tmp','w') as f2:
