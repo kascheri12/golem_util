@@ -321,14 +321,8 @@ class Analyze_Logs:
         xaxis = dict(title = 'Time'),
         yaxis = dict(title = 'Summarization Metric'))
     
-    # layout = dict(title = 'Golem Network Statistics Summary',
-    #                 xaxis = dict(title = 'Time'),
-    #                 yaxis = dict(title = 'Summarization Metric')
-    #             )
-    # data = traces
-    # fig = dict(data=data,layout=layout)
-    
     plotly.offline.plot(fig, filename=filename, auto_open=False)
+    self.inject_google_analytics(filename)
     return filename
 
   def print_node_success_over_time_graph(self,d):

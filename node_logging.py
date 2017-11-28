@@ -10,10 +10,9 @@ import os, traceback, sys
 
 class Node_Logging():
 
-  _timeout = 30 * 60.0 # Thirty @ Sixty seconds
-  _refresh_graph_timeout = 240 * 60 # 4 hours
-
   def __init__(self):
+    self._timeout = 30 * 60.0 # Thirty @ Sixty seconds
+    self._refresh_graph_timeout = 480 * 60 # 8 hours
     pass
 
   def check_for_node_log_dir(self):
@@ -68,42 +67,24 @@ class Node_Logging():
       traceback.print_exc(file=sys.stdout)
       print(pt + " - Error with writing the file...")
 
-  # 20171118 - Not used anymore
-  def add_node_count_log(self):
-    timestamp = str(round(time.time()))
-    try:
-      with open('node_logs/'+timestamp+'.log','w') as f:
-        active_nodes = sn.get_active_node_list()
-        if len(active_nodes) > 0:
-          f.write("timestamp,version,node_name,subtasks_success,os,node_id,performance_lux,performance_blender,performance_general,cpu_cores\n")
-          for node in active_nodes:
-            f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (timestamp,str(node['version']),str(node['node_name']),str(node['subtasks_success']),node['os'],str(node['node_id']),str(node['performance_lux']),str(node['performance_blender']),str(node['performance_general']),str(node['cpu_cores'])))
-    except:
-      print("Error somewhere... probably network connection.")
-
   def refresh_graph(self):
-    filename = ''
-    d = []
+    filename_subtasks_success_graph = ''
+    filename_network_summary_graph = ''
     a = al.Analyze_Logs()
     lt = time.localtime()
     pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
 
     try:
-      d = a.load_data()
-    except:
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error retreiving data<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-      traceback.print_exc(file=sys.stdout)
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error retreiving data<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-    try:
-      filename = a.print_node_success_over_time_graph(d)
+      filename_subtasks_success_graph = a.print_node_success_over_time_graph(a.d)
+      filename_network_summary_graph = a.print_network_summary_over_time_graph(a.d)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
     try:
-      copy(filename,config.kascheri12_github_io_file_loc)
+      copy(filename_subtasks_success_graph,config.kascheri12_github_io_dir+filename_subtasks_success_graph)
+      copy(filename_network_summary_graph,config.kascheri12_github_io_dir+filename_network_summary_graph)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
@@ -113,8 +94,9 @@ class Node_Logging():
       od = os.getcwd()
       os.chdir(config.kascheri12_github_io_dir)
       os.system('git checkout master')
-      os.system('git add ' + config.kascheri12_github_io_filename)
-      os.system('git commit -m "automated commit for golem-network-graph"')
+      os.system('git add ' + filename_subtasks_success_graph)
+      os.system('git add ' + filename_network_summary_graph)
+      os.system('git commit -m "automated commit for golem-network-graphs"')
       os.system('git push')
       os.chdir(od)
     except:
