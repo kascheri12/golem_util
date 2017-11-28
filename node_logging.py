@@ -11,7 +11,7 @@ import os, traceback, sys
 class Node_Logging():
 
   _timeout = 30 * 60.0 # Thirty @ Sixty seconds
-  _refresh_graph_timeout = 120 * 60 # 2 hours
+  _refresh_graph_timeout = 240 * 60 # 4 hours
 
   def __init__(self):
     pass
