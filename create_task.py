@@ -26,14 +26,16 @@ class Create_Task:
   def build_golem_header_task(self,level):
     ght = None
     if level == 1:
-      ght = self.build_simple_golem_header_task(1,300,200)
+      ght = self.build_simple_golem_header_task(1,300,200,3,30)
     elif level == 2:
-      ght = self.build_simple_golem_header_task(5,3000,2000)
-    elif level == 3:
-      ght = self.build_simple_golem_header_task(100,3000,2000)
+      ght = self.build_simple_golem_header_task(5,3000,2000,3,25)
+    elif level = 3:
+      ght = self.build_simple_golem_header_task(20,3000,2000,5,25)
+  elif level == 4:
+      ght = self.build_simple_golem_header_task(100,3000,2000,5,20)
     return ght
 
-  def build_simple_golem_header_task(self,subtasks,height,width):
+  def build_simple_golem_header_task(self,subtasks,height,width,price,subtask_to_min):
     ts = {
       "name":"Golem Task Simple",
       "type": "Blender",
@@ -50,8 +52,8 @@ class Create_Task:
           "compositing": False
       },
       "timeout": "8:00:00",
-      "subtask_timeout": "0:20:00",
-      "bid": 3.0,
+      "subtask_timeout": "0:"+subtask_to_min+":00",
+      "bid": price,
       "resources": self.res_golem_header
     }
     with open(self.filename,'w') as f:
