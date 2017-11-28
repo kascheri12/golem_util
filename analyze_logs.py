@@ -341,7 +341,7 @@ class Analyze_Logs:
       x = [x[0] for x in y_axis_dict[key]],
       y = [x[1] for x in y_axis_dict[key]],
       mode='lines',
-      connectgaps=False,
+      connectgaps=None,
       name=key
       ))
     
