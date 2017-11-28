@@ -280,8 +280,9 @@ class Analyze_Logs:
 
   def print_network_summary_over_time_graph(self,d):
     filename = 'golem-network.html'
+    log_cutoff_date = dt(2017,10,9)
     
-    x_axis = sorted(list(set([x[self._ts_index] for x in d['data']])))
+    x_axis = sorted(list(set([x[self._ts_index] for x in d['data'] if dt.fromtimestamp(x[self._ts_index]) > log_cutoff_date])))
     y_axis_dict = self.build_y_axis_dict_for_network_summary(d,x_axis)
     traces = []
     lt = time.localtime()
