@@ -324,7 +324,7 @@ class Analyze_Logs:
     y_axis_dict = self.build_y_axis_dict(d,x_axis)
     traces = []
     lt = time.localtime()
-    pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
+    pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
 
     # For each node to be plotted
     for key in sorted(y_axis_dict.keys()):
