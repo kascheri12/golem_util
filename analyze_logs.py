@@ -250,14 +250,7 @@ class Analyze_Logs:
         'CPU Cores':[]
     }
     nodes = d
-    key_names = [
-      'Node Count',
-      'Performance General',
-      'Performance Blender',
-      'Performance LuxRender',
-      'Allowed Resource Size',
-      'Allowed Resource Memory',
-      'CPU Cores']
+    key_names = [x for x in y_axis_dict.keys()]
     
     for timestamp in x_axis:
       connected_nodes = [x for x in nodes['data'] if x[self._ts_index] == timestamp]
@@ -314,9 +307,7 @@ class Analyze_Logs:
     fig.append_trace(traces[1], 4, 1) # Perf_Gen
     fig.append_trace(traces[5], 3, 1) # Resource Memory
     fig.append_trace(traces[4], 2, 1) # Resource Size
-    # fig.append_trace(None,1,1)
 
-    # height=600, width=600, 
     fig['layout'].update(title='Golem Network Statistics Summary',
         xaxis = dict(title = 'Time'),
         yaxis = dict(title = 'Summarization Metric'))
