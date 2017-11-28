@@ -1,17 +1,33 @@
-import csv, os, time, sys, plotly
+import csv, os, time, sys, plotly, traceback
 from distutils.version import LooseVersion
 import pandas as pd
 from datetime import datetime as dt
 from random import *
 import igraph as ig
+from plotly import tools
 import plotly.graph_objs as go
 from os import remove
 from shutil import move
 
-class Analyze_Logs:
-  def __init__(self):
-    pass
 
+class Analyze_Logs:
+  
+  def __init__(self):
+    self.d = self.load_data()
+
+  def load_header_indices(self,header):
+    # Inices are constant throughout
+    self._ts_index = header.index('timestamp')
+    self._pg_index = header.index('performance_general')
+    self._pb_index = header.index('performance_blender')
+    self._pl_index = header.index('performance_lux')
+    self._ars_index = header.index('allowed_resource_size')
+    self._arm_index = header.index('allowed_resource_memory')
+    self._cc_index = header.index('cpu_cores')
+    self._ss_index = header.index('subtasks_success')
+    self._id_index = header.index('node_id')
+    self._nn_index = header.index('node_name')
+    
   def print_nodes(self,d,sort_method=None,ascending=False):
     cols = ['timestamp','version','node_name','subtasks_success','os','node_id','performance_lux','performance_blender','performance_general','cpu_cores']
     pd.set_option('display.max_columns',0)
@@ -26,8 +42,8 @@ class Analyze_Logs:
 
   def print_3d_file(self):
     filename="golem-network-3d.html"
-    d = load_data()
-    jf = build_json_data_object(d)
+    d = self.load_data()
+    jf = self.build_json_data_object(d)
     N=len(jf['nodes'])
     L=len(jf['links'])
     Edges=[(jf['links'][k]['source'], jf['links'][k]['target']) for k in range(L)]
@@ -121,12 +137,12 @@ class Analyze_Logs:
     plotly.offline.plot(fig, filename=filename, auto_open=True)
 
   def build_json_data_object(self,d):
-    max_timestamp = max(sorted(list(set([x[0] for x in d['data']]))))
-    nodes_and_success_dict = get_distinct_successes_dict(d)
-    all_max_success = get_max_successes(d)
+    max_timestamp = max(sorted(list(set([x[self._ts_index] for x in d['data']]))))
+    nodes_and_success_dict = self.get_distinct_successes_dict(d)
+    all_max_success = self.get_max_successes(d)
     my_dict = {
-      'nodes' : get_nodes_list(d,max_timestamp,nodes_and_success_dict,all_max_success),
-      'links' : get_links_list(d,max_timestamp,nodes_and_success_dict,all_max_success)
+      'nodes' : self.get_nodes_list(d,max_timestamp,nodes_and_success_dict,all_max_success),
+      'links' : self.get_links_list(d,max_timestamp,nodes_and_success_dict,all_max_success)
     }
     return my_dict
 
@@ -140,7 +156,7 @@ class Analyze_Logs:
     for key in nodes_and_success_dict.keys():
       r = randint(0,2)
       for i in range(r):
-        list_of_links.append({"source":list(nodes_and_success_dict.keys()).index(key),"target":get_target(nodes_and_success_dict,key)})
+        list_of_links.append({"source":list(nodes_and_success_dict.keys()).index(key),"target":self.get_target(nodes_and_success_dict,key)})
     return list_of_links
 
   def get_nodes_list(self,d,max_timestamp,nodes_and_success_dict,all_max_success):
@@ -149,11 +165,11 @@ class Analyze_Logs:
     avg = np.mean(sl)
     node_list = []
     for record in d['data']:
-      name = get_node_name(record)
+      name = self.get_node_name(record)
       if name not in [x['name'] for x in node_list]:
         node_dict = {
-            'name':get_node_name(record),
-            'group':get_node_group(record,d,avg,nodes_and_success_dict[name])
+            'name':self.get_node_name(record),
+            'group':self.get_node_group(record,d,avg,nodes_and_success_dict[name])
         }
         node_list.append(node_dict)
     return node_list
@@ -188,24 +204,22 @@ class Analyze_Logs:
   def get_distinct_successes_dict(self,d):
     dist_nodes = {}
     for record in d['data']:
-      name = get_node_name(record)
+      name = self.get_node_name(d['header'],record)
       if dist_nodes.get(name) is None:
-        dist_nodes[name] = get_max_success_for_node(record,d)
+        dist_nodes[name] = self.get_max_success_for_node(record,d)
     return dist_nodes
 
   def get_max_success_for_node(seflf,node,d):
-    return max([x[3] for x in d['data'] if x[5] == node[5]])
+    return max([x[self._ss_index] for x in d['data'] if x[self._id_index] == node[self._id_index]])
 
   def get_max_successes(self,d):
     return max([x[3] for x in d['data']])
 
   def get_node_name(self,header,node):
-    id_index = header.index('node_id')
-    nn_index = header.index('node_name')
-    name = str(node[nn_index])+"("+node[id_index][:10]+")"
+    name = str(node[self._nn_index])+"("+node[self._id_index][:10]+")"
     return name
 
-  def build_y_axis_dict(self,d,x_axis,ts_index,success_index):
+  def build_y_axis_dict(self,d,x_axis):
     SUCCESS_THRESHOLD = 5
     nodes = d
     y_axis_dict = {}
@@ -213,7 +227,7 @@ class Analyze_Logs:
     for timestamp in x_axis:
       # for each record in the list of data points cooresponding to the timestamp
       # and the node's total success are greater than the threshold
-      for record in [x for x in nodes['data'] if x[ts_index] == timestamp and float(x[success_index]) >= SUCCESS_THRESHOLD]:
+      for record in [x for x in nodes['data'] if x[self._ts_index] == timestamp and float(x[self._ss_index]) >= SUCCESS_THRESHOLD]:
         # Define the key as the node's name plus first 10 characters of the node_id
         key = self.get_node_name(nodes['header'],record)
         # Check if this dict key exists in the dict of nodes to be plotted
@@ -222,20 +236,109 @@ class Analyze_Logs:
           y_axis_dict[key] = []
         # Append the specific x-y coordinate with the formatted
         # timestamp and the number of successful subtasks
-        y_axis_dict[key].append([self.get_formatted_time(timestamp),record[success_index] or None])
+        y_axis_dict[key].append([self.get_formatted_time(timestamp),record[self._ss_index] or None])
     return y_axis_dict
+
+  def build_y_axis_dict_for_network_summary(self,d,x_axis):
+    y_axis_dict = {    
+        'Node Count':[],
+        'Performance General':[],
+        'Performance Blender':[],
+        'Performance LuxRender':[],
+        'Allowed Resource Size':[],
+        'Allowed Resource Memory':[],
+        'CPU Cores':[]
+    }
+    nodes = d
+    key_names = [
+      'Node Count',
+      'Performance General',
+      'Performance Blender',
+      'Performance LuxRender',
+      'Allowed Resource Size',
+      'Allowed Resource Memory',
+      'CPU Cores']
+    
+    for timestamp in x_axis:
+      connected_nodes = [x for x in nodes['data'] if x[self._ts_index] == timestamp]
+      formatted_ts = self.get_formatted_time(timestamp)
+      
+      node_count = len(connected_nodes)
+      y_axis_dict[key_names[0]].append([formatted_ts,node_count])
+      
+      summary_perf_gen = sum([float(x[self._pg_index]) for x in connected_nodes])
+      y_axis_dict[key_names[1]].append([formatted_ts,summary_perf_gen])
+      
+      summary_perf_blend = sum([float(x[self._pb_index]) for x in connected_nodes])
+      y_axis_dict[key_names[2]].append([formatted_ts,summary_perf_blend])
+      
+      summary_perf_lux = sum([float(x[self._pl_index]) for x in connected_nodes])
+      y_axis_dict[key_names[3]].append([formatted_ts,summary_perf_lux])
+      
+      summary_allowed_resources = sum([int(x[self._ars_index]) for x in connected_nodes if x[self._ars_index] != ''])
+      y_axis_dict[key_names[4]].append([formatted_ts,summary_allowed_resources])
+      
+      summary_allowed_memory = sum([int(x[self._arm_index]) for x in connected_nodes if x[self._arm_index] != ''])
+      y_axis_dict[key_names[5]].append([formatted_ts,summary_allowed_memory])
+      
+      summary_cpu_cores = sum([int(x[self._cc_index]) for x in connected_nodes if x[self._cc_index] != ''])
+      y_axis_dict[key_names[6]].append([formatted_ts,summary_cpu_cores])
+    return y_axis_dict
+
+  def print_network_summary_over_time_graph(self,d):
+    filename = 'golem-network.html'
+    
+    x_axis = sorted(list(set([x[self._ts_index] for x in d['data']])))
+    y_axis_dict = self.build_y_axis_dict_for_network_summary(d,x_axis)
+    traces = []
+    lt = time.localtime()
+    pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
+    
+    for key in y_axis_dict.keys():
+      traces.append(go.Scatter(
+      x = [x[0] for x in y_axis_dict[key]],
+      y = [x[1] for x in y_axis_dict[key]],
+      mode='lines',
+      connectgaps=False,
+      name=key
+      ))
+      
+    fig = tools.make_subplots(rows=8, cols=1, specs=[[{}], [{}], [{}], [{}], [{}], [{}], [{}], [{}]],
+                              shared_xaxes=True, shared_yaxes=True,
+                              vertical_spacing=0.00001)
+    
+    fig.append_trace(traces[0], 8, 1) # Node_Count
+    fig.append_trace(traces[6], 7, 1) # CPU_Cores
+    fig.append_trace(traces[2], 6, 1) # Perf_Blender
+    fig.append_trace(traces[3], 5, 1) # Perf_Lux
+    fig.append_trace(traces[1], 4, 1) # Perf_Gen
+    fig.append_trace(traces[5], 3, 1) # Resource Memory
+    fig.append_trace(traces[4], 2, 1) # Resource Size
+    # fig.append_trace(None,1,1)
+
+    # height=600, width=600, 
+    fig['layout'].update(title='Golem Network Statistics Summary',
+        xaxis = dict(title = 'Time'),
+        yaxis = dict(title = 'Summarization Metric'))
+    
+    # layout = dict(title = 'Golem Network Statistics Summary',
+    #                 xaxis = dict(title = 'Time'),
+    #                 yaxis = dict(title = 'Summarization Metric')
+    #             )
+    # data = traces
+    # fig = dict(data=data,layout=layout)
+    
+    plotly.offline.plot(fig, filename=filename, auto_open=False)
+    return filename
 
   def print_node_success_over_time_graph(self,d):
     filename = 'golem-network-success-report.html'
 
-    # load distinct list of timestamps from column 0.
-    ts_index = d['header'].index('timestamp')
-    success_index = d['header'].index('subtasks_success')
-    x_axis = sorted(list(set([x[ts_index] for x in d['data']])))
-    y_axis_dict = self.build_y_axis_dict(d,x_axis,ts_index,success_index)
+    x_axis = sorted(list(set([x[self._ts_index] for x in d['data']])))
+    y_axis_dict = self.build_y_axis_dict(d,x_axis)
     traces = []
     lt = time.localtime()
-    pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
+    pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
 
     # For each node to be plotted
     for key in sorted(y_axis_dict.keys()):
@@ -247,10 +350,10 @@ class Analyze_Logs:
       connectgaps=None,
       name=key
       ))
-
+    
     layout = dict(title = 'Golem Network Successful Subtask Computations by Node as of ' + pt,
               xaxis = dict(title = 'Time'),
-              yaxis = dict(title = 'Successful Subtask Computations on Golem Network'),
+              yaxis = dict(title = 'Successful Subtask Computations on Golem Network')
               )
 
     data = traces
@@ -268,11 +371,9 @@ class Analyze_Logs:
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'UA-109439081-1');
 </script>
 '''
-
     with open(filename,'rt') as f:
       r = f.read()
       with open(filename+'.tmp','w') as f2:
@@ -305,12 +406,10 @@ class Analyze_Logs:
   def clean_data_row(self,header,row):
     nr = row
 
-    # Eliminate null values in the timestamp column
-    ts_index = header.index('timestamp')
     try:
-      nr[ts_index] = int(row[ts_index])
+      nr[self._ts_index] = int(row[self._ts_index])
     except IndexError:
-      nr[ts_index] = 0
+      nr[self._ts_index] = 0
     # Eliminate null values in subtasks_success column
     ss_index = header.index('subtasks_success')
     try:
@@ -338,10 +437,13 @@ class Analyze_Logs:
             if first_row:
               first_row = False
               all_data['header'] = row
+              self.load_header_indices(all_data['header'])
             else:
               all_data['data'].append(self.clean_data_row(all_data['header'],row))
       except:
         print("Error in load_new_data - for %s in network.log files" % (filename))
+        traceback.print_exc(file=sys.stdout)
+        
     return all_data
 
   def load_raw_data(self):
