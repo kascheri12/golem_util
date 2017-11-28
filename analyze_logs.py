@@ -1,27 +1,33 @@
-import csv, os, time, sys, plotly
+import csv, os, time, sys, plotly, traceback
 from distutils.version import LooseVersion
 import pandas as pd
 from datetime import datetime as dt
 from random import *
 import igraph as ig
+from plotly import tools
 import plotly.graph_objs as go
+from os import remove
+from shutil import move
+
 
 class Analyze_Logs:
   
   def __init__(self):
-    d = self.load_data()
-    # Inices are constant throughout
-    _ts_index = d['header'].index('timestamp')
-    _pg_index = d['header'].index('performance_general')
-    _pb_index = d['header'].index('performance_blender')
-    _pl_index = d['header'].index('performance_lux')
-    _ars_index = d['header'].index('allowed_resource_size')
-    _arm_index = d['header'].index('allowed_resource_memory')
-    _cc_index = d['header'].index('cpu_cores')
-    _ss_index = d['header'].index('subtasks_success')
-    _id_index = d['header'].index('node_id')
-    _nn_index = d['header'].index('node_name')
+    self.d = self.load_data()
 
+  def load_header_indices(self,header):
+    # Inices are constant throughout
+    self._ts_index = header.index('timestamp')
+    self._pg_index = header.index('performance_general')
+    self._pb_index = header.index('performance_blender')
+    self._pl_index = header.index('performance_lux')
+    self._ars_index = header.index('allowed_resource_size')
+    self._arm_index = header.index('allowed_resource_memory')
+    self._cc_index = header.index('cpu_cores')
+    self._ss_index = header.index('subtasks_success')
+    self._id_index = header.index('node_id')
+    self._nn_index = header.index('node_name')
+    
   def print_nodes(self,d,sort_method=None,ascending=False):
     cols = ['timestamp','version','node_name','subtasks_success','os','node_id','performance_lux','performance_blender','performance_general','cpu_cores']
     pd.set_option('display.max_columns',0)
@@ -230,14 +236,22 @@ class Analyze_Logs:
           y_axis_dict[key] = []
         # Append the specific x-y coordinate with the formatted
         # timestamp and the number of successful subtasks
-        y_axis_dict[key].append([self.get_formatted_time(timestamp),record[success_index] or None])
+        y_axis_dict[key].append([self.get_formatted_time(timestamp),record[self._ss_index] or None])
     return y_axis_dict
 
-  def build_y_axis_dict_for_network_summary(d,x_axis):
-    y_axis_dict = {}
+  def build_y_axis_dict_for_network_summary(self,d,x_axis):
+    y_axis_dict = {    
+        'Node Count':[],
+        'Performance General':[],
+        'Performance Blender':[],
+        'Performance LuxRender':[],
+        'Allowed Resource Size':[],
+        'Allowed Resource Memory':[],
+        'CPU Cores':[]
+    }
     nodes = d
     key_names = [
-      'Node_Count',
+      'Node Count',
       'Performance General',
       'Performance Blender',
       'Performance LuxRender',
@@ -252,22 +266,22 @@ class Analyze_Logs:
       node_count = len(connected_nodes)
       y_axis_dict[key_names[0]].append([formatted_ts,node_count])
       
-      summary_perf_gen = sum(connected_nodes[self._pg_index])
+      summary_perf_gen = sum([float(x[self._pg_index]) for x in connected_nodes])
       y_axis_dict[key_names[1]].append([formatted_ts,summary_perf_gen])
       
-      summary_perf_blend = sum(connected_nodes[self._pb_index])
+      summary_perf_blend = sum([float(x[self._pb_index]) for x in connected_nodes])
       y_axis_dict[key_names[2]].append([formatted_ts,summary_perf_blend])
       
-      summary_perf_lux = sum(connected_nodes[self._pl_index])
+      summary_perf_lux = sum([float(x[self._pl_index]) for x in connected_nodes])
       y_axis_dict[key_names[3]].append([formatted_ts,summary_perf_lux])
       
-      summary_allowed_resources = sum(connected_nodes[self._ars_index])
+      summary_allowed_resources = sum([int(x[self._ars_index]) for x in connected_nodes if x[self._ars_index] != ''])
       y_axis_dict[key_names[4]].append([formatted_ts,summary_allowed_resources])
       
-      summary_allowed_memory = sum(connected_nodes[self._arm_index])
+      summary_allowed_memory = sum([int(x[self._arm_index]) for x in connected_nodes if x[self._arm_index] != ''])
       y_axis_dict[key_names[5]].append([formatted_ts,summary_allowed_memory])
       
-      summary_cpu_cores = sum(connected_nodes[self._cc_index])
+      summary_cpu_cores = sum([int(x[self._cc_index]) for x in connected_nodes if x[self._cc_index] != ''])
       y_axis_dict[key_names[6]].append([formatted_ts,summary_cpu_cores])
     return y_axis_dict
 
@@ -289,16 +303,18 @@ class Analyze_Logs:
       name=key
       ))
       
-    fig = tools.make_subplots(rows=7, cols=1, specs=[[{}], [{}], [{}]],
+    fig = tools.make_subplots(rows=8, cols=1, specs=[[{}], [{}], [{}], [{}], [{}], [{}], [{}], [{}]],
                               shared_xaxes=True, shared_yaxes=True,
-                              vertical_spacing=0.001)
-    fig.append_trace(traces[6], 7, 1)
-    fig.append_trace(traces[5], 6, 1)
-    fig.append_trace(traces[4], 5, 1)
-    fig.append_trace(traces[3], 4, 1)
-    fig.append_trace(traces[2], 3, 1)
-    fig.append_trace(traces[1], 2, 1)
-    fig.append_trace(traces[0], 1, 1)
+                              vertical_spacing=0.00001)
+    
+    fig.append_trace(traces[0], 8, 1) # Node_Count
+    fig.append_trace(traces[6], 7, 1) # CPU_Cores
+    fig.append_trace(traces[2], 6, 1) # Perf_Blender
+    fig.append_trace(traces[3], 5, 1) # Perf_Lux
+    fig.append_trace(traces[1], 4, 1) # Perf_Gen
+    fig.append_trace(traces[5], 3, 1) # Resource Memory
+    fig.append_trace(traces[4], 2, 1) # Resource Size
+    # fig.append_trace(None,1,1)
 
     # height=600, width=600, 
     fig['layout'].update(title='Golem Network Statistics Summary',
@@ -319,7 +335,7 @@ class Analyze_Logs:
     filename = 'golem-network-success-report.html'
 
     x_axis = sorted(list(set([x[self._ts_index] for x in d['data']])))
-    y_axis_dict = self.build_y_axis_dict(d,x_axis,self._ts_index,self._ss_index)
+    y_axis_dict = self.build_y_axis_dict(d,x_axis)
     traces = []
     lt = time.localtime()
     pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
@@ -421,10 +437,13 @@ class Analyze_Logs:
             if first_row:
               first_row = False
               all_data['header'] = row
+              self.load_header_indices(all_data['header'])
             else:
               all_data['data'].append(self.clean_data_row(all_data['header'],row))
       except:
         print("Error in load_new_data - for %s in network.log files" % (filename))
+        traceback.print_exc(file=sys.stdout)
+        
     return all_data
 
   def load_raw_data(self):
@@ -483,9 +502,6 @@ class Analyze_Logs:
 
 
   def fix_files_again(self,filenames):
-    from os import remove
-    from shutil import move
-
     for filename in filenames:
       with open('node_logs/'+filename,'rt') as f:
         r = f.read()
@@ -495,9 +511,6 @@ class Analyze_Logs:
       move('node_logs/'+filename+'.tmp', 'node_logs/'+filename)
 
   def last_fix_maybe(self,filenames):
-    from os import remove
-    from shutil import move
-
     for filename in filenames:
       with open('node_logs/'+filename,'rt') as f:
         r = f.read()
@@ -507,9 +520,6 @@ class Analyze_Logs:
       move('node_logs/'+filename+'.tmp','node_logs/'+filename)
 
   def fix_files(self,filenames):
-    from os import remove
-    from shutil import move
-
     for filename in filenames:
       with open('node_logs/'+filename,'rt') as f:
         r = f.read()
