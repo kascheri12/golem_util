@@ -19,6 +19,8 @@ class Analyze_Logs:
     _arm_index = d['header'].index('allowed_resource_memory')
     _cc_index = d['header'].index('cpu_cores')
     _ss_index = d['header'].index('subtasks_success')
+    _id_index = d['header'].index('node_id')
+    _nn_index = d['header'].index('node_name')
 
   def print_nodes(self,d,sort_method=None,ascending=False):
     cols = ['timestamp','version','node_name','subtasks_success','os','node_id','performance_lux','performance_blender','performance_general','cpu_cores']
@@ -202,17 +204,13 @@ class Analyze_Logs:
     return dist_nodes
 
   def get_max_success_for_node(seflf,node,d):
-    success_index = d['header'].index('subtasks_success')
-    id_index = d['header'].index('node_id')
-    return max([x[success_index] for x in d['data'] if x[id_index] == node[id_index]])
+    return max([x[self._ss_index] for x in d['data'] if x[self._id_index] == node[self._id_index]])
 
   def get_max_successes(self,d):
     return max([x[3] for x in d['data']])
 
   def get_node_name(self,header,node):
-    id_index = header.index('node_id')
-    nn_index = header.index('node_name')
-    name = str(node[nn_index])+"("+node[id_index][:10]+")"
+    name = str(node[self._nn_index])+"("+node[self._id_index][:10]+")"
     return name
 
   def build_y_axis_dict(self,d,x_axis):
@@ -346,7 +344,26 @@ class Analyze_Logs:
     fig = dict(data=data,layout=layout)
 
     plotly.offline.plot(fig, filename=filename, auto_open=False)
+    self.inject_google_analytics(filename)
     return filename
+
+  def inject_google_analytics(self,filename):
+    analytics_string = '''
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-109439081-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-109439081-1');
+</script>
+'''
+    with open(filename,'rt') as f:
+      r = f.read()
+      with open(filename+'.tmp','w') as f2:
+        f2.write(''.join(r[:-14])+analytics_string+''.join(r[-14:]))
+    remove(filename)
+    move(filename+'.tmp', filename)
 
   def get_formatted_time(self,timestamp):
     t = time.localtime(timestamp)
