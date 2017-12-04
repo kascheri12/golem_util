@@ -356,7 +356,7 @@ class Analyze_Logs:
     log_cutoff_date = dt(2017,10,9)
     
     x_axis = self.build_x_axis(d,log_cutoff_date)
-    y_axis_dict = self.build_y_axis_dict_for_change_in_subtasks(d,x_axis)
+    y_axis_dict = self.build_y_axis_dict_for_change_in_subtasks(x_axis)
     traces = []
     lt = time.localtime()
     pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
