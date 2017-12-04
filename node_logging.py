@@ -70,6 +70,7 @@ class Node_Logging():
   def refresh_graph(self):
     filename_subtasks_success_graph = ''
     filename_network_summary_graph = ''
+    filename_change_in_successes = ''
     a = al.Analyze_Logs()
     lt = time.localtime()
     pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
@@ -77,6 +78,7 @@ class Node_Logging():
     try:
       filename_subtasks_success_graph = a.print_node_success_over_time_graph(a.d)
       filename_network_summary_graph = a.print_network_summary_over_time_graph(a.d)
+      filename_change_in_successes = a.print_change_in_subtask_success_graph(a.d)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
@@ -85,6 +87,7 @@ class Node_Logging():
     try:
       copy(filename_subtasks_success_graph,config.kascheri12_github_io_dir+filename_subtasks_success_graph)
       copy(filename_network_summary_graph,config.kascheri12_github_io_dir+filename_network_summary_graph)
+      copy(filename_change_in_successes,config.kascheri12_github_io_dir+filename_change_in_successes)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
@@ -96,6 +99,7 @@ class Node_Logging():
       os.system('git checkout master')
       os.system('git add ' + filename_subtasks_success_graph)
       os.system('git add ' + filename_network_summary_graph)
+      os.system('git add ' + filename_change_in_successes)
       os.system('git commit -m "automated commit for golem-network-graphs"')
       os.system('git push')
       os.chdir(od)
