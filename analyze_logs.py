@@ -200,7 +200,6 @@ class Analyze_Logs:
     else:
       return 0
 
-
   def get_distinct_successes_dict(self,d):
     dist_nodes = {}
     for record in d['data']:
@@ -278,11 +277,115 @@ class Analyze_Logs:
       y_axis_dict[key_names[6]].append([formatted_ts,summary_cpu_cores])
     return y_axis_dict
 
+  def build_y_axis_dict_for_change_in_subtasks(self,x_axis):
+    nodes = self.d
+    y_axis_dict = {
+        'Node Count':[],
+        'Subtask Computation Change between logs':[],
+        'Subtask Computation Change in 1 hour':[],
+        'Subtask Computation Change in 24 hours':[],
+        'Subtask Computation Change in 7 days':[]
+    }
+    key_names = [x for x in y_axis_dict.keys()]
+    subtotal_1_hr, subtotal_24_hr, subtotal_7_day = 0, 0, 0
+    i_1_hr, i_24_hr, i_7_day = 0, 0, 0
+    
+    for i in range(len(x_axis)):
+      timestamp = x_axis[i]
+      cn = [x for x in nodes['data'] if x[self._ts_index] == timestamp]
+      formatted_ts = self.get_formatted_time(timestamp)
+      
+      node_count = len(cn)
+      y_axis_dict[key_names[0]].append([formatted_ts,node_count])
+      subtotal_current = sum([float(x[self._ss_index]) for x in cn])
+      
+      if i == 0:
+        y_axis_dict[key_names[2]].append([formatted_ts,subtotal_current])
+        y_axis_dict[key_names[3]].append([formatted_ts,subtotal_current])
+        y_axis_dict[key_names[4]].append([formatted_ts,subtotal_current])
+        
+      if i > 0:
+        cnp = [x for x in nodes['data'] if x[self._ts_index] == x_axis[i-1]]
+        subtotal_prev = sum([float(x[self._ss_index]) for x in cnp])
+        y_axis_dict[key_names[1]].append([formatted_ts,subtotal_current-subtotal_prev])
+        
+        
+      #if the time between timestamp and x_axis[i_1_hr]
+      # is greater than 1hr then do the computation and
+      # mark x,y coordinates
+      if i>0 and (timestamp - x_axis[i_1_hr]) >= 3600:
+        # calculate sum of subtasks completed in network from all timestamps
+        # between i_1_hr and the current timestamp
+        sub_cur = subtotal_1_hr + sum([float(x[self._ss_index]) for x in cn])
+        
+        # subtract the value just calculated above for the subtasks completed
+        # from the previously appended value in y_axis_dict
+        y_axis_dict[key_names[2]].append([formatted_ts,sub_cur - y_axis_dict[key_names[2]][-1][1]])
+        
+        # set the new index for i_1_hr
+        i_1_hr = i
+        subtotal_1_hr = 0
+      else:
+        subtotal_1_hr += subtotal_current
+  
+        
+      if i>0 and (timestamp - x_axis[i_24_hr]) >= 86400:
+        sub_cur = subtotal_24_hr + sum([float(x[self._ss_index]) for x in cn])
+        y_axis_dict[key_names[3]].append([formatted_ts, sub_cur - y_axis_dict[key_names[3]][-1][1]])
+        i_24_hr = i
+        subtotal_24_hr = 0
+      else:
+        subtotal_24_hr += subtotal_current
+      
+      if i>0 and (timestamp - x_axis[i_7_day]) >= 604800:
+        sub_cur = subtotal_7_day + sum([float(x[self._ss_index]) for x in cn])
+        y_axis_dict[key_names[4]].append([formatted_ts, sub_cur - y_axis_dict[key_names[4]][-1][1]])
+        i_7_day = i
+        subtotal_7_day = 0
+      else:
+        subtotal_7_day += subtotal_current
+        
+    return y_axis_dict
+  
+  def build_x_axis(self,d,log_cutoff_date=dt(2017,1,1)):
+    x_axis = sorted(list(set([x[self._ts_index] for x in d['data'] if dt.fromtimestamp(x[self._ts_index]) > log_cutoff_date])))
+    return x_axis
+
+  def print_change_in_subtask_success_graph(self,d):
+    filename = 'golem-network-change-in-subtask-success.html'
+    log_cutoff_date = dt(2017,10,9)
+    
+    x_axis = self.build_x_axis(d,log_cutoff_date)
+    y_axis_dict = self.build_y_axis_dict_for_change_in_subtasks(d,x_axis)
+    traces = []
+    lt = time.localtime()
+    pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
+    
+    for key in y_axis_dict.keys():
+      traces.append(go.Scatter(
+      x = [x[0] for x in y_axis_dict[key]],
+      y = [x[1] for x in y_axis_dict[key]],
+      mode='lines',
+      connectgaps=False,
+      name=key
+      ))
+    layout = dict(title = 'Golem Network Change in Subtask Success',
+                xaxis = dict(title = 'Time'),
+                yaxis = dict(title = 'Change in Successful Subtask Computations on Golem Network')
+                )
+
+    data = traces
+    fig = dict(data=data,layout=layout)
+
+    plotly.offline.plot(fig, filename=filename, auto_open=False)
+    self.inject_google_analytics(filename)
+    return filename
+
   def print_network_summary_over_time_graph(self,d):
     filename = 'golem-network.html'
     log_cutoff_date = dt(2017,10,9)
     
-    x_axis = sorted(list(set([x[self._ts_index] for x in d['data'] if dt.fromtimestamp(x[self._ts_index]) > log_cutoff_date])))
+    x_axis = self.build_x_axis(d,log_cutoff_date)
     y_axis_dict = self.build_y_axis_dict_for_network_summary(d,x_axis)
     traces = []
     lt = time.localtime()
@@ -351,15 +454,15 @@ class Analyze_Logs:
 
   def inject_google_analytics(self,filename):
     analytics_string = '''
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-109439081-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'UA-109439081-1');
-</script>
-'''
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109439081-1"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'UA-109439081-1');
+        </script>
+        '''
     with open(filename,'rt') as f:
       r = f.read()
       with open(filename+'.tmp','w') as f2:
@@ -485,7 +588,6 @@ class Analyze_Logs:
           f.write("%s\n" % (','.join(node)))
     except:
       print("Error writing the new log file with old log data")
-
 
   def fix_files_again(self,filenames):
     for filename in filenames:
