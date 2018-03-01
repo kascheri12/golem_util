@@ -514,7 +514,7 @@ class Analyze_Logs:
     }
     for filename in [x for x in os.listdir('node_logs/') if x.find('network') != -1 or x.find('old_logs.log') != -1]:
       try:
-        with open('node_logs/'+filename,'rt') as f:
+        with open('node_logs/'+filename,'rt',encoding="UTF-8") as f:
           reader = csv.reader(f,delimiter=',')
           d = []
           first_row = True
