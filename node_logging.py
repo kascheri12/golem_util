@@ -51,7 +51,7 @@ class Node_Logging():
 
     # Try writing the data to the file
     try:
-      with open(file_path,append_param) as f:
+      with open(file_path,append_param,encoding="UTF-8") as f:
         # Check that there are nodes on the network..
         if active_nodes is not None and len(active_nodes) > 0:
           # Is this the first line of the file? If so, write the header
