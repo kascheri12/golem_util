@@ -12,7 +12,7 @@ class Node_Logging():
 
   def __init__(self):
     self._timeout = 30 * 60.0 # Thirty @ Sixty seconds
-    self._refresh_graph_timeout = 1440 * 60 # 24 hours
+    self._refresh_graph_timeout = 720 * 60 #### 1440 * 60 # 24 hours
 
   def check_for_node_log_dir(self):
     if not os.path.exists('node_logs'):
