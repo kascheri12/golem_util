@@ -18,7 +18,7 @@ class Create_Task:
   if is_ubuntu:
     res_golem_header = ["".join(["/home/",username,"/golem-header.blend"])]
   if is_windows:
-    res_golem_header = ["".join(["C:\Users\\",username,"\\Downloads\\golem-blender.blend"])]
+    res_golem_header = ["".join(["C:\\Users\\",username,"\\Downloads\\golem-blender.blend"])]
   path_to_golemcli = "golemcli"
   filename = "tmp.task"
 
