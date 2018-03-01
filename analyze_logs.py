@@ -505,6 +505,8 @@ class Analyze_Logs:
       nr[ss_index] = float(row[ss_index])
     except IndexError:
       nr[ss_index] = 0
+    except ValueError:
+      nr[ss_index] = 0
     return nr
 
   def load_new_data(self):
