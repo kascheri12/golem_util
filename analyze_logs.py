@@ -508,6 +508,7 @@ class Analyze_Logs:
     return nr
 
   def load_new_data(self):
+    print("Begin load_new_data. Loading each file into data")
     all_data = {
       'data':[],
       'header':[]
@@ -532,7 +533,7 @@ class Analyze_Logs:
       except:
         print("Error in load_new_data - for %s in network.log files" % (filename))
         traceback.print_exc(file=sys.stdout)
-        
+    print("End load_new_data.")
     return all_data
 
   def load_raw_data(self):
