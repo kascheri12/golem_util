@@ -29,6 +29,25 @@ class Create_Task:
     # command_str = " ".join([self.path_to_golemcli,"tasks","show | grep '",task_status,"' | grep -o '^\S*' | sed 's/^/",self.path_to_golemcli," tasks delete /'"])
     command_str = " ".join([self.path_to_golemcli,"tasks","show | grep '",task_status,"' | grep -o '^\S*' | sed 's/^/",self.path_to_golemcli," tasks delete /' | bash -s"])
     proc = Popen(command_str, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+
+  def get_task_header_blender_sample(self):
+    # Install unzip
+    command_str = "sudo apt install unzip"
+    proc = Popen(command_str, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    print("After sudo apt install unzip")
+    # Download the sample blender file
+    command_str = "wget http://golem.timjones.id.au/golem-header.zip"
+    proc = Popen(command_str, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    print("After wget")
+    # Unzip the blender file
+    command_str = "unzip golem-header.zip"
+    proc = Popen(command_str, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    print("After unzip")
+    # Install dependencies for golem_util automation
+    command_str = "sudo apt install -y python3-pip && pip3 install --upgrade pip && sudo pip3 install twisted"
+    proc = Popen(command_str, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    print("After install dependencies")
+
   def add_new_task(self):
     print("Create new task %s" % dt.now())
     command_str = " ".join([self.path_to_golemcli,"tasks","create",self.build_golem_header_task(self.difficulty_level)])
