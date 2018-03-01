@@ -20,6 +20,7 @@ class Create_Task:
     pass
 
   def add_new_task(self):
+    print("Create new task %s" % dt.now())
     command_str = " ".join([self.path_to_golemcli,"tasks","create",self.build_golem_header_task(self.difficulty_level)])
     proc = Popen(command_str, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
 
