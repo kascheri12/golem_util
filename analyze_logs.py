@@ -1,4 +1,4 @@
-import csv, os, time, sys, plotly, traceback
+import csv, os, time, sys, plotly, traceback, math
 from distutils.version import LooseVersion
 import pandas as pd
 from datetime import datetime as dt
@@ -218,6 +218,10 @@ class Analyze_Logs:
     name = str(node[self._nn_index])+"("+node[self._id_index][:10]+")"
     return name
 
+  def get_connected_nodes(self,timestamp):
+    cn = [x for x in self.d['data'] if x[self._ts_index] == timestamp]
+    return cn
+
   def build_y_axis_dict(self,d,x_axis):
     SUCCESS_THRESHOLD = 5
     nodes = d
@@ -292,7 +296,7 @@ class Analyze_Logs:
     
     for i in range(len(x_axis)):
       timestamp = x_axis[i]
-      cn = [x for x in nodes['data'] if x[self._ts_index] == timestamp]
+      cn = self.get_connected_nodes(timestamp)
       formatted_ts = self.get_formatted_time(timestamp)
       
       node_count = len(cn)
@@ -305,45 +309,53 @@ class Analyze_Logs:
         y_axis_dict[key_names[4]].append([formatted_ts,subtotal_current])
         
       if i > 0:
-        cnp = [x for x in nodes['data'] if x[self._ts_index] == x_axis[i-1]]
+        cnp = self.get_connected_nodes(x_axis[i-1])
         subtotal_prev = sum([float(x[self._ss_index]) for x in cnp])
-        y_axis_dict[key_names[1]].append([formatted_ts,subtotal_current-subtotal_prev])
+        y_axis_dict[key_names[1]].append([formatted_ts, math.fabs(subtotal_current-subtotal_prev)])
         
         
       #if the time between timestamp and x_axis[i_1_hr]
       # is greater than 1hr then do the computation and
       # mark x,y coordinates
-      if i>0 and (timestamp - x_axis[i_1_hr]) >= 3600:
+      if timestamp - x_axis[i_1_hr] >= 3600:
         # calculate sum of subtasks completed in network from all timestamps
         # between i_1_hr and the current timestamp
-        sub_cur = subtotal_1_hr + sum([float(x[self._ss_index]) for x in cn])
+        sub_cur = (subtotal_1_hr + subtotal_current) / (i_1_hr - i)
         
         # subtract the value just calculated above for the subtasks completed
         # from the previously appended value in y_axis_dict
-        y_axis_dict[key_names[2]].append([formatted_ts,sub_cur - y_axis_dict[key_names[2]][-1][1]])
+        y_axis_dict[key_names[2]].append([formatted_ts, sub_cur - y_axis_dict[key_names[2]][-1][1]])
         
         # set the new index for i_1_hr
         i_1_hr = i
         subtotal_1_hr = 0
       else:
-        subtotal_1_hr += subtotal_current
-  
-        
-      if i>0 and (timestamp - x_axis[i_24_hr]) >= 86400:
-        sub_cur = subtotal_24_hr + sum([float(x[self._ss_index]) for x in cn])
+        if i > 0:
+          cnp = self.get_connected_nodes(x_axis[i-1])
+          sub_prev = sum([float(x[self._ss_index]) for x in cnp])
+          subtotal_1_hr += (subtotal_current - sub_prev)
+      
+      if timestamp - x_axis[i_24_hr] >= 86400:
+        sub_cur = (subtotal_24_hr + subtotal_current) / (i_24_hr - i)
         y_axis_dict[key_names[3]].append([formatted_ts, sub_cur - y_axis_dict[key_names[3]][-1][1]])
         i_24_hr = i
         subtotal_24_hr = 0
       else:
-        subtotal_24_hr += subtotal_current
+        if i > 0:
+          cnp = self.get_connected_nodes(x_axis[i-1])
+          sub_prev = sum([float(x[self._ss_index]) for x in cnp])
+          subtotal_24_hr += (subtotal_current - sub_prev)
       
-      if i>0 and (timestamp - x_axis[i_7_day]) >= 604800:
-        sub_cur = subtotal_7_day + sum([float(x[self._ss_index]) for x in cn])
+      if timestamp - x_axis[i_7_day] >= 604800:
+        sub_cur = (subtotal_7_day + subtotal_current) / (i_7_day - i)
         y_axis_dict[key_names[4]].append([formatted_ts, sub_cur - y_axis_dict[key_names[4]][-1][1]])
         i_7_day = i
         subtotal_7_day = 0
       else:
-        subtotal_7_day += subtotal_current
+        if i > 0:
+          cnp = self.get_connected_nodes(x_axis[i-1])
+          sub_prev = sum([float(x[self._ss_index]) for x in cnp])
+          subtotal_7_day += (subtotal_current - sub_prev)
         
     return y_axis_dict
   
@@ -351,11 +363,11 @@ class Analyze_Logs:
     x_axis = sorted(list(set([x[self._ts_index] for x in d['data'] if dt.fromtimestamp(x[self._ts_index]) > log_cutoff_date])))
     return x_axis
 
-  def print_change_in_subtask_success_graph(self,d):
+  def print_change_in_subtask_success_graph(self):
     filename = 'golem-network-change-in-subtask-success.html'
     log_cutoff_date = dt(2017,10,9)
     
-    x_axis = self.build_x_axis(d,log_cutoff_date)
+    x_axis = self.build_x_axis(self.d,log_cutoff_date)
     y_axis_dict = self.build_y_axis_dict_for_change_in_subtasks(x_axis)
     traces = []
     lt = time.localtime()
