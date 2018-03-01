@@ -2,6 +2,7 @@ import csv, os, time, sys, plotly, traceback
 from distutils.version import LooseVersion
 import pandas as pd
 from datetime import datetime as dt
+from datetime import timedelta
 from random import *
 import igraph as ig
 from plotly import tools
@@ -351,9 +352,9 @@ class Analyze_Logs:
     x_axis = sorted(list(set([x[self._ts_index] for x in d['data'] if dt.fromtimestamp(x[self._ts_index]) > log_cutoff_date])))
     return x_axis
 
-  def print_change_in_subtask_success_graph(self,d):
+  def print_change_in_subtask_success_graph(self,d,days_since_cutoff):
     filename = 'golem-network-change-in-subtask-success.html'
-    log_cutoff_date = dt(2017,10,9)
+    log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
     
     x_axis = self.build_x_axis(d,log_cutoff_date)
     y_axis_dict = self.build_y_axis_dict_for_change_in_subtasks(x_axis)
@@ -381,9 +382,9 @@ class Analyze_Logs:
     self.inject_google_analytics(filename)
     return filename
 
-  def print_network_summary_over_time_graph(self,d):
+  def print_network_summary_over_time_graph(self,d,days_since_cutoff):
     filename = 'golem-network.html'
-    log_cutoff_date = dt(2017,10,9)
+    log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
     
     x_axis = self.build_x_axis(d,log_cutoff_date)
     y_axis_dict = self.build_y_axis_dict_for_network_summary(d,x_axis)
@@ -420,10 +421,11 @@ class Analyze_Logs:
     self.inject_google_analytics(filename)
     return filename
 
-  def print_node_success_over_time_graph(self,d):
+  def print_node_success_over_time_graph(self,d,days_since_cutoff):
     filename = 'golem-network-success-report.html'
-
-    x_axis = sorted(list(set([x[self._ts_index] for x in d['data']])))
+    log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
+    
+    x_axis = self.build_x_axis(d,log_cutoff_date)
     y_axis_dict = self.build_y_axis_dict(d,x_axis)
     traces = []
     lt = time.localtime()
@@ -505,16 +507,19 @@ class Analyze_Logs:
       nr[ss_index] = float(row[ss_index])
     except IndexError:
       nr[ss_index] = 0
+    except ValueError:
+      nr[ss_index] = 0
     return nr
 
   def load_new_data(self):
+    print("Begin load_new_data. Loading each file into data")
     all_data = {
       'data':[],
       'header':[]
     }
     for filename in [x for x in os.listdir('node_logs/') if x.find('network') != -1 or x.find('old_logs.log') != -1]:
       try:
-        with open('node_logs/'+filename,'rt') as f:
+        with open('node_logs/'+filename,'rt',encoding="UTF-8") as f:
           reader = csv.reader(f,delimiter=',')
           d = []
           first_row = True
@@ -532,7 +537,7 @@ class Analyze_Logs:
       except:
         print("Error in load_new_data - for %s in network.log files" % (filename))
         traceback.print_exc(file=sys.stdout)
-        
+    print("End load_new_data.")
     return all_data
 
   def load_raw_data(self):

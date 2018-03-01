@@ -12,7 +12,7 @@ class Node_Logging():
 
   def __init__(self):
     self._timeout = 30 * 60.0 # Thirty @ Sixty seconds
-    self._refresh_graph_timeout = 1440 * 60 # 24 hours
+    self._refresh_graph_timeout = 720 * 60 #### 1440 * 60 # 24 hours
 
   def check_for_node_log_dir(self):
     if not os.path.exists('node_logs'):
@@ -51,7 +51,7 @@ class Node_Logging():
 
     # Try writing the data to the file
     try:
-      with open(file_path,append_param) as f:
+      with open(file_path,append_param,encoding="UTF-8") as f:
         # Check that there are nodes on the network..
         if active_nodes is not None and len(active_nodes) > 0:
           # Is this the first line of the file? If so, write the header
@@ -74,10 +74,11 @@ class Node_Logging():
     lt = time.localtime()
     pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
 
+    print("Begin refresh_graph: "+pt)
     try:
-      filename_subtasks_success_graph = a.print_node_success_over_time_graph(a.d)
-      filename_network_summary_graph = a.print_network_summary_over_time_graph(a.d)
-      filename_change_in_successes = a.print_change_in_subtask_success_graph(a.d)
+      filename_subtasks_success_graph = a.print_node_success_over_time_graph(a.d, 30)
+      filename_network_summary_graph = a.print_network_summary_over_time_graph(a.d, 30)
+      filename_change_in_successes = a.print_change_in_subtask_success_graph(a.d, 30)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
@@ -106,6 +107,8 @@ class Node_Logging():
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+
+    print("End refresh_graph: "+time.strftime("%Y%m%d-%H:%M%Z",time.localtime()))
 
 def main():
 
