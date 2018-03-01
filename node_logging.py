@@ -74,10 +74,11 @@ class Node_Logging():
     lt = time.localtime()
     pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
 
+    print("Begin refresh_graph: "+pt)
     try:
-      filename_subtasks_success_graph = a.print_node_success_over_time_graph(a.d)
-      filename_network_summary_graph = a.print_network_summary_over_time_graph(a.d)
-      filename_change_in_successes = a.print_change_in_subtask_success_graph(a.d)
+      filename_subtasks_success_graph = a.print_node_success_over_time_graph(a.d, 30)
+      filename_network_summary_graph = a.print_network_summary_over_time_graph(a.d, 30)
+      filename_change_in_successes = a.print_change_in_subtask_success_graph(a.d, 30)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
@@ -106,6 +107,8 @@ class Node_Logging():
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+
+    print("End refresh_graph: "+time.strftime("%Y%m%d-%H:%M%Z",time.localtime()))
 
 def main():
 
