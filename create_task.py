@@ -32,7 +32,7 @@ class Create_Task:
     elif level == 3:
       ght = self.build_simple_golem_header_task(20,3000,2000,3,5)
     elif level == 4:
-      ght = self.build_simple_golem_header_task(100,3000,2000,3,5)
+      ght = self.build_simple_golem_header_task(50,6000,4000,3,5)
     return ght
 
   def build_simple_golem_header_task(self,subtasks,height,width,price,subtask_to_min):
