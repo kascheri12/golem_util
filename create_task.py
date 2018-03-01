@@ -1,7 +1,6 @@
 from twisted.internet import task
 from twisted.internet import reactor
 from subprocess import Popen, PIPE
-import os, time, sys, json
 import os, time, sys, json, config
 import getpass as gp
 from time import sleep
