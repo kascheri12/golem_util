@@ -12,6 +12,7 @@ class Node_Logging():
 
   def __init__(self):
     self._timeout = 30 * 60.0 # Thirty @ Sixty seconds
+    self._do_node_log = False
     self._do_refresh_graph = False
     self._refresh_graph_timeout = 720 * 60 #### 1440 * 60 # 24 hours
 
@@ -68,6 +69,7 @@ class Node_Logging():
       print(pt + " - Error with writing the file...")
 
   def refresh_graph(self):
+    is_testing = True
     filename_subtasks_success_graph = ''
     filename_network_summary_graph = ''
     filename_change_in_successes = ''
@@ -77,33 +79,34 @@ class Node_Logging():
 
     print("Begin refresh_graph: "+pt)
     try:
-      filename_subtasks_success_graph = a.print_node_success_over_time_graph(a.d, 30)
-      filename_network_summary_graph = a.print_network_summary_over_time_graph(a.d, 30)
-      filename_change_in_successes = a.print_change_in_subtask_success_graph(a.d, 30)
+      filename_subtasks_success_graph = a.print_node_success_over_time_graph(a.d, 10)
+      filename_network_summary_graph = a.print_network_summary_over_time_graph(a.d, 10)
+      # filename_change_in_successes = a.print_change_in_subtask_success_graph(a.d, 10)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-    try:
-      copy(filename_subtasks_success_graph,config.kascheri12_github_io_dir+filename_subtasks_success_graph)
-      copy(filename_network_summary_graph,config.kascheri12_github_io_dir+filename_network_summary_graph)
-      copy(filename_change_in_successes,config.kascheri12_github_io_dir+filename_change_in_successes)
-    except:
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-      traceback.print_exc(file=sys.stdout)
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    # try:
+    #   copy(filename_subtasks_success_graph,config.kascheri12_github_io_dir+filename_subtasks_success_graph)
+    #   copy(filename_network_summary_graph,config.kascheri12_github_io_dir+filename_network_summary_graph)
+    #   copy(filename_change_in_successes,config.kascheri12_github_io_dir+filename_change_in_successes)
+    # except:
+    #   print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    #   traceback.print_exc(file=sys.stdout)
+    #   print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
     try:
-      od = os.getcwd()
-      os.chdir(config.kascheri12_github_io_dir)
-      os.system('git checkout master')
-      os.system('git add ' + filename_subtasks_success_graph)
-      os.system('git add ' + filename_network_summary_graph)
-      os.system('git add ' + filename_change_in_successes)
-      os.system('git commit -m "automated commit for golem-network-graphs"')
-      os.system('git push')
-      os.chdir(od)
+      if not is_testing:
+        od = os.getcwd()
+        os.chdir(config.kascheri12_github_io_dir)
+        os.system('git checkout master')
+        os.system('git add ' + filename_subtasks_success_graph)
+        os.system('git add ' + filename_network_summary_graph)
+        os.system('git add ' + filename_change_in_successes)
+        os.system('git commit -m "automated commit for golem-network-graphs"')
+        os.system('git push')
+        os.chdir(od)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
@@ -114,8 +117,10 @@ class Node_Logging():
 def main():
 
     nl = Node_Logging()
-    l = task.LoopingCall(nl.take_network_snapshot)
-    l.start(nl._timeout) # call every sixty seconds
+    
+    if nl._do_node_log:
+      l = task.LoopingCall(nl.take_network_snapshot)
+      l.start(nl._timeout) # call every sixty seconds
 
     if nl._do_refresh_graph:
       rg = task.LoopingCall(nl.refresh_graph)
