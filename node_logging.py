@@ -12,6 +12,7 @@ class Node_Logging():
 
   def __init__(self):
     self._timeout = 30 * 60.0 # Thirty @ Sixty seconds
+    self._do_refresh_graph = False
     self._refresh_graph_timeout = 720 * 60 #### 1440 * 60 # 24 hours
 
   def check_for_node_log_dir(self):
@@ -116,8 +117,9 @@ def main():
     l = task.LoopingCall(nl.take_network_snapshot)
     l.start(nl._timeout) # call every sixty seconds
 
-    rg = task.LoopingCall(nl.refresh_graph)
-    rg.start(nl._refresh_graph_timeout)
+    if nl._do_refresh_graph:
+      rg = task.LoopingCall(nl.refresh_graph)
+      rg.start(nl._refresh_graph_timeout)
 
     reactor.run()
 
