@@ -94,9 +94,6 @@ class Analyze_Logs:
   def build_y_axis_dict_for_network_summary(self,d,x_axis):
     y_axis_dict = {    
         'Node Count':[],
-        # 'Performance General':[],
-        # 'Performance Blender':[],
-        # 'Performance LuxRender':[],
         'Allowed Resource Size':[],
         'Allowed Resource Memory':[],
         'CPU Cores':[]
@@ -111,23 +108,14 @@ class Analyze_Logs:
       node_count = len(connected_nodes)
       y_axis_dict[key_names[0]].append([formatted_ts,node_count])
       
-      # summary_perf_gen = sum([float(x[self._pg_index]) for x in connected_nodes])
-      # y_axis_dict[key_names[1]].append([formatted_ts,summary_perf_gen])
-      # 
-      # summary_perf_blend = sum([float(x[self._pb_index]) for x in connected_nodes])
-      # y_axis_dict[key_names[2]].append([formatted_ts,summary_perf_blend])
-      # 
-      # summary_perf_lux = sum([float(x[self._pl_index]) for x in connected_nodes])
-      # y_axis_dict[key_names[3]].append([formatted_ts,summary_perf_lux])
-      
       summary_allowed_resources = sum([int(x[self._ars_index]) for x in connected_nodes if x[self._ars_index] != ''])
-      y_axis_dict[key_names[4]].append([formatted_ts,summary_allowed_resources])
+      y_axis_dict[key_names[1]].append([formatted_ts,summary_allowed_resources])
       
       summary_allowed_memory = sum([int(x[self._arm_index]) for x in connected_nodes if x[self._arm_index] != ''])
-      y_axis_dict[key_names[5]].append([formatted_ts,summary_allowed_memory])
+      y_axis_dict[key_names[2]].append([formatted_ts,summary_allowed_memory])
       
       summary_cpu_cores = sum([int(x[self._cc_index]) for x in connected_nodes if x[self._cc_index] != ''])
-      y_axis_dict[key_names[6]].append([formatted_ts,summary_cpu_cores])
+      y_axis_dict[key_names[3]].append([formatted_ts,summary_cpu_cores])
     return y_axis_dict
 
   def build_y_axis_dict_for_change_in_subtasks(self,x_axis):
@@ -249,25 +237,69 @@ class Analyze_Logs:
       x = [x[0] for x in y_axis_dict[key]],
       y = [x[1] for x in y_axis_dict[key]],
       mode='lines',
-      connectgaps=False,
       name=key
       ))
       
-    fig = tools.make_subplots(rows=8, cols=1, specs=[[{}], [{}], [{}], [{}], [{}], [{}], [{}], [{}]],
-                              shared_xaxes=True, shared_yaxes=True,
-                              vertical_spacing=0.00001)
+    fig = tools.make_subplots(rows=5, cols=1, specs=[[{}], [{}], [{}], [{}], [{}]],
+                              shared_xaxes=True,
+                              vertical_spacing=1)
     
-    fig.append_trace(traces[0], 8, 1) # Node_Count
-    fig.append_trace(traces[6], 7, 1) # CPU_Cores
-    # fig.append_trace(traces[2], 6, 1) # Perf_Blender
-    # fig.append_trace(traces[3], 5, 1) # Perf_Lux
-    # fig.append_trace(traces[1], 4, 1) # Perf_Gen
-    # fig.append_trace(traces[5], 3, 1) # Resource Memory
-    fig.append_trace(traces[4], 2, 1) # Resource Size
+    fig.append_trace(traces[0], 5, 1) # Node_Count
+    fig.append_trace(traces[3], 4, 1) # CPU_Cores
+    fig.append_trace(traces[2], 3, 1) # Resource Memory
+    fig.append_trace(traces[1], 2, 1) # Resource Size
+    
+    
 
     fig['layout'].update(title='Golem Network Statistics Summary',
-        xaxis = dict(title = 'Time'),
-        yaxis = dict(title = 'Summarization Metric'))
+        xaxis=dict(
+          rangeselector=dict(
+            buttons=list([
+              dict(count=4,
+                 label='4hr',
+                 step='hour',
+                 stepmode='backward'),
+              dict(count=24,
+                 label='24hr',
+                 step='hour',
+                 stepmode='backward'),
+              dict(count=10,
+                 label='10d',
+                 step='day',
+                 stepmode='backward'),
+              dict(count=20,
+                 label='20d',
+                 step='day',
+                 stepmode='backward'),
+              dict(count=1,
+                 label='1m',
+                 step='month',
+                 stepmode='backward'),
+              dict(count=3,
+                 label='3m',
+                 step='month',
+                 stepmode='backward'),
+              dict(count=6,
+                 label='6m',
+                 step='month',
+                 stepmode='backward'),
+              dict(step='all')
+            ])
+          ),
+          rangeslider=dict(),
+          type='date',
+          domain=[0.02,1.0]
+        ),
+        yaxis = dict(side='right',
+                    anchor='x'),
+        yaxis2 = dict(side='left',
+                    position='0'),
+        yaxis3 = dict(side='left',
+                    position='0'),
+        yaxis4 = dict(side='left',
+                    position='0'),
+        yaxis5 = dict(side='left',
+                    anchor='y5'))
     
     plotly.offline.plot(fig, filename=filename, auto_open=False)
     self.inject_google_analytics(filename)
