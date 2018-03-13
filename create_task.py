@@ -2,17 +2,18 @@ from twisted.internet import task
 from twisted.internet import reactor
 from subprocess import Popen, PIPE
 import os, time, sys, json
+import os, time, sys, json, config
 import getpass as gp
 from time import sleep
 from datetime import datetime as dt
 
 
 class Create_Task:
-  username = "ascherik"
-  is_ubuntu = False
-  is_windows = False
+  username = config.username
+  is_ubuntu = config.is_ubuntu_node
+  is_windows = config.is_windows_node
   init_start_timeout = 0 # 20 * 60
-  timeout = 45 * 60.0 # xx minutes @ Sixty seconds
+  timeout = 10.0 # seconds
   difficulty_level = 3
   res_golem_header = ["".join(["/Users/",username,"/Downloads/golem-header/golem-header.blend"])]
   if is_ubuntu:
