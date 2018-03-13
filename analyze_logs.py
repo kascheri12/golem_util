@@ -242,7 +242,7 @@ class Analyze_Logs:
       
     fig = tools.make_subplots(rows=5, cols=1, specs=[[{}], [{}], [{}], [{}], [{}]],
                               shared_xaxes=True,
-                              vertical_spacing=1)
+                              vertical_spacing=0.000001)
     
     fig.append_trace(traces[0], 5, 1) # Node_Count
     fig.append_trace(traces[3], 4, 1) # CPU_Cores
@@ -290,16 +290,11 @@ class Analyze_Logs:
           type='date',
           domain=[0.02,1.0]
         ),
-        yaxis = dict(side='right',
-                    anchor='x'),
-        yaxis2 = dict(side='left',
-                    position='0'),
-        yaxis3 = dict(side='left',
-                    position='0'),
-        yaxis4 = dict(side='left',
-                    position='0'),
-        yaxis5 = dict(side='left',
-                    anchor='y5'))
+        yaxis = dict(side='right'),
+        yaxis2 = dict(side='left'),
+        yaxis3 = dict(side='left'),
+        yaxis4 = dict(side='left'),
+        yaxis5 = dict(side='left'))
     
     plotly.offline.plot(fig, filename=filename, auto_open=False)
     self.inject_google_analytics(filename)
