@@ -41,166 +41,6 @@ class Analyze_Logs:
     else:
       print(df)
 
-  def print_3d_file(self):
-    filename="golem-network-3d.html"
-    d = self.load_data()
-    jf = self.build_json_data_object(d)
-    N=len(jf['nodes'])
-    L=len(jf['links'])
-    Edges=[(jf['links'][k]['source'], jf['links'][k]['target']) for k in range(L)]
-
-    G=ig.Graph(Edges, directed=False)
-
-    labels=[]
-    group=[]
-    for node in jf['nodes']:
-      labels.append(node['name'])
-      group.append(node['group'])
-
-    layt=G.layout('kk', dim=3)
-
-    # print([layt[k][0] for k in range(N)])
-
-    Xn = [layt[k][0] for k in range(N)] # x-coordinates of nodes
-    Yn = [layt[k][1] for k in range(N)] # y-coordinates
-    Zn = [layt[k][2] for k in range(N)] # z-coordinates
-    Xe=[]
-    Ye=[]
-    Ze=[]
-    for e in Edges:
-      Xe+=[layt[e[0]][0],layt[e[1]][0], None]# x-coordinates of edge ends
-      Ye+=[layt[e[0]][1],layt[e[1]][1], None]
-      Ze+=[layt[e[0]][2],layt[e[1]][2], None]
-
-    trace1=go.Scatter3d(x=Xe,
-                   y=Ye,
-                   z=Ze,
-                   mode='lines',
-                   line=go.Line(color='rgb(125,125,125)', width=1),
-                   hoverinfo='none'
-                   )
-    trace2=go.Scatter3d(x=Xn,
-                   y=Yn,
-                   z=Zn,
-                   mode='markers',
-                   name='actors',
-                   marker=go.Marker(symbol='dot',
-                                 size=6,
-                                 color=group,
-                                 colorscale='Viridis',
-                                 line=go.Line(color='rgb(50,50,50)', width=0.5)
-                                 ),
-                   text=labels,
-                   hoverinfo='text'
-                   )
-
-    axis=dict(showbackground=False,
-            showline=False,
-            zeroline=False,
-            showgrid=False,
-            showticklabels=False,
-            title=''
-            )
-
-    layout = go.Layout(
-           title="Network of nodes connected and computing subtasks on the Golem Network (3D visualization)",
-           width=1000,
-           height=1000,
-           showlegend=False,
-           scene=go.Scene(
-             xaxis=go.XAxis(axis),
-             yaxis=go.YAxis(axis),
-             zaxis=go.ZAxis(axis),
-          ),
-       margin=go.Margin(
-          t=100
-      ),
-      hovermode='closest',
-      annotations=go.Annotations([
-             go.Annotation(
-             showarrow=False,
-              text="Data source: <a href='http://stats.golem.network/'>Golem Network</a>",
-              xref='paper',
-              yref='paper',
-              x=0,
-              y=0.1,
-              xanchor='left',
-              yanchor='bottom',
-              font=go.Font(
-              size=14
-              )
-              )
-          ]),    )
-
-    data=go.Data([trace1, trace2])
-    fig=go.Figure(data=data, layout=layout)
-
-    plotly.offline.plot(fig, filename=filename, auto_open=True)
-
-  def build_json_data_object(self,d):
-    max_timestamp = max(sorted(list(set([x[self._ts_index] for x in d['data']]))))
-    nodes_and_success_dict = self.get_distinct_successes_dict(d)
-    all_max_success = self.get_max_successes(d)
-    my_dict = {
-      'nodes' : self.get_nodes_list(d,max_timestamp,nodes_and_success_dict,all_max_success),
-      'links' : self.get_links_list(d,max_timestamp,nodes_and_success_dict,all_max_success)
-    }
-    return my_dict
-
-  def get_target(self,targets,key):
-    sl = sorted([(x,y) for x,y in targets.items() if y > 0])
-    r = randint(1,len(sl))
-    return r-1
-
-  def get_links_list(self,d,max_timestamp,nodes_and_success_dict,all_max_success):
-    list_of_links = []
-    for key in nodes_and_success_dict.keys():
-      r = randint(0,2)
-      for i in range(r):
-        list_of_links.append({"source":list(nodes_and_success_dict.keys()).index(key),"target":self.get_target(nodes_and_success_dict,key)})
-    return list_of_links
-
-  def get_nodes_list(self,d,max_timestamp,nodes_and_success_dict,all_max_success):
-    import numpy as np
-    sl = [x for x in nodes_and_success_dict.values()]
-    avg = np.mean(sl)
-    node_list = []
-    for record in d['data']:
-      name = self.get_node_name(record)
-      if name not in [x['name'] for x in node_list]:
-        node_dict = {
-            'name':self.get_node_name(record),
-            'group':self.get_node_group(record,d,avg,nodes_and_success_dict[name])
-        }
-        node_list.append(node_dict)
-    return node_list
-
-  def get_node_group(self,node,d,avg,max_success_for_node):
-    if max_success_for_node >= avg + avg * .9:
-      return 10
-    if max_success_for_node >= avg + avg * .7:
-      return 9
-    if max_success_for_node >= avg + avg * .5:
-      return 8
-    if max_success_for_node >= avg + avg * .3:
-      return 7
-    if max_success_for_node >= avg + avg * .1:
-      return 6
-    if max_success_for_node >= avg:
-      return 5
-    if max_success_for_node >= avg - avg * .3:
-      return 4
-    if max_success_for_node >= avg - avg * .5:
-      return 3
-    if max_success_for_node >= avg - avg * .7:
-      return 2
-    if max_success_for_node >= avg - avg * .9:
-      return 1
-    if max_success_for_node > 0:
-      return 1
-    else:
-      return 0
-
   def get_distinct_successes_dict(self,d):
     dist_nodes = {}
     for record in d['data']:
@@ -216,19 +56,31 @@ class Analyze_Logs:
     return max([x[3] for x in d['data']])
 
   def get_node_name(self,header,node):
-    name = str(node[self._nn_index])+"("+node[self._id_index][:10]+")"
+    name = str(node[self._nn_index])+"("+node[self._id_index][:20]+")"
     return name
 
-  def build_y_axis_dict(self,d,x_axis):
+  def get_nodes_in_snapshot(self,timestamp):
     SUCCESS_THRESHOLD = 5
+    node_list = [x for x in self.d['data'] if x[self._ts_index] == timestamp]
+    sl = []
+    for x in node_list:
+      try:
+        if float(x[self._ss_index]) >= SUCCESS_THRESHOLD:
+          sl.append(x)
+      except ValueError:
+        pass
+    return sl
+
+  def build_y_axis_dict(self,d,x_axis):
     nodes = d
     y_axis_dict = {}
 
     for timestamp in x_axis:
       # for each record in the list of data points cooresponding to the timestamp
       # and the node's total success are greater than the threshold
-      for record in [x for x in nodes['data'] if x[self._ts_index] == timestamp and float(x[self._ss_index]) >= SUCCESS_THRESHOLD]:
-        # Define the key as the node's name plus first 10 characters of the node_id
+      nodes_in_snapshot = self.get_nodes_in_snapshot(timestamp)
+      for record in nodes_in_snapshot:
+        # Define the key as the node's name plus first xx characters of the node_id
         key = self.get_node_name(nodes['header'],record)
         # Check if this dict key exists in the dict of nodes to be plotted
         # Init dict value as list
@@ -242,9 +94,9 @@ class Analyze_Logs:
   def build_y_axis_dict_for_network_summary(self,d,x_axis):
     y_axis_dict = {    
         'Node Count':[],
-        'Performance General':[],
-        'Performance Blender':[],
-        'Performance LuxRender':[],
+        # 'Performance General':[],
+        # 'Performance Blender':[],
+        # 'Performance LuxRender':[],
         'Allowed Resource Size':[],
         'Allowed Resource Memory':[],
         'CPU Cores':[]
@@ -259,14 +111,14 @@ class Analyze_Logs:
       node_count = len(connected_nodes)
       y_axis_dict[key_names[0]].append([formatted_ts,node_count])
       
-      summary_perf_gen = sum([float(x[self._pg_index]) for x in connected_nodes])
-      y_axis_dict[key_names[1]].append([formatted_ts,summary_perf_gen])
-      
-      summary_perf_blend = sum([float(x[self._pb_index]) for x in connected_nodes])
-      y_axis_dict[key_names[2]].append([formatted_ts,summary_perf_blend])
-      
-      summary_perf_lux = sum([float(x[self._pl_index]) for x in connected_nodes])
-      y_axis_dict[key_names[3]].append([formatted_ts,summary_perf_lux])
+      # summary_perf_gen = sum([float(x[self._pg_index]) for x in connected_nodes])
+      # y_axis_dict[key_names[1]].append([formatted_ts,summary_perf_gen])
+      # 
+      # summary_perf_blend = sum([float(x[self._pb_index]) for x in connected_nodes])
+      # y_axis_dict[key_names[2]].append([formatted_ts,summary_perf_blend])
+      # 
+      # summary_perf_lux = sum([float(x[self._pl_index]) for x in connected_nodes])
+      # y_axis_dict[key_names[3]].append([formatted_ts,summary_perf_lux])
       
       summary_allowed_resources = sum([int(x[self._ars_index]) for x in connected_nodes if x[self._ars_index] != ''])
       y_axis_dict[key_names[4]].append([formatted_ts,summary_allowed_resources])
@@ -407,10 +259,10 @@ class Analyze_Logs:
     
     fig.append_trace(traces[0], 8, 1) # Node_Count
     fig.append_trace(traces[6], 7, 1) # CPU_Cores
-    fig.append_trace(traces[2], 6, 1) # Perf_Blender
-    fig.append_trace(traces[3], 5, 1) # Perf_Lux
-    fig.append_trace(traces[1], 4, 1) # Perf_Gen
-    fig.append_trace(traces[5], 3, 1) # Resource Memory
+    # fig.append_trace(traces[2], 6, 1) # Perf_Blender
+    # fig.append_trace(traces[3], 5, 1) # Perf_Lux
+    # fig.append_trace(traces[1], 4, 1) # Perf_Gen
+    # fig.append_trace(traces[5], 3, 1) # Resource Memory
     fig.append_trace(traces[4], 2, 1) # Resource Size
 
     fig['layout'].update(title='Golem Network Statistics Summary',
@@ -520,6 +372,7 @@ class Analyze_Logs:
     for filename in [x for x in os.listdir('node_logs/') if x.find('network') != -1 or x.find('old_logs.log') != -1]:
       try:
         with open('node_logs/'+filename,'rt',encoding="UTF-8") as f:
+          print("reading: "+filename)
           reader = csv.reader(f,delimiter=',')
           d = []
           first_row = True
