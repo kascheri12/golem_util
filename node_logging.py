@@ -11,9 +11,9 @@ import os, traceback, sys
 class Node_Logging():
 
   def __init__(self):
-    self._timeout = 30 * 60.0 # Thirty @ Sixty seconds
-    self._do_refresh_graph = False
-    self._refresh_graph_timeout = 720 * 60 #### 1440 * 60 # 24 hours
+    self._timeout = 5 * 60.0 # Five @ Sixty seconds
+    self._do_refresh_graph = True
+    self._refresh_graph_timeout = 60 * 60 #### 1440 * 60 # 24 hours
 
   def check_for_node_log_dir(self):
     if not os.path.exists('node_logs'):
@@ -77,9 +77,9 @@ class Node_Logging():
 
     print("Begin refresh_graph: "+pt)
     try:
-      filename_subtasks_success_graph = a.print_node_success_over_time_graph(a.d, 30)
-      filename_network_summary_graph = a.print_network_summary_over_time_graph(a.d, 30)
-      filename_change_in_successes = a.print_change_in_subtask_success_graph(a.d, 30)
+      filename_subtasks_success_graph = a.print_node_success_over_time_graph(a.d, 1)
+      filename_network_summary_graph = a.print_network_summary_over_time_graph(a.d, 1)
+      # filename_change_in_successes = a.print_change_in_subtask_success_graph(a.d, 1)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
@@ -88,7 +88,7 @@ class Node_Logging():
     try:
       copy(filename_subtasks_success_graph,config.kascheri12_github_io_dir+filename_subtasks_success_graph)
       copy(filename_network_summary_graph,config.kascheri12_github_io_dir+filename_network_summary_graph)
-      copy(filename_change_in_successes,config.kascheri12_github_io_dir+filename_change_in_successes)
+      # copy(filename_change_in_successes,config.kascheri12_github_io_dir+filename_change_in_successes)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
@@ -100,7 +100,7 @@ class Node_Logging():
       os.system('git checkout master')
       os.system('git add ' + filename_subtasks_success_graph)
       os.system('git add ' + filename_network_summary_graph)
-      os.system('git add ' + filename_change_in_successes)
+      # os.system('git add ' + filename_change_in_successes)
       os.system('git commit -m "automated commit for golem-network-graphs"')
       os.system('git push')
       os.chdir(od)
