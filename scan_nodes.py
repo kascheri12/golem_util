@@ -37,6 +37,12 @@ def load_print_recent_data_by_performance():
   ascending = [False, False]
   print_nodes(filter_latest_minutes(load_recent_data(),5),sort_by,ascending)
 
+def valid_seconds(s):
+  try:
+    return int(s)
+  except ValueError:
+    return 999999999
+
 def filter_latest_minutes(d,minutes):
   dn = []
   for item in d:
@@ -58,7 +64,7 @@ def print_nodes(d,sort_method=None,ascending=False):
 
 def calc_last_seen_time(t):
   seen_at = t
-  its_been = round(time.time()) - float(seen_at)/1000
+  its_been = round(time.time()) - float(valid_seconds(seen_at))/1000
   last_seen_obj = {
     'seconds' : its_been
     ,'minutes' : its_been/60
