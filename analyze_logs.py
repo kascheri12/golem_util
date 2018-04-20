@@ -12,7 +12,7 @@ from shutil import move
 
 
 class Analyze_Logs:
-  
+
   def __init__(self):
     self.d = self.load_data()
 
@@ -28,7 +28,7 @@ class Analyze_Logs:
     self._ss_index = header.index('subtasks_success')
     self._id_index = header.index('node_id')
     self._nn_index = header.index('node_name')
-    
+
   def print_nodes(self,d,sort_method=None,ascending=False):
     cols = ['timestamp','version','node_name','subtasks_success','os','node_id','performance_lux','performance_blender','performance_general','cpu_cores']
     pd.set_option('display.max_columns',0)
@@ -240,42 +240,42 @@ class Analyze_Logs:
     return y_axis_dict
 
   def build_y_axis_dict_for_network_summary(self,d,x_axis):
-    y_axis_dict = {    
+    y_axis_dict = {
         'Node Count':[],
-        'Performance General':[],
-        'Performance Blender':[],
-        'Performance LuxRender':[],
+        # 'Performance General':[],
+        # 'Performance Blender':[],
+        # 'Performance LuxRender':[],
         'Allowed Resource Size':[],
         'Allowed Resource Memory':[],
         'CPU Cores':[]
     }
     nodes = d
     key_names = [x for x in y_axis_dict.keys()]
-    
+
     for timestamp in x_axis:
       connected_nodes = [x for x in nodes['data'] if x[self._ts_index] == timestamp]
       formatted_ts = self.get_formatted_time(timestamp)
-      
+
       node_count = len(connected_nodes)
       y_axis_dict[key_names[0]].append([formatted_ts,node_count])
-      
-      summary_perf_gen = sum([float(x[self._pg_index]) for x in connected_nodes])
-      y_axis_dict[key_names[1]].append([formatted_ts,summary_perf_gen])
-      
-      summary_perf_blend = sum([float(x[self._pb_index]) for x in connected_nodes])
-      y_axis_dict[key_names[2]].append([formatted_ts,summary_perf_blend])
-      
-      summary_perf_lux = sum([float(x[self._pl_index]) for x in connected_nodes])
-      y_axis_dict[key_names[3]].append([formatted_ts,summary_perf_lux])
-      
+
+      # summary_perf_gen = sum([float(x[self._pg_index]) for x in connected_nodes])
+      # y_axis_dict[key_names[1]].append([formatted_ts,summary_perf_gen])
+      #
+      # summary_perf_blend = sum([float(x[self._pb_index]) for x in connected_nodes])
+      # y_axis_dict[key_names[2]].append([formatted_ts,summary_perf_blend])
+      #
+      # summary_perf_lux = sum([float(x[self._pl_index]) for x in connected_nodes])
+      # y_axis_dict[key_names[3]].append([formatted_ts,summary_perf_lux])
+
       summary_allowed_resources = sum([int(x[self._ars_index]) for x in connected_nodes if x[self._ars_index] != ''])
-      y_axis_dict[key_names[4]].append([formatted_ts,summary_allowed_resources])
-      
+      y_axis_dict[key_names[1]].append([formatted_ts,summary_allowed_resources])
+
       summary_allowed_memory = sum([int(x[self._arm_index]) for x in connected_nodes if x[self._arm_index] != ''])
-      y_axis_dict[key_names[5]].append([formatted_ts,summary_allowed_memory])
-      
+      y_axis_dict[key_names[2]].append([formatted_ts,summary_allowed_memory])
+
       summary_cpu_cores = sum([int(x[self._cc_index]) for x in connected_nodes if x[self._cc_index] != ''])
-      y_axis_dict[key_names[6]].append([formatted_ts,summary_cpu_cores])
+      y_axis_dict[key_names[3]].append([formatted_ts,summary_cpu_cores])
     return y_axis_dict
 
   def build_y_axis_dict_for_change_in_subtasks(self,x_axis):
@@ -290,27 +290,27 @@ class Analyze_Logs:
     key_names = [x for x in y_axis_dict.keys()]
     subtotal_1_hr, subtotal_24_hr, subtotal_7_day = 0, 0, 0
     i_1_hr, i_24_hr, i_7_day = 0, 0, 0
-    
+
     for i in range(len(x_axis)):
       timestamp = x_axis[i]
       cn = [x for x in nodes['data'] if x[self._ts_index] == timestamp]
       formatted_ts = self.get_formatted_time(timestamp)
-      
+
       node_count = len(cn)
       y_axis_dict[key_names[0]].append([formatted_ts,node_count])
       subtotal_current = sum([float(x[self._ss_index]) for x in cn])
-      
+
       if i == 0:
         y_axis_dict[key_names[2]].append([formatted_ts,subtotal_current])
         y_axis_dict[key_names[3]].append([formatted_ts,subtotal_current])
         y_axis_dict[key_names[4]].append([formatted_ts,subtotal_current])
-        
+
       if i > 0:
         cnp = [x for x in nodes['data'] if x[self._ts_index] == x_axis[i-1]]
         subtotal_prev = sum([float(x[self._ss_index]) for x in cnp])
         y_axis_dict[key_names[1]].append([formatted_ts,subtotal_current-subtotal_prev])
-        
-        
+
+
       #if the time between timestamp and x_axis[i_1_hr]
       # is greater than 1hr then do the computation and
       # mark x,y coordinates
@@ -318,18 +318,18 @@ class Analyze_Logs:
         # calculate sum of subtasks completed in network from all timestamps
         # between i_1_hr and the current timestamp
         sub_cur = subtotal_1_hr + sum([float(x[self._ss_index]) for x in cn])
-        
+
         # subtract the value just calculated above for the subtasks completed
         # from the previously appended value in y_axis_dict
         y_axis_dict[key_names[2]].append([formatted_ts,sub_cur - y_axis_dict[key_names[2]][-1][1]])
-        
+
         # set the new index for i_1_hr
         i_1_hr = i
         subtotal_1_hr = 0
       else:
         subtotal_1_hr += subtotal_current
-  
-        
+
+
       if i>0 and (timestamp - x_axis[i_24_hr]) >= 86400:
         sub_cur = subtotal_24_hr + sum([float(x[self._ss_index]) for x in cn])
         y_axis_dict[key_names[3]].append([formatted_ts, sub_cur - y_axis_dict[key_names[3]][-1][1]])
@@ -337,7 +337,7 @@ class Analyze_Logs:
         subtotal_24_hr = 0
       else:
         subtotal_24_hr += subtotal_current
-      
+
       if i>0 and (timestamp - x_axis[i_7_day]) >= 604800:
         sub_cur = subtotal_7_day + sum([float(x[self._ss_index]) for x in cn])
         y_axis_dict[key_names[4]].append([formatted_ts, sub_cur - y_axis_dict[key_names[4]][-1][1]])
@@ -345,9 +345,9 @@ class Analyze_Logs:
         subtotal_7_day = 0
       else:
         subtotal_7_day += subtotal_current
-        
+
     return y_axis_dict
-  
+
   def build_x_axis(self,d,log_cutoff_date=dt(2017,1,1)):
     x_axis = sorted(list(set([x[self._ts_index] for x in d['data'] if dt.fromtimestamp(x[self._ts_index]) > log_cutoff_date])))
     return x_axis
@@ -355,13 +355,13 @@ class Analyze_Logs:
   def print_change_in_subtask_success_graph(self,d,days_since_cutoff):
     filename = 'golem-network-change-in-subtask-success.html'
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
-    
+
     x_axis = self.build_x_axis(d,log_cutoff_date)
     y_axis_dict = self.build_y_axis_dict_for_change_in_subtasks(x_axis)
     traces = []
     lt = time.localtime()
     pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
-    
+
     for key in y_axis_dict.keys():
       traces.append(go.Scatter(
       x = [x[0] for x in y_axis_dict[key]],
@@ -385,13 +385,13 @@ class Analyze_Logs:
   def print_network_summary_over_time_graph(self,d,days_since_cutoff):
     filename = 'golem-network.html'
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
-    
+
     x_axis = self.build_x_axis(d,log_cutoff_date)
     y_axis_dict = self.build_y_axis_dict_for_network_summary(d,x_axis)
     traces = []
     lt = time.localtime()
     pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
-    
+
     for key in y_axis_dict.keys():
       traces.append(go.Scatter(
       x = [x[0] for x in y_axis_dict[key]],
@@ -400,23 +400,23 @@ class Analyze_Logs:
       connectgaps=False,
       name=key
       ))
-      
-    fig = tools.make_subplots(rows=8, cols=1, specs=[[{}], [{}], [{}], [{}], [{}], [{}], [{}], [{}]],
+
+    fig = tools.make_subplots(rows=5, cols=1, specs=[[{}], [{}], [{}], [{}], [{}]],
                               shared_xaxes=True, shared_yaxes=True,
                               vertical_spacing=0.00001)
-    
-    fig.append_trace(traces[0], 8, 1) # Node_Count
-    fig.append_trace(traces[6], 7, 1) # CPU_Cores
-    fig.append_trace(traces[2], 6, 1) # Perf_Blender
-    fig.append_trace(traces[3], 5, 1) # Perf_Lux
-    fig.append_trace(traces[1], 4, 1) # Perf_Gen
-    fig.append_trace(traces[5], 3, 1) # Resource Memory
-    fig.append_trace(traces[4], 2, 1) # Resource Size
+
+    fig.append_trace(traces[0], 5, 1) # Node_Count
+    fig.append_trace(traces[3], 4, 1) # CPU_Cores
+    # fig.append_trace(traces[2], 6, 1) # Perf_Blender
+    # fig.append_trace(traces[3], 5, 1) # Perf_Lux
+    # fig.append_trace(traces[1], 4, 1) # Perf_Gen
+    fig.append_trace(traces[2], 3, 1) # Resource Memory
+    fig.append_trace(traces[1], 2, 1) # Resource Size
 
     fig['layout'].update(title='Golem Network Statistics Summary',
         xaxis = dict(title = 'Time'),
         yaxis = dict(title = 'Summarization Metric'))
-    
+
     plotly.offline.plot(fig, filename=filename, auto_open=False)
     self.inject_google_analytics(filename)
     return filename
@@ -424,7 +424,7 @@ class Analyze_Logs:
   def print_node_success_over_time_graph(self,d,days_since_cutoff):
     filename = 'golem-network-success-report.html'
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
-    
+
     x_axis = self.build_x_axis(d,log_cutoff_date)
     y_axis_dict = self.build_y_axis_dict(d,x_axis)
     traces = []
@@ -441,7 +441,7 @@ class Analyze_Logs:
       connectgaps=None,
       name=key
       ))
-    
+
     layout = dict(title = 'Golem Network Successful Subtask Computations by Node as of ' + pt,
               xaxis = dict(title = 'Time'),
               yaxis = dict(title = 'Successful Subtask Computations on Golem Network')
