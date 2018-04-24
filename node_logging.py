@@ -78,7 +78,7 @@ class Node_Logging():
     print("Begin refresh_graph: "+pt)
     try:
       filename_subtasks_success_graph = a.print_node_success_over_time_graph(a.d, 1)
-      filename_network_summary_graph = a.print_network_summary_over_time_graph(a.d, 1)
+      filename_network_summary_graph = a.print_network_summary_over_time_graph(a.d, 5)
       # filename_change_in_successes = a.print_change_in_subtask_success_graph(a.d, 1)
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
