@@ -14,6 +14,8 @@ class Node_Logging():
     self._timeout = 5 * 60.0 # Five @ Sixty seconds
     self._do_refresh_graph = True
     self._refresh_graph_timeout = 60 * 60 #### 1440 * 60 # 24 hours
+    self._do_daily_graph_refresh = False
+    self._daily_refresh_graph_timeout = 24 * 60 * 60 # 24hrs * 60min * 60sec
 
   def check_for_node_log_dir(self):
     if not os.path.exists('node_logs'):
@@ -66,6 +68,46 @@ class Node_Logging():
       print("append_param:"+append_param)
       traceback.print_exc(file=sys.stdout)
       print(pt + " - Error with writing the file...")
+
+  def daily_graph_refresh(self):
+    filename_daily_aggregate_totals_5_days = ''
+    filename_summary_over_last_10_days = ''
+    a = al.Analyze_Logs()
+    lt = time.location()
+    pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
+
+    print("Begin daily_graph_refresh: "+pt)
+    try:
+      filename_daily_aggregate_totals_5_days = a.print_daily_aggregate_totals(5)
+      filename_summary_over_last_10_days = a.print_summary_over_last_days_graph(5)
+    except:
+      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+      traceback.print_exc(file=sys.stdout)
+      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+
+    try:
+      copy(filename_daily_aggregate_totals_5_days,config.kascheri12_github_io_dir+filename_daily_aggregate_totals_5_days)
+      copy(filename_summary_over_last_10_days,config.kascheri12_github_io_dir+filename_summary_over_last_10_days)
+    except:
+      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+      traceback.print_exc(file=sys.stdout)
+      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+
+    try:
+      od = os.getcwd()
+      os.chdir(config.kascheri12_github_io_dir)
+      os.system('git checkout master')
+      os.system('git add ' + filename_daily_aggregate_totals_5_days)
+      os.system('git add ' + filename_summary_over_last_10_days)
+      os.system('git commit -m "automated commit for daily-golem-graphs"')
+      os.system('git push')
+      os.chdir(od)
+    except:
+      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+      traceback.print_exc(file=sys.stdout)
+      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+
+    print("End daily_graph_refresh: "+pt)
 
   def refresh_graph(self):
     filename_subtasks_success_graph = ''
@@ -120,6 +162,10 @@ def main():
     if nl._do_refresh_graph:
       rg = task.LoopingCall(nl.refresh_graph)
       rg.start(nl._refresh_graph_timeout)
+
+    if nl._do_daily_graph_refresh:
+      dgr = task.LoopingCall(nl.daily_graph_refresh)
+      rg.start(nl._daily_refresh_graph_timeout)
 
     reactor.run()
 
