@@ -28,6 +28,7 @@ class Analyze_Logs:
     self._ss_index = header.index('subtasks_success')
     self._id_index = header.index('node_id')
     self._nn_index = header.index('node_name')
+    self._rs_rs_index = header.index('rs_requested_subtasks_cnt')
 
   def print_nodes(self,d,sort_method=None,ascending=False):
     cols = ['timestamp','version','node_name','subtasks_success','os','node_id','performance_lux','performance_blender','performance_general','cpu_cores']
@@ -455,6 +456,59 @@ class Analyze_Logs:
     self.inject_google_analytics(filename)
     return filename
     
+  def print_daily_aggregate_totals(self,num_days_included):
+    filename = 'daily_aggregate_totals_'+str(num_days_included)+'_days.html'
+    log_cutoff_date = dt.today() - timedelta(days=num_days_included)
+
+    y_axis_dict = self.get_daily_aggregate_totals()
+    traces = []
+    lt = time.localtime()
+    pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
+
+    for key in y_axis_dict.keys():
+      traces.append(go.Bar(
+      x = [x[0] for x in y_axis_dict[key]],
+      y = [x[1] for x in y_axis_dict[key]],
+      name=key
+      ))
+    
+    layout = go.Layout(
+        title='Golem Network Daily Aggregate Totals Last '+str(num_days_included)+' days',
+        xaxis=dict(
+            tickfont=dict(
+                size=14,
+                color='rgb(107, 107, 107)'
+            )
+        ),
+        yaxis=dict(
+            title='',
+            titlefont=dict(
+                size=16,
+                color='rgb(107, 107, 107)'
+            ),
+            tickfont=dict(
+                size=14,
+                color='rgb(107, 107, 107)'
+            )
+        ),
+        legend=dict(
+            x=0,
+            y=1.0,
+            bgcolor='rgba(255, 255, 255, 0)',
+            bordercolor='rgba(255, 255, 255, 0)'
+        ),
+        barmode='group',
+        bargap=0.15,
+        bargroupgap=0.1
+    )
+
+    data = traces
+    fig = dict(data=data,layout=layout)
+
+    plotly.offline.plot(fig, filename=filename, auto_open=False)
+    self.inject_google_analytics(filename)
+    return filename
+    
   def print_network_summary_over_time_graph(self,d,days_since_cutoff):
     filename = 'golem-network.html'
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
@@ -527,6 +581,61 @@ class Analyze_Logs:
     self.inject_google_analytics(filename)
     return filename
 
+  def print_daily_avg_nodes_connected(self,num_days_included):
+    filename = 'daily_avg_nodes_connected_'+str(num_days_included)+'_days.html'
+    log_cutoff_date = dt.today() - timedelta(days=num_days_included)
+    lt = time.localtime()
+    pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
+
+    traces = []
+    plot_pairs = []
+    list_of_dates = sorted(self.get_list_of_dates_for_data())
+    for d in list_of_dates:
+      plot_pairs.append([d,self.get_avg_nodes_connected_on_date(d)])
+    
+    traces.append(go.Bar(
+    x = [x[0] for x in plot_pairs],
+    y = [x[1] for x in plot_pairs],
+    name='Avg Nodes Connected'
+    ))
+    
+    layout = go.Layout(
+        title='Golem Network Daily Average Nodes Connected Last '+str(num_days_included)+' Days',
+        xaxis=dict(
+            tickfont=dict(
+                size=14,
+                color='rgb(107, 107, 107)'
+            )
+        ),
+        yaxis=dict(
+            title='',
+            titlefont=dict(
+                size=16,
+                color='rgb(107, 107, 107)'
+            ),
+            tickfont=dict(
+                size=14,
+                color='rgb(107, 107, 107)'
+            )
+        ),
+        legend=dict(
+            x=0,
+            y=1.0,
+            bgcolor='rgba(255, 255, 255, 0)',
+            bordercolor='rgba(255, 255, 255, 0)'
+        ),
+        barmode='group',
+        bargap=0.15,
+        bargroupgap=0.1
+    )
+
+    data = traces
+    fig = dict(data=data,layout=layout)
+
+    plotly.offline.plot(fig, filename=filename, auto_open=False)
+    self.inject_google_analytics(filename)
+    return filename
+    
   def inject_google_analytics(self,filename):
     analytics_string = '''
         <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -562,6 +671,52 @@ class Analyze_Logs:
     versions_list = filter(None,[x[1] for x in d_in['data']])
     vl = sorted(versions_list, key=LooseVersion)
     return vl[-1]
+
+  def get_list_of_dates_for_data(self):
+    return list(set([dt.date(dt.fromtimestamp(x[self._ts_index])) for x in self.d['data']]))
+
+  def get_avg_nodes_connected_on_date(self, td):
+    all_nodes_logged_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]
+    all_timestamps_logged_on_date = set([x[self._ts_index] for x in all_nodes_logged_on_date])
+    return len(all_nodes_logged_on_date) / len(all_timestamps_logged_on_date)
+    
+  def get_avg_new_unique_node_count_on_date(self, td):
+    distinct_node_ids_logged_on_date = list(set([x[self._id_index] for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]))
+    distinct_timestamps_on_date = list(set([x[self._ts_index] for x in [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]]))
+    distinct_node_ids_logged_before_date = list(set([x[self._id_index] for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) < td]))
+    new_unique_nodes_on_date = [x for x in distinct_node_ids_logged_on_date if x not in distinct_node_ids_logged_before_date]
+    return len(new_unique_nodes_on_date)/len(distinct_timestamps_on_date)
+
+  def get_avg_requested_subtasks_on_date(self, td):
+    list_nodes_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == dt]
+    if list_nodes_on_date:
+      list_timestamps_on_date = [x[self._ts_index] for x in list_nodes_on_date]
+      total_count_requested_subtasks = sum([x[self._rs_rs_index] for x in list_nodes_on_date])
+      return total_count_requested_subtasks / len(list_nodes_on_date)
+    return 0
+
+  def get_avg_subtasks_success_on_date(self, td):
+    list_nodes_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == dt]
+    if list_nodes_on_date:
+      list_timestamps_on_date = [x[self._ts_index] for x in list_nodes_on_date]
+      total_count_subtasks_success = sum([x[self._ss_index] for x in list_nodes_on_date])
+      return total_count_subtasks_success / len(list_nodes_on_date)
+    return 0
+  
+  def get_daily_aggregate_totals(self):
+    dailytot = {
+      'New Unique':[],
+      'Subtasks Requested':[],
+      'Subtasks Completed':[]
+    }
+    
+    list_of_dates = sorted(self.get_list_of_dates_for_data())
+    for d in list_of_dates:
+      dailytot['New Unique'].append([d,self.get_avg_new_unique_node_count_on_date(d)])
+      dailytot['Subtasks Requested'].append([d,self.get_avg_requested_subtasks_on_date(d)])
+      dailytot['Subtasks Completed'].append([d,self.get_avg_subtasks_success_on_date(d)])
+      
+    return dailytot
 
   def load_data(self):
     d = self.load_new_data()
