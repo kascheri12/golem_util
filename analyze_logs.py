@@ -348,6 +348,25 @@ class Analyze_Logs:
 
     return y_axis_dict
 
+  def build_y_axis_dict_for_summary_over_last_days(self,x_axis):
+    y_axis_dict = {
+      'Unique Node Count':[]
+    }
+    
+    key_names = [x for x in y_axis_dict.keys()]
+    unique_nodes = []
+    
+    for timestamp in x_axis:
+      fts = self.get_formatted_time(timestamp)
+      distinct_ids_before_ts = list(set([x[self._id_index] for x in self.d['data'] if x[self._ts_index] < timestamp]))
+      new_nodes_this_ts = [x for x in self.d['data'] if x[self._ts_index] == timestamp and x[self._id_index] not in distinct_ids_before_ts]
+      cnt_distinct_ts_for_new_nodes = len(list(set([x[self._ts_index] for x in new_nodes_this_ts])))
+      if cnt_distinct_ts_for_new_nodes:
+        avg_new_for_ts = len(new_nodes_this_ts) / cnt_distinct_ts_for_new_nodes
+        y_axis_dict[key_names[0]].append([fts,avg_new_for_ts])
+      
+    return y_axis_dict
+
   def build_x_axis(self,d,log_cutoff_date=dt(2017,1,1)):
     x_axis = sorted(list(set([x[self._ts_index] for x in d['data'] if dt.fromtimestamp(x[self._ts_index]) > log_cutoff_date])))
     return x_axis
@@ -382,6 +401,60 @@ class Analyze_Logs:
     self.inject_google_analytics(filename)
     return filename
 
+  def print_summary_over_last_days_graph(self,days_since_cutoff):
+    filename = 'summary_last_'+str(days_since_cutoff)+'_days.html'
+    log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
+
+    x_axis = self.build_x_axis(self.d,log_cutoff_date)
+    y_axis_dict = self.build_y_axis_dict_for_summary_over_last_days(x_axis)
+    traces = []
+    lt = time.localtime()
+    pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
+
+    for key in y_axis_dict.keys():
+      traces.append(go.Bar(
+      x = [x[0] for x in y_axis_dict[key]],
+      y = [x[1] for x in y_axis_dict[key]],
+      name=key
+      ))
+    
+    layout = go.Layout(
+        title='Golem Network Summary over Last '+str(days_since_cutoff)+' days',
+        xaxis=dict(
+            tickfont=dict(
+                size=14,
+                color='rgb(107, 107, 107)'
+            )
+        ),
+        yaxis=dict(
+            title='',
+            titlefont=dict(
+                size=16,
+                color='rgb(107, 107, 107)'
+            ),
+            tickfont=dict(
+                size=14,
+                color='rgb(107, 107, 107)'
+            )
+        ),
+        legend=dict(
+            x=0,
+            y=1.0,
+            bgcolor='rgba(255, 255, 255, 0)',
+            bordercolor='rgba(255, 255, 255, 0)'
+        ),
+        barmode='group',
+        bargap=0.15,
+        bargroupgap=0.1
+    )
+
+    data = traces
+    fig = dict(data=data,layout=layout)
+
+    plotly.offline.plot(fig, filename=filename, auto_open=False)
+    self.inject_google_analytics(filename)
+    return filename
+    
   def print_network_summary_over_time_graph(self,d,days_since_cutoff):
     filename = 'golem-network.html'
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
