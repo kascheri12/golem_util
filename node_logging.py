@@ -139,6 +139,7 @@ class Node_Logging():
     try:
       od = os.getcwd()
       os.chdir(config.kascheri12_github_io_dir)
+      os.system('git pull')
       os.system('git checkout master')
       os.system('git add ' + filename_subtasks_success_graph)
       os.system('git add ' + filename_network_summary_graph)
