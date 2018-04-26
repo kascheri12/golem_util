@@ -124,9 +124,9 @@ class Analyze_Logs:
             )
 
     layout = go.Layout(
-           title="Golem Network Mainnet Tests - 20180425 - kascheri12",
-           width=1000,
-           height=1000,
+           title="",
+           width=800,
+           height=800,
            showlegend=False,
            scene=go.Scene(
              xaxis=go.XAxis(axis),
