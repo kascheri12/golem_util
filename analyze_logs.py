@@ -1,4 +1,4 @@
-import csv, os, time, sys, plotly, traceback
+import csv, os, time, sys, plotly, traceback, subprocess, collections
 from distutils.version import LooseVersion
 import pandas as pd
 from datetime import datetime as dt
@@ -40,10 +40,32 @@ class Analyze_Logs:
     else:
       print(df)
 
+  def build_3d_json_from_node_task_data(self):
+    o = [j[0] for j in [x.split() for x in [y for y in str(subprocess.check_output(['golemcli','tasks','show'])).split("\\n")[2:-1]]]]
+    st = []
+    for t in o:
+      st.append([j[0] for j in [x.split() for x in [y for y in str(subprocess.check_output(['golemcli','tasks','subtasks',t])).split("\\n")[2:-1]]] if len(j[0]) < 18])
+    nn = []
+    for t in st:
+      nn += t
+    node_names_counter = collections.Counter(nn)
+    node_names_list = list(node_names_counter.keys())
+    fj = {'nodes':[],'links':[]}
+    for k in node_names_list:
+      fj['nodes'].append({'name':k,'group':node_names_counter[k]})
+    na = []
+    for a in node_names_counter.keys():
+      li = [x for x in st if a in x]
+      for i in li:
+        ci = choice(i)
+        fj['links'].append({'source':node_names_list.index(a),'target':node_names_list.index(ci),'value':node_names_counter[a]+node_names_counter[ci]})
+    return fj
+
   def print_3d_file(self):
     filename="golem-network-3d.html"
-    d = self.load_data()
-    jf = self.build_json_data_object(d)
+    # d = self.load_data()
+    # jf = self.build_json_data_object(d)
+    jf = self.build_3d_json_from_node_task_data()
     N=len(jf['nodes'])
     L=len(jf['links'])
     Edges=[(jf['links'][k]['source'], jf['links'][k]['target']) for k in range(L)]
@@ -75,7 +97,7 @@ class Analyze_Logs:
                    y=Ye,
                    z=Ze,
                    mode='lines',
-                   line=go.Line(color='rgb(125,125,125)', width=1),
+                   line=go.Line(color='rgb(225, 225, 234)', width=1.0),
                    hoverinfo='none'
                    )
     trace2=go.Scatter3d(x=Xn,
@@ -84,7 +106,7 @@ class Analyze_Logs:
                    mode='markers',
                    name='actors',
                    marker=go.Marker(symbol='dot',
-                                 size=6,
+                                 size=5,
                                  color=group,
                                  colorscale='Viridis',
                                  line=go.Line(color='rgb(50,50,50)', width=0.5)
@@ -102,7 +124,7 @@ class Analyze_Logs:
             )
 
     layout = go.Layout(
-           title="Network of nodes connected and computing subtasks on the Golem Network (3D visualization)",
+           title="Golem Network Mainnet Tests - 20180425 - kascheri12",
            width=1000,
            height=1000,
            showlegend=False,
@@ -112,13 +134,13 @@ class Analyze_Logs:
              zaxis=go.ZAxis(axis),
           ),
        margin=go.Margin(
-          t=100
+          t=10
       ),
       hovermode='closest',
       annotations=go.Annotations([
              go.Annotation(
              showarrow=False,
-              text="Data source: <a href='http://stats.golem.network/'>Golem Network</a>",
+              text="",
               xref='paper',
               yref='paper',
               x=0,
