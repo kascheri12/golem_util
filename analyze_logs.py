@@ -264,7 +264,6 @@ class Analyze_Logs:
     }
 
     key_names = [x for x in y_axis_dict.keys()]
-    unique_nodes = []
 
     for timestamp in x_axis:
       fts = self.get_formatted_time(timestamp)
@@ -273,7 +272,9 @@ class Analyze_Logs:
       cnt_distinct_ts_for_new_nodes = len(list(set([x[self._ts_index] for x in new_nodes_this_ts])))
       if cnt_distinct_ts_for_new_nodes:
         avg_new_for_ts = len(new_nodes_this_ts) / cnt_distinct_ts_for_new_nodes
-        y_axis_dict[key_names[0]].append([fts,avg_new_for_ts])
+        # The first timestamp will have every node being counted, we don't want to include that value in the chart. 
+        if avg_new_for_ts < 500:
+          y_axis_dict[key_names[0]].append([fts,avg_new_for_ts])
 
     return y_axis_dict
 
