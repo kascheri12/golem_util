@@ -278,15 +278,15 @@ class Analyze_Logs:
 
     return y_axis_dict
 
-  def build_x_axis(self,d,log_cutoff_date=dt(2017,1,1)):
-    x_axis = sorted(list(set([x[self._ts_index] for x in d['data'] if dt.fromtimestamp(x[self._ts_index]) > log_cutoff_date])))
+  def build_x_axis(self,log_cutoff_date=dt(2017,1,1)):
+    x_axis = sorted(list(set([x[self._ts_index] for x in self.d['data'] if dt.fromtimestamp(x[self._ts_index]) > log_cutoff_date])))
     return x_axis
 
   def print_summary_over_last_days_graph(self,days_since_cutoff):
     filename = 'summary_last_'+str(days_since_cutoff)+'_days.html'
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
 
-    x_axis = self.build_x_axis(self.d,log_cutoff_date)
+    x_axis = self.build_x_axis(log_cutoff_date)
     y_axis_dict = self.build_y_axis_dict_for_summary_over_last_days(x_axis)
     traces = []
     lt = time.localtime()
@@ -393,7 +393,7 @@ class Analyze_Logs:
     filename = 'golem-network.html'
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
 
-    x_axis = self.build_x_axis(d,log_cutoff_date)
+    x_axis = self.build_x_axis(log_cutoff_date)
     y_axis_dict = self.build_y_axis_dict_for_network_summary(d,x_axis)
     traces = []
     lt = time.localtime()
@@ -533,7 +533,7 @@ class Analyze_Logs:
     distinct_node_ids_logged_before_date = list(set([x[self._id_index] for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) < td]))
     new_unique_nodes_on_date = [x for x in distinct_node_ids_logged_on_date if x not in distinct_node_ids_logged_before_date]
     return len(new_unique_nodes_on_date)/len(distinct_timestamps_on_date)
-  
+
   def get_float_value(self, f):
     try:
       return float(f)
