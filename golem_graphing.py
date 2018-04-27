@@ -16,11 +16,12 @@ class Golem_Graphing():
 
   def data_cleanup(self):
     pass
-
-  def daily_graph_refresh(self):
+  def get_pretty_time(self):
     lt = time.localtime()
-    pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
-    print("Begin daily_graph_refresh: "+pt)
+    return time.strftime("%Y%m%d-%H:%M %Z",lt)
+    
+  def daily_graph_refresh(self):
+    print("Begin daily_graph_refresh: "+self.get_pretty_time())
     filenames = []
     a = al.Analyze_Logs()
 
@@ -43,18 +44,18 @@ class Golem_Graphing():
           os.system('git push')
           os.chdir(od)
         except:
-          print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+          print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
           traceback.print_exc(file=sys.stdout)
-          print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+          print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       except:
-        print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+        print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         traceback.print_exc(file=sys.stdout)
-        print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+        print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     except:
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    print("End daily_graph_refresh: "+pt)
+      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    print("End daily_graph_refresh: "+self.get_pretty_time())
 
 def main():
 
