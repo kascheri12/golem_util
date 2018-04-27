@@ -21,49 +21,40 @@ class Golem_Graphing():
     lt = time.localtime()
     pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
     print("Begin daily_graph_refresh: "+pt)
-    filename_daily_aggregate_totals_10_days = ''
-    filename_daily_avg_nodes_connected_10_days = ''
-    filename_summary_over_last_10_days = ''
-    filename_network_summary_graph_10_days = ''
+    filenames = []
     a = al.Analyze_Logs()
 
     try:
-      filename_daily_aggregate_totals_10_days = a.print_daily_aggregate_totals(10)
-      filename_daily_avg_nodes_connected_10_days = a.print_daily_avg_nodes_connected(10)
-      filename_summary_over_last_10_days = a.print_summary_over_last_days_graph(10)
-      filename_network_summary_graph_10_days = a.print_network_summary_over_time_graph(10)
+      filenames.append(a.print_daily_aggregate_totals(10))
+      filenames.append(a.print_daily_avg_nodes_connected(10))
+      filenames.append(a.print_summary_over_last_days_graph(10))
+      filenames.append(a.print_network_summary_over_time_graph(10))
+      try:
+        for fn in filenames:
+          copy(fn,config.kascheri12_github_io_dir+fn)
+        try:
+          od = os.getcwd()
+          os.chdir(config.kascheri12_github_io_dir)
+          os.system('git pull')
+          os.system('git checkout master')
+          for fn in filenames:
+            os.system('git add ' + fn)
+          os.system('git commit -m "automated commit for daily-golem-graphs"')
+          os.system('git push')
+          os.chdir(od)
+        except:
+          print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+          traceback.print_exc(file=sys.stdout)
+          print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+
+      except:
+        print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+        traceback.print_exc(file=sys.stdout)
+        print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     except:
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
       print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-    try:
-      copy(filename_daily_aggregate_totals_10_days,config.kascheri12_github_io_dir+filename_daily_aggregate_totals_10_days)
-      copy(filename_daily_avg_nodes_connected_10_days,config.kascheri12_github_io_dir+filename_daily_avg_nodes_connected_10_days)
-      copy(filename_summary_over_last_10_days,config.kascheri12_github_io_dir+filename_summary_over_last_10_days)
-      copy(filename_network_summary_graph_10_days,config.kascheri12_github_io_dir+filename_network_summary_graph_10_days)
-    except:
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-      traceback.print_exc(file=sys.stdout)
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-    try:
-      od = os.getcwd()
-      os.chdir(config.kascheri12_github_io_dir)
-      os.system('git pull')
-      os.system('git checkout master')
-      os.system('git add ' + filename_daily_aggregate_totals_10_days)
-      os.system('git add ' + filename_daily_avg_nodes_connected_10_days)
-      os.system('git add ' + filename_summary_over_last_10_days)
-      os.system('git add ' + filename_network_summary_graph_10_days)
-      os.system('git commit -m "automated commit for daily-golem-graphs"')
-      os.system('git push')
-      os.chdir(od)
-    except:
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-      traceback.print_exc(file=sys.stdout)
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
     print("End daily_graph_refresh: "+pt)
 
 def main():
