@@ -220,7 +220,7 @@ class Analyze_Logs:
     name = str(node[self._nn_index])+"("+node[self._id_index][:10]+")"
     return name
 
-  def build_y_axis_dict_for_network_summary(self,d,x_axis):
+  def build_y_axis_dict_for_network_summary(self,x_axis):
     y_axis_dict = {
         'Node Count':[],
         # 'Performance General':[],
@@ -230,11 +230,10 @@ class Analyze_Logs:
         'Allowed Resource Memory':[],
         'CPU Cores':[]
     }
-    nodes = d
     key_names = [x for x in y_axis_dict.keys()]
 
     for timestamp in x_axis:
-      connected_nodes = [x for x in nodes['data'] if x[self._ts_index] == timestamp]
+      connected_nodes = [x for x in self.d['data'] if x[self._ts_index] == timestamp]
       formatted_ts = self.get_formatted_time(timestamp)
 
       node_count = len(connected_nodes)
@@ -265,7 +264,6 @@ class Analyze_Logs:
     }
 
     key_names = [x for x in y_axis_dict.keys()]
-    unique_nodes = []
 
     for timestamp in x_axis:
       fts = self.get_formatted_time(timestamp)
@@ -274,7 +272,9 @@ class Analyze_Logs:
       cnt_distinct_ts_for_new_nodes = len(list(set([x[self._ts_index] for x in new_nodes_this_ts])))
       if cnt_distinct_ts_for_new_nodes:
         avg_new_for_ts = len(new_nodes_this_ts) / cnt_distinct_ts_for_new_nodes
-        y_axis_dict[key_names[0]].append([fts,avg_new_for_ts])
+        # The first timestamp will have every node being counted, we don't want to include that value in the chart. 
+        if avg_new_for_ts < 500:
+          y_axis_dict[key_names[0]].append([fts,avg_new_for_ts])
 
     return y_axis_dict
 
@@ -394,7 +394,7 @@ class Analyze_Logs:
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
 
     x_axis = self.build_x_axis(log_cutoff_date)
-    y_axis_dict = self.build_y_axis_dict_for_network_summary(d,x_axis)
+    y_axis_dict = self.build_y_axis_dict_for_network_summary(x_axis)
     traces = []
     lt = time.localtime()
     pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
