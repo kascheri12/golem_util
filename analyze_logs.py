@@ -300,7 +300,7 @@ class Analyze_Logs:
       ))
 
     layout = go.Layout(
-        title='Golem Network Summary over Last '+str(days_since_cutoff)+' days',
+        title='New Unique Nodes per Snapshot',
         xaxis=dict(
             tickfont=dict(
                 size=14,
@@ -353,7 +353,7 @@ class Analyze_Logs:
       ))
 
     layout = go.Layout(
-        title='Golem Network Daily Aggregate Totals Last '+str(num_days_included)+' days',
+        title='Daily Aggregate Totals',
         xaxis=dict(
             tickfont=dict(
                 size=14,
@@ -414,13 +414,10 @@ class Analyze_Logs:
 
     fig.append_trace(traces[0], 5, 1) # Node_Count
     fig.append_trace(traces[3], 4, 1) # CPU_Cores
-    # fig.append_trace(traces[2], 6, 1) # Perf_Blender
-    # fig.append_trace(traces[3], 5, 1) # Perf_Lux
-    # fig.append_trace(traces[1], 4, 1) # Perf_Gen
     fig.append_trace(traces[2], 3, 1) # Resource Memory
     fig.append_trace(traces[1], 2, 1) # Resource Size
 
-    fig['layout'].update(title='Golem Network Statistics Summary',
+    fig['layout'].update(title='Golem Network Resources Summary',
         xaxis = dict(title = 'Time'),
         yaxis = dict(title = 'Summarization Metric'))
 
@@ -447,7 +444,7 @@ class Analyze_Logs:
     ))
 
     layout = go.Layout(
-        title='Golem Network Daily Average Nodes Connected Last '+str(num_days_included)+' Days',
+        title='Daily Average Nodes Connected',
         xaxis=dict(
             tickfont=dict(
                 size=14,
