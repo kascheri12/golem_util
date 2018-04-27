@@ -686,20 +686,26 @@ class Analyze_Logs:
     distinct_node_ids_logged_before_date = list(set([x[self._id_index] for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) < td]))
     new_unique_nodes_on_date = [x for x in distinct_node_ids_logged_on_date if x not in distinct_node_ids_logged_before_date]
     return len(new_unique_nodes_on_date)/len(distinct_timestamps_on_date)
+  
+  def get_float_value(self, f):
+    try:
+      return float(f)
+    except ValueError:
+      return 0
 
   def get_avg_requested_subtasks_on_date(self, td):
-    list_nodes_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == dt]
+    list_nodes_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]
     if list_nodes_on_date:
-      list_timestamps_on_date = [x[self._ts_index] for x in list_nodes_on_date]
-      total_count_requested_subtasks = sum([x[self._rs_rs_index] for x in list_nodes_on_date])
+      list_timestamps_on_date = list(set([x[self._ts_index] for x in list_nodes_on_date]))
+      total_count_requested_subtasks = sum([self.get_float_value(x[self._rs_rs_index]) for x in list_nodes_on_date])
       return total_count_requested_subtasks / len(list_nodes_on_date)
     return 0
 
   def get_avg_subtasks_success_on_date(self, td):
-    list_nodes_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == dt]
+    list_nodes_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]
     if list_nodes_on_date:
       list_timestamps_on_date = [x[self._ts_index] for x in list_nodes_on_date]
-      total_count_subtasks_success = sum([x[self._ss_index] for x in list_nodes_on_date])
+      total_count_subtasks_success = sum([self.get_float_value(x[self._ss_index]) for x in list_nodes_on_date])
       return total_count_subtasks_success / len(list_nodes_on_date)
     return 0
   
