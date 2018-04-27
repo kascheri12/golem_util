@@ -388,8 +388,8 @@ class Analyze_Logs:
     plotly.offline.plot(fig, filename=filename, auto_open=False)
     self.inject_google_analytics(filename)
     return filename
-    
-  def print_network_summary_over_time_graph(self,d,days_since_cutoff):
+
+  def print_network_summary_over_time_graph(self,days_since_cutoff):
     filename = 'golem-network.html'
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
 

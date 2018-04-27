@@ -4,25 +4,17 @@ import time, config
 from datetime import date
 from twisted.internet import task
 from twisted.internet import reactor
-from shutil import move, copy
-import analyze_logs as al
+from shutil import move
 import os, traceback, sys
 
 class Node_Logging():
 
   def __init__(self):
     self._timeout = 5 * 60.0 # Five @ Sixty seconds
-    self._do_refresh_graph = True
-    self._refresh_graph_timeout = 60 * 60 #### 1440 * 60 # 24 hours
-    self._do_daily_graph_refresh = False
-    self._daily_refresh_graph_timeout = 24 * 60 * 60 # 24hrs * 60min * 60sec
-
-  def check_for_node_log_dir(self):
-    if not os.path.exists('node_logs'):
-      os.makedirs('node_logs')
 
   def take_network_snapshot(self):
-    self.check_for_node_log_dir()
+    if not os.path.exists('node_logs'):
+      os.makedirs('node_logs')
     FILE_SIZE_LIMIT = 999999999  # 999MB
     timestamp = str(round(time.time()))
     d = date.fromtimestamp(time.time())
@@ -69,104 +61,11 @@ class Node_Logging():
       traceback.print_exc(file=sys.stdout)
       print(pt + " - Error with writing the file...")
 
-  def daily_graph_refresh(self):
-    filename_daily_aggregate_totals_5_days = ''
-    filename_summary_over_last_10_days = ''
-    a = al.Analyze_Logs()
-    lt = time.location()
-    pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
-
-    print("Begin daily_graph_refresh: "+pt)
-    try:
-      filename_daily_aggregate_totals_5_days = a.print_daily_aggregate_totals(5)
-      filename_summary_over_last_10_days = a.print_summary_over_last_days_graph(5)
-    except:
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-      traceback.print_exc(file=sys.stdout)
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-    try:
-      copy(filename_daily_aggregate_totals_5_days,config.kascheri12_github_io_dir+filename_daily_aggregate_totals_5_days)
-      copy(filename_summary_over_last_10_days,config.kascheri12_github_io_dir+filename_summary_over_last_10_days)
-    except:
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-      traceback.print_exc(file=sys.stdout)
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-    try:
-      od = os.getcwd()
-      os.chdir(config.kascheri12_github_io_dir)
-      os.system('git checkout master')
-      os.system('git add ' + filename_daily_aggregate_totals_5_days)
-      os.system('git add ' + filename_summary_over_last_10_days)
-      os.system('git commit -m "automated commit for daily-golem-graphs"')
-      os.system('git push')
-      os.chdir(od)
-    except:
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-      traceback.print_exc(file=sys.stdout)
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-    print("End daily_graph_refresh: "+pt)
-
-  def refresh_graph(self):
-    filename_subtasks_success_graph = ''
-    filename_network_summary_graph = ''
-    filename_change_in_successes = ''
-    a = al.Analyze_Logs()
-    lt = time.localtime()
-    pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
-
-    print("Begin refresh_graph: "+pt)
-    try:
-      filename_subtasks_success_graph = a.print_node_success_over_time_graph(a.d, 1)
-      filename_network_summary_graph = a.print_network_summary_over_time_graph(a.d, 5)
-      # filename_change_in_successes = a.print_change_in_subtask_success_graph(a.d, 1)
-    except:
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-      traceback.print_exc(file=sys.stdout)
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-    try:
-      copy(filename_subtasks_success_graph,config.kascheri12_github_io_dir+filename_subtasks_success_graph)
-      copy(filename_network_summary_graph,config.kascheri12_github_io_dir+filename_network_summary_graph)
-      # copy(filename_change_in_successes,config.kascheri12_github_io_dir+filename_change_in_successes)
-    except:
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-      traceback.print_exc(file=sys.stdout)
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-    try:
-      od = os.getcwd()
-      os.chdir(config.kascheri12_github_io_dir)
-      os.system('git pull')
-      os.system('git checkout master')
-      os.system('git add ' + filename_subtasks_success_graph)
-      os.system('git add ' + filename_network_summary_graph)
-      # os.system('git add ' + filename_change_in_successes)
-      os.system('git commit -m "automated commit for golem-network-graphs"')
-      os.system('git push')
-      os.chdir(od)
-    except:
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-      traceback.print_exc(file=sys.stdout)
-      print(pt + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-    print("End refresh_graph: "+time.strftime("%Y%m%d-%H:%M%Z",time.localtime()))
-
 def main():
 
     nl = Node_Logging()
     l = task.LoopingCall(nl.take_network_snapshot)
     l.start(nl._timeout) # call every sixty seconds
-
-    if nl._do_refresh_graph:
-      rg = task.LoopingCall(nl.refresh_graph)
-      rg.start(nl._refresh_graph_timeout)
-
-    if nl._do_daily_graph_refresh:
-      dgr = task.LoopingCall(nl.daily_graph_refresh)
-      rg.start(nl._daily_refresh_graph_timeout)
 
     reactor.run()
 
