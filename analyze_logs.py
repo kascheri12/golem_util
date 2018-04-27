@@ -220,7 +220,7 @@ class Analyze_Logs:
     name = str(node[self._nn_index])+"("+node[self._id_index][:10]+")"
     return name
 
-  def build_y_axis_dict_for_network_summary(self,d,x_axis):
+  def build_y_axis_dict_for_network_summary(self,x_axis):
     y_axis_dict = {
         'Node Count':[],
         # 'Performance General':[],
@@ -230,11 +230,10 @@ class Analyze_Logs:
         'Allowed Resource Memory':[],
         'CPU Cores':[]
     }
-    nodes = d
     key_names = [x for x in y_axis_dict.keys()]
 
     for timestamp in x_axis:
-      connected_nodes = [x for x in nodes['data'] if x[self._ts_index] == timestamp]
+      connected_nodes = [x for x in self.d['data'] if x[self._ts_index] == timestamp]
       formatted_ts = self.get_formatted_time(timestamp)
 
       node_count = len(connected_nodes)
@@ -394,7 +393,7 @@ class Analyze_Logs:
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
 
     x_axis = self.build_x_axis(log_cutoff_date)
-    y_axis_dict = self.build_y_axis_dict_for_network_summary(d,x_axis)
+    y_axis_dict = self.build_y_axis_dict_for_network_summary(x_axis)
     traces = []
     lt = time.localtime()
     pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
