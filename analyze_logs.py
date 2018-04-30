@@ -585,13 +585,14 @@ class Analyze_Logs:
     except IndexError:
       nr[self._ts_index] = 0
     # Eliminate null values in subtasks_success column
-    ss_index = header.index('subtasks_success')
     try:
-      nr[ss_index] = float(row[ss_index])
+      nr[self._ss_index] = float(row[self._ss_index])
     except IndexError:
-      nr[ss_index] = 0
+      nr[self._ss_index] = 0
     except ValueError:
-      nr[ss_index] = 0
+      nr[self._ss_index] = 0
+    except:
+      nr[self._ss_index] = 0
     return nr
 
   def load_new_data(self):
