@@ -428,7 +428,7 @@ class Analyze_Logs:
     return filename
 
   def print_daily_avg_nodes_connected(self,num_days_included):
-    print("Starting print_network_summary_over_time_graph - " + self.get_pretty_time())
+    print("Starting print_daily_avg_nodes_connected - " + self.get_pretty_time())
     filename = 'daily_avg_nodes_connected_'+str(num_days_included)+'_days.html'
     log_cutoff_date = dt.today() - timedelta(days=num_days_included)
 
