@@ -9,6 +9,7 @@ from plotly import tools
 import plotly.graph_objs as go
 from os import remove
 from shutil import move
+from math import isnan
 
 
 class Analyze_Logs:
@@ -344,7 +345,7 @@ class Analyze_Logs:
     filename = 'daily_aggregate_totals_'+str(num_days_included)+'_days.html'
     log_cutoff_date = dt.today() - timedelta(days=num_days_included)
 
-    y_axis_dict = self.get_daily_aggregate_totals()
+    y_axis_dict = self.get_daily_aggregate_totals(log_cutoff_date)
     traces = []
     
     for key in y_axis_dict.keys():
@@ -433,7 +434,7 @@ class Analyze_Logs:
 
     traces = []
     plot_pairs = []
-    list_of_dates = sorted(self.get_list_of_dates_for_data())
+    list_of_dates = sorted(self.get_list_of_dates_for_data(log_cutoff_date))
     for d in list_of_dates:
       plot_pairs.append([d,self.get_avg_nodes_connected_on_date(d)])
 
@@ -516,7 +517,7 @@ class Analyze_Logs:
     vl = sorted(versions_list, key=LooseVersion)
     return vl[-1]
 
-  def get_list_of_dates_for_data(self):
+  def get_list_of_dates_for_data(self, cutoff_date):
     return list(set([dt.date(dt.fromtimestamp(x[self._ts_index])) for x in self.d['data']]))
 
   def get_avg_nodes_connected_on_date(self, td):
@@ -533,9 +534,12 @@ class Analyze_Logs:
 
   def get_float_value(self, f):
     try:
-      return float(f)
+      x = float(f)
+      if not isnan(x):
+        return x
     except ValueError:
       return 0
+    return 0
 
   def get_avg_requested_subtasks_on_date(self, td):
     list_nodes_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]
@@ -553,16 +557,17 @@ class Analyze_Logs:
       return total_count_subtasks_success / len(list_nodes_on_date)
     return 0
 
-  def get_daily_aggregate_totals(self):
+  def get_daily_aggregate_totals(self,cutoff_date):
     dailytot = {
       'New Unique':[],
       'Subtasks Requested':[],
       'Subtasks Completed':[]
     }
 
-    list_of_dates = sorted(self.get_list_of_dates_for_data())
+    list_of_dates = sorted(self.get_list_of_dates_for_data(cutoff_date))
     for d in list_of_dates:
-      dailytot['New Unique'].append([d,self.get_avg_new_unique_node_count_on_date(d)])
+      if list_of_dates.index(d) > 0:
+        dailytot['New Unique'].append([d,self.get_avg_new_unique_node_count_on_date(d)])
       dailytot['Subtasks Requested'].append([d,self.get_avg_requested_subtasks_on_date(d)])
       dailytot['Subtasks Completed'].append([d,self.get_avg_subtasks_success_on_date(d)])
 
