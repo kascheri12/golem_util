@@ -9,6 +9,7 @@ from plotly import tools
 import plotly.graph_objs as go
 from os import remove
 from shutil import move
+from math import isnan
 
 
 class Analyze_Logs:
