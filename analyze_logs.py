@@ -565,7 +565,8 @@ class Analyze_Logs:
 
     list_of_dates = sorted(self.get_list_of_dates_for_data())
     for d in list_of_dates:
-      dailytot['New Unique'].append([d,self.get_avg_new_unique_node_count_on_date(d)])
+      if list_of_dates.index(d) > 0:
+        dailytot['New Unique'].append([d,self.get_avg_new_unique_node_count_on_date(d)])
       dailytot['Subtasks Requested'].append([d,self.get_avg_requested_subtasks_on_date(d)])
       dailytot['Subtasks Completed'].append([d,self.get_avg_subtasks_success_on_date(d)])
 
