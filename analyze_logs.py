@@ -533,9 +533,12 @@ class Analyze_Logs:
 
   def get_float_value(self, f):
     try:
-      return float(f)
+      x = float(f)
+      if not isnan(x):
+        return x
     except ValueError:
       return 0
+    return 0
 
   def get_avg_requested_subtasks_on_date(self, td):
     list_nodes_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]
