@@ -152,7 +152,11 @@ class Analyze_Logs:
     sl = sorted([(x,y) for x,y in targets.items() if y > 0])
     r = randint(1,len(sl))
     return r-1
-
+  
+  def get_pretty_time(self):
+    lt = time.localtime()
+    return time.strftime("%Y%m%d-%H:%M %Z",lt)
+  
   def get_links_list(self,d,max_timestamp,nodes_and_success_dict,all_max_success):
     list_of_links = []
     for key in nodes_and_success_dict.keys():
@@ -283,14 +287,13 @@ class Analyze_Logs:
     return x_axis
 
   def print_summary_over_last_days_graph(self,days_since_cutoff):
+    print("Starting print_summary_over_last_days_graph - " + self.get_pretty_time())
     filename = 'summary_last_'+str(days_since_cutoff)+'_days.html'
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
 
     x_axis = self.build_x_axis(log_cutoff_date)
     y_axis_dict = self.build_y_axis_dict_for_summary_over_last_days(x_axis)
     traces = []
-    lt = time.localtime()
-    pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
 
     for key in y_axis_dict.keys():
       traces.append(go.Bar(
@@ -337,14 +340,13 @@ class Analyze_Logs:
     return filename
 
   def print_daily_aggregate_totals(self,num_days_included):
+    print("Starting print_daily_aggregate_totals - " + self.get_pretty_time())
     filename = 'daily_aggregate_totals_'+str(num_days_included)+'_days.html'
     log_cutoff_date = dt.today() - timedelta(days=num_days_included)
 
     y_axis_dict = self.get_daily_aggregate_totals()
     traces = []
-    lt = time.localtime()
-    pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
-
+    
     for key in y_axis_dict.keys():
       traces.append(go.Bar(
       x = [x[0] for x in y_axis_dict[key]],
@@ -390,15 +392,14 @@ class Analyze_Logs:
     return filename
 
   def print_network_summary_over_time_graph(self,days_since_cutoff):
+    print("Starting print_network_summary_over_time_graph - " + self.get_pretty_time())
     filename = 'golem-network.html'
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
 
     x_axis = self.build_x_axis(log_cutoff_date)
     y_axis_dict = self.build_y_axis_dict_for_network_summary(x_axis)
     traces = []
-    lt = time.localtime()
-    pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
-
+    
     for key in y_axis_dict.keys():
       traces.append(go.Scatter(
       x = [x[0] for x in y_axis_dict[key]],
@@ -426,10 +427,9 @@ class Analyze_Logs:
     return filename
 
   def print_daily_avg_nodes_connected(self,num_days_included):
+    print("Starting print_network_summary_over_time_graph - " + self.get_pretty_time())
     filename = 'daily_avg_nodes_connected_'+str(num_days_included)+'_days.html'
     log_cutoff_date = dt.today() - timedelta(days=num_days_included)
-    lt = time.localtime()
-    pt = "%s%s%s-%s:%s%s" % (lt.tm_year,lt.tm_mon,lt.tm_mday,lt.tm_hour,lt.tm_min,time.tzname[0])
 
     traces = []
     plot_pairs = []
