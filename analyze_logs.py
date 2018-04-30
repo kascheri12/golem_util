@@ -522,7 +522,7 @@ class Analyze_Logs:
 
   def get_avg_nodes_connected_on_date(self, td):
     all_nodes_logged_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]
-    all_timestamps_logged_on_date = set([x[self._ts_index] for x in all_nodes_logged_on_date])
+    all_timestamps_logged_on_date = list(set([x[self._ts_index] for x in all_nodes_logged_on_date]))
     return len(all_nodes_logged_on_date) / len(all_timestamps_logged_on_date)
 
   def get_avg_new_unique_node_count_on_date(self, td):
@@ -552,7 +552,7 @@ class Analyze_Logs:
   def get_avg_subtasks_success_on_date(self, td):
     list_nodes_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]
     if list_nodes_on_date:
-      list_timestamps_on_date = [x[self._ts_index] for x in list_nodes_on_date]
+      list_timestamps_on_date = list(set([x[self._ts_index] for x in list_nodes_on_date]))
       total_count_subtasks_success = sum([self.get_float_value(x[self._ss_index]) for x in list_nodes_on_date])
       return total_count_subtasks_success / len(list_nodes_on_date)
     return 0
