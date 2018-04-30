@@ -263,7 +263,7 @@ class Analyze_Logs:
       y_axis_dict[key_names[3]].append([formatted_ts,summary_cpu_cores])
     return y_axis_dict
 
-  def build_y_axis_dict_for_summary_over_last_days(self,x_axis):
+  def build_y_axis_dict_for_new_unique_over_last_days(self,x_axis):
     y_axis_dict = {
       'Unique Node Count':[]
     }
@@ -287,13 +287,13 @@ class Analyze_Logs:
     x_axis = sorted(list(set([x[self._ts_index] for x in self.d['data'] if dt.fromtimestamp(x[self._ts_index]) > log_cutoff_date])))
     return x_axis
 
-  def print_summary_over_last_days_graph(self,days_since_cutoff):
-    print("Starting print_summary_over_last_days_graph - " + self.get_pretty_time())
+  def print_new_unique_over_last_days_graph(self,days_since_cutoff):
+    print("Starting print_new_unique_over_last_days_graph - " + self.get_pretty_time())
     filename = 'summary_last_'+str(days_since_cutoff)+'_days.html'
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
 
     x_axis = self.build_x_axis(log_cutoff_date)
-    y_axis_dict = self.build_y_axis_dict_for_summary_over_last_days(x_axis)
+    y_axis_dict = self.build_y_axis_dict_for_new_unique_over_last_days(x_axis)
     traces = []
 
     for key in y_axis_dict.keys():

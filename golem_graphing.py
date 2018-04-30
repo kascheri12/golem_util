@@ -28,7 +28,7 @@ class Golem_Graphing():
     try:
       filenames.append(a.print_daily_aggregate_totals(10))
       filenames.append(a.print_daily_avg_nodes_connected(30))
-      filenames.append(a.print_summary_over_last_days_graph(10))
+      filenames.append(a.print_new_unique_over_last_days_graph(10))
       filenames.append(a.print_network_summary_over_time_graph(10))
       try:
         for fn in filenames:
