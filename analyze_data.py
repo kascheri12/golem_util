@@ -10,15 +10,20 @@ import plotly.graph_objs as go
 from os import remove
 from shutil import move
 from math import isnan
+import load_data as ld
 
 
-class Analyze_Logs:
+class Analyze_Data:
 
-  def __init__(self):
-    self.d = self.load_data()
+  def __init__(self, d=None):
+    if d is not None:
+      self._d = d
+    else:
+      self._d = ld.Load_Data().get_data()
+    self.load_header_indices(self._d['header'])
 
   def load_header_indices(self,header):
-    # Inices are constant throughout
+    # Indices are constant throughout
     self._ts_index = header.index('timestamp')
     self._pg_index = header.index('performance_general')
     self._pb_index = header.index('performance_blender')
@@ -30,7 +35,21 @@ class Analyze_Logs:
     self._id_index = header.index('node_id')
     self._nn_index = header.index('node_name')
     self._rs_rs_index = header.index('rs_requested_subtasks_cnt')
-
+    self._rs_cr_index = header.index('rs_collected_results_cnt')
+    self._rs_fc_index = header.index('rs_failed_cnt')
+    self._rs_fs_index = header.index('rs_failed_subtasks_cnt')
+    self._rs_ft_index = header.index('rs_finished_task_cnt')
+    self._rs_ff_index = header.index('rs_finished_with_failures_cnt')
+    self._rs_nd_index = header.index('rs_not_downloadable_subtasks_cnt')
+    self._rs_tc_index = header.index('rs_tasks_cnt')
+    self._rs_to_index = header.index('rs_timed_out_subtasks_cnt')
+    self._rs_vr_index = header.index('rs_verified_results_cnt')
+    self._rs_wo_index = header.index('rs_work_offers_cnt')
+    self._sc_index = header.index('subtasks_cnt')
+    self._te_index = header.index('tasks_error')
+    self._tr_index = header.index('tasks_requested')
+    self._tt_index = header.index('tasks_timeout')
+    
   def print_nodes(self,d,sort_method=None,ascending=False):
     cols = ['timestamp','version','node_name','subtasks_success','os','node_id','performance_lux','performance_blender','performance_general','cpu_cores']
     pd.set_option('display.max_columns',0)
@@ -238,7 +257,7 @@ class Analyze_Logs:
     key_names = [x for x in y_axis_dict.keys()]
 
     for timestamp in x_axis:
-      connected_nodes = [x for x in self.d['data'] if x[self._ts_index] == timestamp]
+      connected_nodes = [x for x in self._d['data'] if x[self._ts_index] == timestamp]
       formatted_ts = self.get_formatted_time(timestamp)
 
       node_count = len(connected_nodes)
@@ -272,8 +291,8 @@ class Analyze_Logs:
 
     for timestamp in x_axis:
       fts = self.get_formatted_time(timestamp)
-      distinct_ids_before_ts = list(set([x[self._id_index] for x in self.d['data'] if x[self._ts_index] < timestamp]))
-      new_nodes_this_ts = [x for x in self.d['data'] if x[self._ts_index] == timestamp and x[self._id_index] not in distinct_ids_before_ts]
+      distinct_ids_before_ts = list(set([x[self._id_index] for x in self._d['data'] if x[self._ts_index] < timestamp]))
+      new_nodes_this_ts = [x for x in self._d['data'] if x[self._ts_index] == timestamp and x[self._id_index] not in distinct_ids_before_ts]
       cnt_distinct_ts_for_new_nodes = len(list(set([x[self._ts_index] for x in new_nodes_this_ts])))
       if cnt_distinct_ts_for_new_nodes:
         avg_new_for_ts = len(new_nodes_this_ts) / cnt_distinct_ts_for_new_nodes
@@ -284,7 +303,7 @@ class Analyze_Logs:
     return y_axis_dict
 
   def build_x_axis(self,log_cutoff_date=dt(2017,1,1)):
-    x_axis = sorted(list(set([x[self._ts_index] for x in self.d['data'] if dt.fromtimestamp(x[self._ts_index]) > log_cutoff_date])))
+    x_axis = sorted(list(set([x[self._ts_index] for x in self._d['data'] if dt.fromtimestamp(x[self._ts_index]) > log_cutoff_date])))
     return x_axis
 
   def print_new_unique_over_last_days_graph(self,days_since_cutoff):
@@ -518,17 +537,17 @@ class Analyze_Logs:
     return vl[-1]
 
   def get_list_of_dates_for_data(self, cutoff_date):
-    return list(set([dt.date(dt.fromtimestamp(x[self._ts_index])) for x in self.d['data']]))
+    return list(set([self.get_date_from_timestamp(x[self._ts_index]) for x in self._d['data']]))
 
   def get_avg_nodes_connected_on_date(self, td):
-    all_nodes_logged_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]
+    all_nodes_logged_on_date = [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == td]
     all_timestamps_logged_on_date = list(set([x[self._ts_index] for x in all_nodes_logged_on_date]))
     return len(all_nodes_logged_on_date) / len(all_timestamps_logged_on_date)
 
   def get_avg_new_unique_node_count_on_date(self, td):
-    distinct_node_ids_logged_on_date = list(set([x[self._id_index] for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]))
-    distinct_timestamps_on_date = list(set([x[self._ts_index] for x in [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]]))
-    distinct_node_ids_logged_before_date = list(set([x[self._id_index] for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) < td]))
+    distinct_node_ids_logged_on_date = list(set([x[self._id_index] for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == td]))
+    distinct_timestamps_on_date = list(set([x[self._ts_index] for x in [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == td]]))
+    distinct_node_ids_logged_before_date = list(set([x[self._id_index] for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) < td]))
     new_unique_nodes_on_date = [x for x in distinct_node_ids_logged_on_date if x not in distinct_node_ids_logged_before_date]
     return len(new_unique_nodes_on_date)/len(distinct_timestamps_on_date)
 
@@ -542,7 +561,7 @@ class Analyze_Logs:
     return 0
 
   def get_avg_requested_subtasks_on_date(self, td):
-    list_nodes_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]
+    list_nodes_on_date = [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == td]
     if list_nodes_on_date:
       list_timestamps_on_date = list(set([x[self._ts_index] for x in list_nodes_on_date]))
       total_count_requested_subtasks = sum([self.get_float_value(x[self._rs_rs_index]) for x in list_nodes_on_date])
@@ -550,18 +569,42 @@ class Analyze_Logs:
     return 0
 
   def get_avg_subtasks_success_on_date(self, td):
-    list_nodes_on_date = [x for x in self.d['data'] if dt.date(dt.fromtimestamp(x[self._ts_index])) == td]
+    list_nodes_on_date = [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == td]
     if list_nodes_on_date:
       list_timestamps_on_date = list(set([x[self._ts_index] for x in list_nodes_on_date]))
       total_count_subtasks_success = sum([self.get_float_value(x[self._ss_index]) for x in list_nodes_on_date])
       return total_count_subtasks_success / len(list_nodes_on_date)
     return 0
+    
+  def get_avg_collected_results_on_date(self, td):
+    lnod = [x for x in self_d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == td]
+    if lnod:
+      ltod = list(set([x[self._ts_index] for x in lnod]))
+      tccr = sum([self.get_float_value(x[self._cr_index]) for x in lnod])
+      return tccr / len(ltod)
 
+  def get_date_from_timestamp(self, d1):
+    return dt.date(dt.fromtimestamp(d1))
+    
   def get_daily_aggregate_totals(self,cutoff_date):
     dailytot = {
       'New Unique':[],
       'Subtasks Requested':[],
-      'Subtasks Completed':[]
+      'Subtasks Completed':[],
+      'Collected Results':[],
+      'Failed':[],
+      'Failed Subtasks':[],
+      'Finished Task':[],
+      'Finished With Failures':[],
+      'Not Downloadable Subtasks':[],
+      'Requested Subtasks':[],
+      'Tasks':[],
+      'Timed Out Subtasks':[],
+      'Verified Results':[],
+      'Subtasks':[],
+      'Tasks Error':[],
+      'Tasks Requested':[],
+      'Tasks Timeout':[]
     }
 
     list_of_dates = sorted(self.get_list_of_dates_for_data(cutoff_date))
@@ -570,140 +613,10 @@ class Analyze_Logs:
         dailytot['New Unique'].append([d,self.get_avg_new_unique_node_count_on_date(d)])
       dailytot['Subtasks Requested'].append([d,self.get_avg_requested_subtasks_on_date(d)])
       dailytot['Subtasks Completed'].append([d,self.get_avg_subtasks_success_on_date(d)])
+      dailytot['Collected Results'].append([d,self.get_avg_collected_results_on_date(d)])
+      
 
     return dailytot
-
-  def load_data(self):
-    d = self.load_new_data()
-    return d
-
-  def clean_data_row(self,header,row):
-    nr = row
-
-    try:
-      nr[self._ts_index] = int(row[self._ts_index])
-    except IndexError:
-      nr[self._ts_index] = 0
-    # Eliminate null values in subtasks_success column
-    try:
-      nr[self._ss_index] = float(row[self._ss_index])
-    except IndexError:
-      nr[self._ss_index] = 0
-    except ValueError:
-      nr[self._ss_index] = 0
-    except:
-      nr[self._ss_index] = 0
-    return nr
-
-  def load_new_data(self):
-    print("Begin load_new_data. Loading each file into data")
-    all_data = {
-      'data':[],
-      'header':[]
-    }
-    for filename in [x for x in os.listdir('node_logs/') if x.find('network') != -1 or x.find('old_logs.log') != -1]:
-      try:
-        with codecs.open('node_logs/'+filename,'rb',"UTF-8") as f:
-          reader = csv.reader(f,delimiter=',')
-          d = []
-          first_row = True
-          for row in reader:
-            # This call is to check whether column 3, node_id exists.
-            # Might not be needed anymore. It was caused by empty files that were written during network outage.
-            # I've since added try/catch so those files won't exist in the future.
-            row[3]
-            if first_row:
-              first_row = False
-              all_data['header'] = row
-              self.load_header_indices(all_data['header'])
-            else:
-              all_data['data'].append(self.clean_data_row(all_data['header'],row))
-      except:
-        print("Error in load_new_data - for %s in network.log files" % (filename))
-        traceback.print_exc(file=sys.stdout)
-    print("End load_new_data.")
-    return all_data
-
-  def load_raw_data(self):
-    all_data = {
-      'filenames':[],
-      'data':[],
-      'header':[]
-    }
-    for filename in [x for x in os.listdir('node_logs/') if x.find('network') == -1 and x.find('.DS_Store') == -1]:
-      try:
-        with open('node_logs/'+filename,'rt') as f:
-          reader = csv.reader(f,delimiter=',')
-          d = []
-          first_row = True
-          for row in reader:
-            try:
-              row[3]
-              if first_row:
-                first_row = False
-                all_data['header'] = row
-              else:
-                all_data['data'].append(row)
-            except:
-              print("error loading row: ")
-          all_data['filenames'].append(filename)
-      except IndexError:
-        print("Catching exception because file is empty and no data found.")
-    return all_data
-
-  def format_old_log_data(self):
-    filename = "old_logs.log"
-    directory = "node_logs/"
-    filepath = directory + filename
-    d = load_raw_data()
-    new_header = load_new_data()['header']
-    nodes_to_write = []
-    for i in range(len(d['data'])):
-      new_node = []
-      for j in range(len(new_header)):
-        try:
-          h_index = d['header'].index(new_header[j])
-        except ValueError:
-          h_index = -1
-        if h_index > -1:
-          new_node.append(d['data'][i][h_index])
-        else:
-          new_node.append('')
-      nodes_to_write.append(new_node)
-    try:
-      with open(filepath,'w') as f:
-        f.write("%s\n" % (','.join(new_header)))
-        for node in nodes_to_write:
-          f.write("%s\n" % (','.join(node)))
-    except:
-      print("Error writing the new log file with old log data")
-
-  def fix_files_again(self,filenames):
-    for filename in filenames:
-      with open('node_logs/'+filename,'rt') as f:
-        r = f.read()
-        with open('node_logs/'+filename+'.tmp','w') as f2:
-          f2.write(''.join(r[:126])+''.join(r[127:]))
-      remove('node_logs/'+filename)
-      move('node_logs/'+filename+'.tmp', 'node_logs/'+filename)
-
-  def last_fix_maybe(self,filenames):
-    for filename in filenames:
-      with open('node_logs/'+filename,'rt') as f:
-        r = f.read()
-        with open('node_logs/'+filename+'.tmp','w') as f2:
-          f2.write(''.join(r[:122])+filename[:-4]+''.join(r[132:]))
-      remove('node_logs/'+filename)
-      move('node_logs/'+filename+'.tmp','node_logs/'+filename)
-
-  def fix_files(self,filenames):
-    for filename in filenames:
-      with open('node_logs/'+filename,'rt') as f:
-        r = f.read()
-        with open('node_logs/'+filename+'.tmp','w') as f2:
-          f2.write(''.join(r[:121])+"\n"+''.join(r[122:]))
-      remove('node_logs/'+filename)
-      move('node_logs/'+filename+'.tmp', 'node_logs/'+filename)
 
   # Deprecated graphs
   # def print_change_in_subtask_success_graph(self,d,days_since_cutoff):
@@ -737,7 +650,7 @@ class Analyze_Logs:
   #   return filename
   #
   # def build_y_axis_dict_for_change_in_subtasks(self,x_axis):
-  #   nodes = self.d
+  #   nodes = self._d
   #   y_axis_dict = {
   #       'Node Count':[],
   #       'Subtask Computation Change between logs':[],
