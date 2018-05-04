@@ -45,10 +45,9 @@ class Analyze_Data:
     self._rs_to_index = header.index('rs_timed_out_subtasks_cnt')
     self._rs_vr_index = header.index('rs_verified_results_cnt')
     self._rs_wo_index = header.index('rs_work_offers_cnt')
-    self._sc_index = header.index('subtasks_cnt')
-    self._te_index = header.index('tasks_error')
+    self._te_index = header.index('subtasks_error')
     self._tr_index = header.index('tasks_requested')
-    self._tt_index = header.index('tasks_timeout')
+    self._tt_index = header.index('subtasks_timeout')
     
   def print_nodes(self,d,sort_method=None,ascending=False):
     cols = ['timestamp','version','node_name','subtasks_success','os','node_id','performance_lux','performance_blender','performance_general','cpu_cores']
@@ -560,36 +559,49 @@ class Analyze_Data:
       return 0
     return 0
 
-  def get_avg_requested_subtasks_on_date(self, td):
-    list_nodes_on_date = [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == td]
-    if list_nodes_on_date:
-      list_timestamps_on_date = list(set([x[self._ts_index] for x in list_nodes_on_date]))
-      total_count_requested_subtasks = sum([self.get_float_value(x[self._rs_rs_index]) for x in list_nodes_on_date])
-      return total_count_requested_subtasks / len(list_nodes_on_date)
-    return 0
+  def get_avg_requested_subtasks_on_date(self, lnod, dtod):
+    total_count_requested_subtasks = sum([self.get_float_value(x[self._rs_rs_index]) for x in lnod])
+    return total_count_requested_subtasks / len(dtod)
 
-  def get_avg_subtasks_success_on_date(self, td):
-    list_nodes_on_date = [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == td]
-    if list_nodes_on_date:
-      list_timestamps_on_date = list(set([x[self._ts_index] for x in list_nodes_on_date]))
-      total_count_subtasks_success = sum([self.get_float_value(x[self._ss_index]) for x in list_nodes_on_date])
-      return total_count_subtasks_success / len(list_nodes_on_date)
-    return 0
+  def get_avg_subtasks_success_on_date(self, lnod, dtod):
+    total_count_subtasks_success = sum([self.get_float_value(x[self._ss_index]) for x in lnod])
+    return total_count_subtasks_success / len(dtod)
     
-  def get_avg_collected_results_on_date(self, td):
-    lnod = [x for x in self_d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == td]
-    if lnod:
-      ltod = list(set([x[self._ts_index] for x in lnod]))
-      tccr = sum([self.get_float_value(x[self._cr_index]) for x in lnod])
-      return tccr / len(ltod)
+  def get_avg_collected_results_on_date(self, lnod, dtod):
+    tccr = sum([self.get_float_value(x[self._rs_cr_index]) for x in lnod])
+    return tccr / len(dtod)
+      
+  def get_avg_failed_on_date(self, lnod, dtod):
+    tfod = sum([self.get_float_value(x[self._rs_fc_index]) for x in lnod])
+    return tfod / len(dtod)
 
+  def get_avg_failed_subtasks_on_date(self, lnod, dtod):
+    tfsd = sum([self.get_float_value(x[self._rs_fs_index]) for x in lnod])
+    return tfsd / len(dtod)
+
+  def get_avg_finished_task_on_date(self, lnod, dtod):
+    tftd = sum([self.get_float_value(x[self._rs_ft_index]) for x in lnod])
+    return tftd / len(dtod)
+      
+  def get_avg_finished_with_fail_on_date(self, lnod, dtod):
+    tffd = sum([self.get_float_value(x[self._rs_ff_index]) for x in lnod])
+    return tffd / len(dtod)
+    
+  def get_avg_not_downloadable_subtasks_on_date(self, lnod, dtod):
+    tndd = sum([self.get_float_value(x[self._rs_nd_index]) for x in lnod])
+    return tndd / len(dtod)
+
+  def get_avg_tasks_on_date(self, lnod, dtod):
+    ttd = sum([self.get_float_value(x[self._rs_tc_index]) for x in lnod])
+    return ttd / len(dtod)
+      
   def get_date_from_timestamp(self, d1):
     return dt.date(dt.fromtimestamp(d1))
     
   def get_daily_aggregate_totals(self,cutoff_date):
     dailytot = {
       'New Unique':[],
-      'Subtasks Requested':[],
+      'Requested Subtasks':[],
       'Subtasks Completed':[],
       'Collected Results':[],
       'Failed':[],
@@ -597,7 +609,6 @@ class Analyze_Data:
       'Finished Task':[],
       'Finished With Failures':[],
       'Not Downloadable Subtasks':[],
-      'Requested Subtasks':[],
       'Tasks':[],
       'Timed Out Subtasks':[],
       'Verified Results':[],
@@ -609,12 +620,20 @@ class Analyze_Data:
 
     list_of_dates = sorted(self.get_list_of_dates_for_data(cutoff_date))
     for d in list_of_dates:
+      lnod = [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == d]
+      if lnod:
+        dtod = list(set([x[self._ts_index] for x in lnod]))
+        
       if list_of_dates.index(d) > 0:
         dailytot['New Unique'].append([d,self.get_avg_new_unique_node_count_on_date(d)])
-      dailytot['Subtasks Requested'].append([d,self.get_avg_requested_subtasks_on_date(d)])
-      dailytot['Subtasks Completed'].append([d,self.get_avg_subtasks_success_on_date(d)])
-      dailytot['Collected Results'].append([d,self.get_avg_collected_results_on_date(d)])
-      
+      dailytot['Subtasks Completed'].append([d,self.get_avg_subtasks_success_on_date(lnod,dtod)])
+      dailytot['Collected Results'].append([d,self.get_avg_collected_results_on_date(lnod,dtod)])
+      dailytot['Failed'].append([d,self.get_avg_failed_on_date(lnod,dtod)])
+      dailytot['Failed Subtasks'].append([d,self.get_avg_failed_subtasks_on_date(lnod,dtod)])
+      dailytot['Finished Task'].append([d,self.get_avg_finished_task_on_date(lnod,dtod)])
+      dailytot['Finished With Failures'].append([d,self.get_avg_finished_with_fail_on_date(lnod,dtod)])
+      dailytot['Not Downloadable Subtasks'].append([d,self.get_avg_not_downloadable_subtasks_on_date(lnod,dtod)])
+      dailytot['Tasks'].append([d,self.get_avg_tasks_on_date(lnod,dtod)])
 
     return dailytot
 
