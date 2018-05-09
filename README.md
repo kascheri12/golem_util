@@ -6,7 +6,7 @@ A utility library being built to track progress of the golem network
 
   * Create_Task
     * Purpose: This class is used to request tasks on the network. The class has a function to build a task json file from a template.
-    * Pre-Req: There are some instructions [here](https://github.com/kascheri12/kascheri12.github.io/blob/BANP/pages/ubuntu_deployment.md#L273) about testing.
+    * Pre-Req: There are some instructions [here](https://github.com/kascheri12/kascheri12.github.io/blob/master/pages/ubuntu_deployment.md#testing-golem) about testing.
     * Usage:
       
       ```
