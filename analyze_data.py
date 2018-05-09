@@ -281,7 +281,7 @@ class Analyze_Data:
 
   def print_new_unique_over_last_days_graph(self,days_since_cutoff):
     print("Starting print_new_unique_over_last_days_graph - " + self.get_pretty_time())
-    filename = 'summary_last_'+str(days_since_cutoff)+'_days.html'
+    filename = 'new_unique_node_count_per_snapshot.html'
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
 
     x_axis = self.build_x_axis(log_cutoff_date)
