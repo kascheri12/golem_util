@@ -10,6 +10,33 @@ class Load_Data:
   def __init__(self):
     self.d = self.load_data()
 
+  def load_header_indices(self,header):
+    # Indices are constant throughout
+    self._ts_index = header.index('timestamp')
+    self._pg_index = header.index('performance_general')
+    self._pb_index = header.index('performance_blender')
+    self._pl_index = header.index('performance_lux')
+    self._ars_index = header.index('allowed_resource_size')
+    self._arm_index = header.index('allowed_resource_memory')
+    self._cc_index = header.index('cpu_cores')
+    self._ss_index = header.index('subtasks_success')
+    self._id_index = header.index('node_id')
+    self._nn_index = header.index('node_name')
+    self._rs_rs_index = header.index('rs_requested_subtasks_cnt')
+    self._rs_cr_index = header.index('rs_collected_results_cnt')
+    self._rs_fc_index = header.index('rs_failed_cnt')
+    self._rs_fs_index = header.index('rs_failed_subtasks_cnt')
+    self._rs_ft_index = header.index('rs_finished_task_cnt')
+    self._rs_ff_index = header.index('rs_finished_with_failures_cnt')
+    self._rs_nd_index = header.index('rs_not_downloadable_subtasks_cnt')
+    self._rs_tc_index = header.index('rs_tasks_cnt')
+    self._rs_to_index = header.index('rs_timed_out_subtasks_cnt')
+    self._rs_vr_index = header.index('rs_verified_results_cnt')
+    self._rs_wo_index = header.index('rs_work_offers_cnt')
+    self._te_index = header.index('subtasks_error')
+    self._tr_index = header.index('tasks_requested')
+    self._tt_index = header.index('subtasks_timeout')
+
   def get_data(self):
     return self.d
 
@@ -55,6 +82,7 @@ class Load_Data:
             if first_row:
               first_row = False
               all_data['header'] = row
+              self.load_header_indices(row)
             else:
               all_data['data'].append(self.clean_data_row(all_data['header'],row))
       except:

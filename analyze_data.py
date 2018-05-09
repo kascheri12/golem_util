@@ -15,39 +15,13 @@ import load_data as ld
 
 class Analyze_Data:
 
-  def __init__(self, d=None):
-    if d is not None:
-      self._d = d
+  def __init__(self, ld=None):
+    if ld is not None:
+      self._ld = ld
+      self._d = self._ld.get_data()
     else:
-      self._d = ld.Load_Data().get_data()
-    self.load_header_indices(self._d['header'])
-
-  def load_header_indices(self,header):
-    # Indices are constant throughout
-    self._ts_index = header.index('timestamp')
-    self._pg_index = header.index('performance_general')
-    self._pb_index = header.index('performance_blender')
-    self._pl_index = header.index('performance_lux')
-    self._ars_index = header.index('allowed_resource_size')
-    self._arm_index = header.index('allowed_resource_memory')
-    self._cc_index = header.index('cpu_cores')
-    self._ss_index = header.index('subtasks_success')
-    self._id_index = header.index('node_id')
-    self._nn_index = header.index('node_name')
-    self._rs_rs_index = header.index('rs_requested_subtasks_cnt')
-    self._rs_cr_index = header.index('rs_collected_results_cnt')
-    self._rs_fc_index = header.index('rs_failed_cnt')
-    self._rs_fs_index = header.index('rs_failed_subtasks_cnt')
-    self._rs_ft_index = header.index('rs_finished_task_cnt')
-    self._rs_ff_index = header.index('rs_finished_with_failures_cnt')
-    self._rs_nd_index = header.index('rs_not_downloadable_subtasks_cnt')
-    self._rs_tc_index = header.index('rs_tasks_cnt')
-    self._rs_to_index = header.index('rs_timed_out_subtasks_cnt')
-    self._rs_vr_index = header.index('rs_verified_results_cnt')
-    self._rs_wo_index = header.index('rs_work_offers_cnt')
-    self._te_index = header.index('subtasks_error')
-    self._tr_index = header.index('tasks_requested')
-    self._tt_index = header.index('subtasks_timeout')
+      self._ld = ld.Load_Data()
+      self._d = self._ld.get_data()
     
   def print_nodes(self,d,sort_method=None,ascending=False):
     cols = ['timestamp','version','node_name','subtasks_success','os','node_id','performance_lux','performance_blender','performance_general','cpu_cores']
@@ -158,7 +132,7 @@ class Analyze_Data:
     plotly.offline.plot(fig, filename=filename, auto_open=True)
 
   def build_json_data_object(self,d):
-    max_timestamp = max(sorted(list(set([x[self._ts_index] for x in d['data']]))))
+    max_timestamp = max(sorted(list(set([x[self._ld._ts_index] for x in d['data']]))))
     nodes_and_success_dict = self.get_distinct_successes_dict(d)
     all_max_success = self.get_max_successes(d)
     my_dict = {
@@ -234,13 +208,13 @@ class Analyze_Data:
     return dist_nodes
 
   def get_max_success_for_node(seflf,node,d):
-    return max([x[self._ss_index] for x in d['data'] if x[self._id_index] == node[self._id_index]])
+    return max([x[self._ld._ss_index] for x in d['data'] if x[self._ld._id_index] == node[self._ld._id_index]])
 
   def get_max_successes(self,d):
     return max([x[3] for x in d['data']])
 
   def get_node_name(self,header,node):
-    name = str(node[self._nn_index])+"("+node[self._id_index][:10]+")"
+    name = str(node[self._ld._nn_index])+"("+node[self._ld._id_index][:10]+")"
     return name
 
   def build_y_axis_dict_for_network_summary(self,x_axis):
@@ -256,28 +230,28 @@ class Analyze_Data:
     key_names = [x for x in y_axis_dict.keys()]
 
     for timestamp in x_axis:
-      connected_nodes = [x for x in self._d['data'] if x[self._ts_index] == timestamp]
+      connected_nodes = [x for x in self._d['data'] if x[self._ld._ts_index] == timestamp]
       formatted_ts = self.get_formatted_time(timestamp)
 
       node_count = len(connected_nodes)
       y_axis_dict[key_names[0]].append([formatted_ts,node_count])
 
-      # summary_perf_gen = sum([float(x[self._pg_index]) for x in connected_nodes])
+      # summary_perf_gen = sum([float(x[self._ld._pg_index]) for x in connected_nodes])
       # y_axis_dict[key_names[1]].append([formatted_ts,summary_perf_gen])
       #
-      # summary_perf_blend = sum([float(x[self._pb_index]) for x in connected_nodes])
+      # summary_perf_blend = sum([float(x[self._ld._pb_index]) for x in connected_nodes])
       # y_axis_dict[key_names[2]].append([formatted_ts,summary_perf_blend])
       #
-      # summary_perf_lux = sum([float(x[self._pl_index]) for x in connected_nodes])
+      # summary_perf_lux = sum([float(x[self._ld._pl_index]) for x in connected_nodes])
       # y_axis_dict[key_names[3]].append([formatted_ts,summary_perf_lux])
 
-      summary_allowed_resources = sum([int(x[self._ars_index]) for x in connected_nodes if x[self._ars_index] != ''])
+      summary_allowed_resources = sum([int(x[self._ld._ars_index]) for x in connected_nodes if x[self._ld._ars_index] != ''])
       y_axis_dict[key_names[1]].append([formatted_ts,summary_allowed_resources])
 
-      summary_allowed_memory = sum([int(x[self._arm_index]) for x in connected_nodes if x[self._arm_index] != ''])
+      summary_allowed_memory = sum([int(x[self._ld._arm_index]) for x in connected_nodes if x[self._ld._arm_index] != ''])
       y_axis_dict[key_names[2]].append([formatted_ts,summary_allowed_memory])
 
-      summary_cpu_cores = sum([int(x[self._cc_index]) for x in connected_nodes if x[self._cc_index] != ''])
+      summary_cpu_cores = sum([int(x[self._ld._cc_index]) for x in connected_nodes if x[self._ld._cc_index] != ''])
       y_axis_dict[key_names[3]].append([formatted_ts,summary_cpu_cores])
     return y_axis_dict
 
@@ -290,9 +264,9 @@ class Analyze_Data:
 
     for timestamp in x_axis:
       fts = self.get_formatted_time(timestamp)
-      distinct_ids_before_ts = list(set([x[self._id_index] for x in self._d['data'] if x[self._ts_index] < timestamp]))
-      new_nodes_this_ts = [x for x in self._d['data'] if x[self._ts_index] == timestamp and x[self._id_index] not in distinct_ids_before_ts]
-      cnt_distinct_ts_for_new_nodes = len(list(set([x[self._ts_index] for x in new_nodes_this_ts])))
+      distinct_ids_before_ts = list(set([x[self._ld._id_index] for x in self._d['data'] if x[self._ld._ts_index] < timestamp]))
+      new_nodes_this_ts = [x for x in self._d['data'] if x[self._ld._ts_index] == timestamp and x[self._ld._id_index] not in distinct_ids_before_ts]
+      cnt_distinct_ts_for_new_nodes = len(list(set([x[self._ld._ts_index] for x in new_nodes_this_ts])))
       if cnt_distinct_ts_for_new_nodes:
         avg_new_for_ts = len(new_nodes_this_ts) / cnt_distinct_ts_for_new_nodes
         # The first timestamp will have every node being counted, we don't want to include that value in the chart. 
@@ -302,7 +276,7 @@ class Analyze_Data:
     return y_axis_dict
 
   def build_x_axis(self,log_cutoff_date=dt(2017,1,1)):
-    x_axis = sorted(list(set([x[self._ts_index] for x in self._d['data'] if dt.fromtimestamp(x[self._ts_index]) > log_cutoff_date])))
+    x_axis = sorted(list(set([x[self._ld._ts_index] for x in self._d['data'] if dt.fromtimestamp(x[self._ld._ts_index]) > log_cutoff_date])))
     return x_axis
 
   def print_new_unique_over_last_days_graph(self,days_since_cutoff):
@@ -536,17 +510,17 @@ class Analyze_Data:
     return vl[-1]
 
   def get_list_of_dates_for_data(self, cutoff_date):
-    return list(set([self.get_date_from_timestamp(x[self._ts_index]) for x in self._d['data']]))
+    return list(set([self.get_date_from_timestamp(x[self._ld._ts_index]) for x in self._d['data'] if self.get_date_from_timestamp(x[self._ld._ts_index]) > dt.date(cutoff_date)]))
 
   def get_avg_nodes_connected_on_date(self, td):
-    all_nodes_logged_on_date = [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == td]
-    all_timestamps_logged_on_date = list(set([x[self._ts_index] for x in all_nodes_logged_on_date]))
+    all_nodes_logged_on_date = [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ld._ts_index]) == td]
+    all_timestamps_logged_on_date = list(set([x[self._ld._ts_index] for x in all_nodes_logged_on_date]))
     return len(all_nodes_logged_on_date) / len(all_timestamps_logged_on_date)
 
   def get_avg_new_unique_node_count_on_date(self, td):
-    distinct_node_ids_logged_on_date = list(set([x[self._id_index] for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == td]))
-    distinct_timestamps_on_date = list(set([x[self._ts_index] for x in [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == td]]))
-    distinct_node_ids_logged_before_date = list(set([x[self._id_index] for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) < td]))
+    distinct_node_ids_logged_on_date = list(set([x[self._ld._id_index] for x in self._d['data'] if self.get_date_from_timestamp(x[self._ld._ts_index]) == td]))
+    distinct_timestamps_on_date = list(set([x[self._ld._ts_index] for x in [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ld._ts_index]) == td]]))
+    distinct_node_ids_logged_before_date = list(set([x[self._ld._id_index] for x in self._d['data'] if self.get_date_from_timestamp(x[self._ld._ts_index]) < td]))
     new_unique_nodes_on_date = [x for x in distinct_node_ids_logged_on_date if x not in distinct_node_ids_logged_before_date]
     return len(new_unique_nodes_on_date)/len(distinct_timestamps_on_date)
 
@@ -560,39 +534,39 @@ class Analyze_Data:
     return 0
 
   def get_avg_requested_subtasks_on_date(self, lnod, dtod):
-    total_count_requested_subtasks = sum([self.get_float_value(x[self._rs_rs_index]) for x in lnod])
+    total_count_requested_subtasks = sum([self.get_float_value(x[self._ld._rs_rs_index]) for x in lnod])
     return total_count_requested_subtasks / len(dtod)
 
   def get_avg_subtasks_success_on_date(self, lnod, dtod):
-    total_count_subtasks_success = sum([self.get_float_value(x[self._ss_index]) for x in lnod])
+    total_count_subtasks_success = sum([self.get_float_value(x[self._ld._ss_index]) for x in lnod])
     return total_count_subtasks_success / len(dtod)
     
   def get_avg_collected_results_on_date(self, lnod, dtod):
-    tccr = sum([self.get_float_value(x[self._rs_cr_index]) for x in lnod])
+    tccr = sum([self.get_float_value(x[self._ld._rs_cr_index]) for x in lnod])
     return tccr / len(dtod)
       
   def get_avg_failed_on_date(self, lnod, dtod):
-    tfod = sum([self.get_float_value(x[self._rs_fc_index]) for x in lnod])
+    tfod = sum([self.get_float_value(x[self._ld._rs_fc_index]) for x in lnod])
     return tfod / len(dtod)
 
   def get_avg_failed_subtasks_on_date(self, lnod, dtod):
-    tfsd = sum([self.get_float_value(x[self._rs_fs_index]) for x in lnod])
+    tfsd = sum([self.get_float_value(x[self._ld._rs_fs_index]) for x in lnod])
     return tfsd / len(dtod)
 
   def get_avg_finished_task_on_date(self, lnod, dtod):
-    tftd = sum([self.get_float_value(x[self._rs_ft_index]) for x in lnod])
+    tftd = sum([self.get_float_value(x[self._ld._rs_ft_index]) for x in lnod])
     return tftd / len(dtod)
       
   def get_avg_finished_with_fail_on_date(self, lnod, dtod):
-    tffd = sum([self.get_float_value(x[self._rs_ff_index]) for x in lnod])
+    tffd = sum([self.get_float_value(x[self._ld._rs_ff_index]) for x in lnod])
     return tffd / len(dtod)
     
   def get_avg_not_downloadable_subtasks_on_date(self, lnod, dtod):
-    tndd = sum([self.get_float_value(x[self._rs_nd_index]) for x in lnod])
+    tndd = sum([self.get_float_value(x[self._ld._rs_nd_index]) for x in lnod])
     return tndd / len(dtod)
 
   def get_avg_tasks_on_date(self, lnod, dtod):
-    ttd = sum([self.get_float_value(x[self._rs_tc_index]) for x in lnod])
+    ttd = sum([self.get_float_value(x[self._ld._rs_tc_index]) for x in lnod])
     return ttd / len(dtod)
       
   def get_date_from_timestamp(self, d1):
@@ -620,9 +594,9 @@ class Analyze_Data:
 
     list_of_dates = sorted(self.get_list_of_dates_for_data(cutoff_date))
     for d in list_of_dates:
-      lnod = [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ts_index]) == d]
+      lnod = [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ld._ts_index]) == d]
       if lnod:
-        dtod = list(set([x[self._ts_index] for x in lnod]))
+        dtod = list(set([x[self._ld._ts_index] for x in lnod]))
         
       if list_of_dates.index(d) > 0:
         dailytot['New Unique'].append([d,self.get_avg_new_unique_node_count_on_date(d)])
@@ -683,12 +657,12 @@ class Analyze_Data:
   #
   #   for i in range(len(x_axis)):
   #     timestamp = x_axis[i]
-  #     cn = [x for x in nodes['data'] if x[self._ts_index] == timestamp]
+  #     cn = [x for x in nodes['data'] if x[self._ld._ts_index] == timestamp]
   #     formatted_ts = self.get_formatted_time(timestamp)
   #
   #     node_count = len(cn)
   #     y_axis_dict[key_names[0]].append([formatted_ts,node_count])
-  #     subtotal_current = sum([float(x[self._ss_index]) for x in cn])
+  #     subtotal_current = sum([float(x[self._ld._ss_index]) for x in cn])
   #
   #     if i == 0:
   #       y_axis_dict[key_names[2]].append([formatted_ts,subtotal_current])
@@ -696,8 +670,8 @@ class Analyze_Data:
   #       y_axis_dict[key_names[4]].append([formatted_ts,subtotal_current])
   #
   #     if i > 0:
-  #       cnp = [x for x in nodes['data'] if x[self._ts_index] == x_axis[i-1]]
-  #       subtotal_prev = sum([float(x[self._ss_index]) for x in cnp])
+  #       cnp = [x for x in nodes['data'] if x[self._ld._ts_index] == x_axis[i-1]]
+  #       subtotal_prev = sum([float(x[self._ld._ss_index]) for x in cnp])
   #       y_axis_dict[key_names[1]].append([formatted_ts,subtotal_current-subtotal_prev])
   #
   #
@@ -707,7 +681,7 @@ class Analyze_Data:
   #     if i>0 and (timestamp - x_axis[i_1_hr]) >= 3600:
   #       # calculate sum of subtasks completed in network from all timestamps
   #       # between i_1_hr and the current timestamp
-  #       sub_cur = subtotal_1_hr + sum([float(x[self._ss_index]) for x in cn])
+  #       sub_cur = subtotal_1_hr + sum([float(x[self._ld._ss_index]) for x in cn])
   #
   #       # subtract the value just calculated above for the subtasks completed
   #       # from the previously appended value in y_axis_dict
@@ -721,7 +695,7 @@ class Analyze_Data:
   #
   #
   #     if i>0 and (timestamp - x_axis[i_24_hr]) >= 86400:
-  #       sub_cur = subtotal_24_hr + sum([float(x[self._ss_index]) for x in cn])
+  #       sub_cur = subtotal_24_hr + sum([float(x[self._ld._ss_index]) for x in cn])
   #       y_axis_dict[key_names[3]].append([formatted_ts, sub_cur - y_axis_dict[key_names[3]][-1][1]])
   #       i_24_hr = i
   #       subtotal_24_hr = 0
@@ -729,7 +703,7 @@ class Analyze_Data:
   #       subtotal_24_hr += subtotal_current
   #
   #     if i>0 and (timestamp - x_axis[i_7_day]) >= 604800:
-  #       sub_cur = subtotal_7_day + sum([float(x[self._ss_index]) for x in cn])
+  #       sub_cur = subtotal_7_day + sum([float(x[self._ld._ss_index]) for x in cn])
   #       y_axis_dict[key_names[4]].append([formatted_ts, sub_cur - y_axis_dict[key_names[4]][-1][1]])
   #       i_7_day = i
   #       subtotal_7_day = 0
@@ -779,7 +753,7 @@ class Analyze_Data:
   #   for timestamp in x_axis:
   #     # for each record in the list of data points cooresponding to the timestamp
   #     # and the node's total success are greater than the threshold
-  #     for record in [x for x in nodes['data'] if x[self._ts_index] == timestamp and float(x[self._ss_index]) >= SUCCESS_THRESHOLD]:
+  #     for record in [x for x in nodes['data'] if x[self._ld._ts_index] == timestamp and float(x[self._ld._ss_index]) >= SUCCESS_THRESHOLD]:
   #       # Define the key as the node's name plus first 10 characters of the node_id
   #       key = self.get_node_name(nodes['header'],record)
   #       # Check if this dict key exists in the dict of nodes to be plotted
@@ -788,5 +762,5 @@ class Analyze_Data:
   #         y_axis_dict[key] = []
   #       # Append the specific x-y coordinate with the formatted
   #       # timestamp and the number of successful subtasks
-  #       y_axis_dict[key].append([self.get_formatted_time(timestamp),record[self._ss_index] or None])
+  #       y_axis_dict[key].append([self.get_formatted_time(timestamp),record[self._ld._ss_index] or None])
   #   return y_axis_dict
