@@ -1,4 +1,4 @@
-import csv, os, time, sys, plotly, traceback, subprocess, collections
+import csv, os, time, sys, plotly, traceback, subprocess, collections, json
 from distutils.version import LooseVersion
 import pandas as pd
 from datetime import datetime as dt
@@ -65,7 +65,8 @@ class Analyze_Logs:
     filename="golem-network-3d.html"
     # d = self.load_data()
     # jf = self.build_json_data_object(d)
-    jf = self.build_3d_json_from_node_task_data()
+    # jf = self.build_3d_json_from_node_task_data()
+    jf = json.load(open('/Users/kennethascheri/Downloads/mn-ka-3-20180425-fd.json'))
     N=len(jf['nodes'])
     L=len(jf['links'])
     Edges=[(jf['links'][k]['source'], jf['links'][k]['target']) for k in range(L)]
