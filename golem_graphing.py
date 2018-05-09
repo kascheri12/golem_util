@@ -3,7 +3,7 @@ from datetime import date
 from twisted.internet import task
 from twisted.internet import reactor
 from shutil import move, copy
-import analyze_logs as al
+import analyze_data as al
 import os, traceback, sys
 
 class Golem_Graphing():
@@ -16,6 +16,7 @@ class Golem_Graphing():
 
   def data_cleanup(self):
     pass
+  
   def get_pretty_time(self):
     lt = time.localtime()
     return time.strftime("%Y%m%d-%H:%M %Z",lt)
@@ -23,7 +24,7 @@ class Golem_Graphing():
   def daily_graph_refresh(self):
     print("Begin daily_graph_refresh: "+self.get_pretty_time())
     filenames = []
-    a = al.Analyze_Logs()
+    a = al.Analyze_Data()
 
     try:
       filenames.append(a.print_daily_aggregate_totals(30))
