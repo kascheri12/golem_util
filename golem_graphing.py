@@ -26,10 +26,10 @@ class Golem_Graphing():
     a = al.Analyze_Logs()
 
     try:
-      filenames.append(a.print_daily_aggregate_totals(10))
+      filenames.append(a.print_daily_aggregate_totals(30))
       filenames.append(a.print_daily_avg_nodes_connected(30))
-      filenames.append(a.print_new_unique_over_last_days_graph(10))
-      filenames.append(a.print_network_summary_over_time_graph(10))
+      # filenames.append(a.print_new_unique_over_last_days_graph(10))
+      filenames.append(a.print_network_summary_over_time_graph(30))
       try:
         for fn in filenames:
           copy(fn,config.kascheri12_github_io_dir+fn)
