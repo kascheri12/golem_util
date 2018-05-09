@@ -15,8 +15,8 @@ import load_data as ld
 
 class Analyze_Data:
 
-  def __init__(self, ld=None):
-    if ld is not None:
+  def __init__(self, v_ld=None):
+    if v_ld is not None:
       self._ld = ld
       self._d = self._ld.get_data()
     else:

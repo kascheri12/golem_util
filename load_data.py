@@ -5,10 +5,11 @@ from os import remove
 from shutil import move
 
 
-class Load_Data:
+class Load_Data():
 
   def __init__(self):
-    self.d = self.load_data()
+    self.d = self.load_new_data()
+    return self
 
   def load_header_indices(self,header):
     # Indices are constant throughout
@@ -39,10 +40,6 @@ class Load_Data:
 
   def get_data(self):
     return self.d
-
-  def load_data(self):
-    d = self.load_new_data()
-    return d
 
   def clean_data_row(self,header,row):
     nr = row
