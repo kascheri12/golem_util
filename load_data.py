@@ -9,7 +9,6 @@ class Load_Data():
 
   def __init__(self):
     self.d = self.load_new_data()
-    return self
 
   def load_header_indices(self,header):
     # Indices are constant throughout
