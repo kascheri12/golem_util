@@ -282,6 +282,7 @@ class Analyze_Data:
   def print_new_unique_over_last_days_graph(self,days_since_cutoff):
     print("Starting print_new_unique_over_last_days_graph - " + self.get_pretty_time())
     filename = 'new_unique_node_count_per_snapshot.html'
+    filepath = 'build_graphs/'+filename
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
 
     x_axis = self.build_x_axis(log_cutoff_date)
@@ -328,13 +329,14 @@ class Analyze_Data:
     data = traces
     fig = dict(data=data,layout=layout)
 
-    plotly.offline.plot(fig, filename=filename, auto_open=False)
-    self.inject_google_analytics(filename)
+    plotly.offline.plot(fig, filename=filepath, auto_open=False)
+    self.inject_google_analytics(filepath)
     return filename
 
   def print_daily_aggregate_totals(self,num_days_included):
     print("Starting print_daily_aggregate_totals - " + self.get_pretty_time())
     filename = 'daily_aggregate_totals_'+str(num_days_included)+'_days.html'
+    filepath = 'build_graphs/'+filename
     log_cutoff_date = dt.today() - timedelta(days=num_days_included)
 
     y_axis_dict = self.get_daily_aggregate_totals(log_cutoff_date)
@@ -380,13 +382,14 @@ class Analyze_Data:
     data = traces
     fig = dict(data=data,layout=layout)
 
-    plotly.offline.plot(fig, filename=filename, auto_open=False)
-    self.inject_google_analytics(filename)
+    plotly.offline.plot(fig, filename=filepath, auto_open=False)
+    self.inject_google_analytics(filepath)
     return filename
 
   def print_network_summary_over_time_graph(self,days_since_cutoff):
     print("Starting print_network_summary_over_time_graph - " + self.get_pretty_time())
     filename = 'golem-network.html'
+    filepath = 'build_graphs/'+filename
     log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
 
     x_axis = self.build_x_axis(log_cutoff_date)
@@ -415,13 +418,14 @@ class Analyze_Data:
         xaxis = dict(title = 'Time'),
         yaxis = dict(title = 'Summarization Metric'))
 
-    plotly.offline.plot(fig, filename=filename, auto_open=False)
-    self.inject_google_analytics(filename)
+    plotly.offline.plot(fig, filename=filepath, auto_open=False)
+    self.inject_google_analytics(filepath)
     return filename
 
   def print_daily_avg_nodes_connected(self,num_days_included):
     print("Starting print_daily_avg_nodes_connected - " + self.get_pretty_time())
     filename = 'daily_avg_nodes_connected_'+str(num_days_included)+'_days.html'
+    filepath = 'build_graphs/'+filename
     log_cutoff_date = dt.today() - timedelta(days=num_days_included)
 
     traces = []
@@ -469,8 +473,8 @@ class Analyze_Data:
     data = traces
     fig = dict(data=data,layout=layout)
 
-    plotly.offline.plot(fig, filename=filename, auto_open=False)
-    self.inject_google_analytics(filename)
+    plotly.offline.plot(fig, filename=filepath, auto_open=False)
+    self.inject_google_analytics(filepath)
     return filename
 
   def inject_google_analytics(self,filename):

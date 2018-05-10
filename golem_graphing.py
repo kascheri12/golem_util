@@ -33,7 +33,7 @@ class Golem_Graphing():
       filenames.append(a.print_network_summary_over_time_graph(30))
       try:
         for fn in filenames:
-          copy(fn,config.kascheri12_github_io_dir+fn)
+          copy(config.build_graphs_dir+fn,config.kascheri12_github_io_graphs_dir+fn)
         try:
           od = os.getcwd()
           os.chdir(config.kascheri12_github_io_dir)
