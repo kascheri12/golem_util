@@ -17,7 +17,7 @@ class Analyze_Data:
 
   def __init__(self, v_ld=None):
     if v_ld is not None:
-      self._ld = ld
+      self._ld = v_ld
       self._d = self._ld.get_data()
     else:
       self._ld = ld.Load_Data()
@@ -333,13 +333,13 @@ class Analyze_Data:
     self.inject_google_analytics(filepath)
     return filename
 
-  def print_daily_aggregate_totals(self,num_days_included):
-    print("Starting print_daily_aggregate_totals - " + self.get_pretty_time())
-    filename = 'daily_aggregate_totals_'+str(num_days_included)+'_days.html'
+  def print_avg_daily_subtask_totals(self,num_days_included):
+    print("Starting print_avg_daily_subtask_totals - " + self.get_pretty_time())
+    filename = 'avg_daily_subtasks_totals.html'
     filepath = 'build_graphs/'+filename
     log_cutoff_date = dt.today() - timedelta(days=num_days_included)
 
-    y_axis_dict = self.get_daily_aggregate_totals(log_cutoff_date)
+    y_axis_dict = self.get_avg_daily_subtask_totals(log_cutoff_date)
     traces = []
     
     for key in y_axis_dict.keys():
@@ -350,7 +350,113 @@ class Analyze_Data:
       ))
 
     layout = go.Layout(
-        title='Daily Aggregate Totals',
+        title='Average Daily Subtask Totals',
+        xaxis=dict(
+            tickfont=dict(
+                size=14,
+                color='rgb(107, 107, 107)'
+            )
+        ),
+        yaxis=dict(
+            title='',
+            titlefont=dict(
+                size=16,
+                color='rgb(107, 107, 107)'
+            ),
+            tickfont=dict(
+                size=14,
+                color='rgb(107, 107, 107)'
+            )
+        ),
+        legend=dict(
+            x=0,
+            y=1.0,
+            bgcolor='rgba(255, 255, 255, 0)',
+            bordercolor='rgba(255, 255, 255, 0)'
+        ),
+        barmode='group',
+        bargap=0.15,
+        bargroupgap=0.1
+    )
+
+    data = traces
+    fig = dict(data=data,layout=layout)
+
+    plotly.offline.plot(fig, filename=filepath, auto_open=False)
+    self.inject_google_analytics(filepath)
+    return filename
+    
+  def print_avg_daily_failed_totals(self,num_days_included):
+    print("Starting print_avg_daily_failed_totals - " + self.get_pretty_time())
+    filename = 'avg_daily_failed_totals.html'
+    filepath = 'build_graphs/'+filename
+    log_cutoff_date = dt.today() - timedelta(days=num_days_included)
+  
+    y_axis_dict = self.get_avg_daily_failed_totals(log_cutoff_date)
+    traces = []
+    
+    for key in y_axis_dict.keys():
+      traces.append(go.Bar(
+      x = [x[0] for x in y_axis_dict[key]],
+      y = [x[1] for x in y_axis_dict[key]],
+      name=key
+      ))
+    
+    layout = go.Layout(
+        title='Average Daily Failed Totals',
+        xaxis=dict(
+          tickfont=dict(
+              size=14,
+              color='rgb(107, 107, 107)'
+          )
+        ),
+        yaxis=dict(
+          title='',
+          titlefont=dict(
+              size=16,
+              color='rgb(107, 107, 107)'
+          ),
+          tickfont=dict(
+              size=14,
+              color='rgb(107, 107, 107)'
+          )
+        ),
+        legend=dict(
+          x=0,
+          y=1.0,
+          bgcolor='rgba(255, 255, 255, 0)',
+          bordercolor='rgba(255, 255, 255, 0)'
+        ),
+        barmode='group',
+        bargap=0.15,
+        bargroupgap=0.1
+    )
+  
+    data = traces
+    fig = dict(data=data,layout=layout)
+
+    plotly.offline.plot(fig, filename=filepath, auto_open=False)
+    self.inject_google_analytics(filepath)
+    return filename
+  
+  def print_avg_daily_unique_node_totals(self,num_days_included):
+    print("Starting print_avg_daily_unique_node_totals - " + self.get_pretty_time())
+    filename = 'avg_daily_unique_totals.html'
+    filepath = 'build_graphs/'+filename
+    log_cutoff_date = dt.today() - timedelta(days=num_days_included)
+
+    y_axis_dict = self.get_avg_daily_unique_node_totals(log_cutoff_date)
+    traces = []
+    
+    for key in y_axis_dict.keys():
+      traces.append(go.Bar(
+      x = [x[0] for x in y_axis_dict[key]],
+      y = [x[1] for x in y_axis_dict[key]],
+      name=key
+      ))
+
+    layout = go.Layout(
+        title='Average Daily Unique Node Totals',
         xaxis=dict(
             tickfont=dict(
                 size=14,
@@ -422,8 +528,8 @@ class Analyze_Data:
     self.inject_google_analytics(filepath)
     return filename
 
-  def print_daily_avg_nodes_connected(self,num_days_included):
-    print("Starting print_daily_avg_nodes_connected - " + self.get_pretty_time())
+  def print_avg_daily_nodes_connected(self,num_days_included):
+    print("Starting print_avg_daily_nodes_connected - " + self.get_pretty_time())
     filename = 'daily_avg_nodes_connected_'+str(num_days_included)+'_days.html'
     filepath = 'build_graphs/'+filename
     log_cutoff_date = dt.today() - timedelta(days=num_days_included)
@@ -541,7 +647,7 @@ class Analyze_Data:
     total_count_requested_subtasks = sum([self.get_float_value(x[self._ld._rs_rs_index]) for x in lnod])
     return total_count_requested_subtasks / len(dtod)
 
-  def get_avg_subtasks_success_on_date(self, lnod, dtod):
+  def get_avg_subtasks_completed_on_date(self, lnod, dtod):
     total_count_subtasks_success = sum([self.get_float_value(x[self._ld._ss_index]) for x in lnod])
     return total_count_subtasks_success / len(dtod)
     
@@ -575,24 +681,63 @@ class Analyze_Data:
       
   def get_date_from_timestamp(self, d1):
     return dt.date(dt.fromtimestamp(d1))
-    
-  def get_daily_aggregate_totals(self,cutoff_date):
+
+  def get_avg_daily_unique_node_totals(self,cutoff_date):
     dailytot = {
-      'New Unique':[],
+      'New Unique':[]
+    }
+    
+    list_of_dates = sorted(self.get_list_of_dates_for_data(cutoff_date))
+    for d in list_of_dates:
+      lnod = [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ld._ts_index]) == d]
+      if lnod:
+        dtod = list(set([x[self._ld._ts_index] for x in lnod]))
+        
+      if list_of_dates.index(d) > 0:
+        dailytot['New Unique'].append([d,self.get_avg_new_unique_node_count_on_date(d)])
+      
+    return dailytot
+
+  def get_avg_daily_subtask_totals(self,cutoff_date):
+    dailytot = {
       'Requested Subtasks':[],
-      'Subtasks Completed':[],
-      'Collected Results':[],
+      'Subtasks Completed':[]
+      # 'Collected Results':[]
+      # 'Finished Task':[],
+      # 'Tasks':[],
+      # 'Verified Results':[],
+      # 'Subtasks':[],
+      # 'Tasks Requested':[],
+    }
+
+    list_of_dates = sorted(self.get_list_of_dates_for_data(cutoff_date))
+    for d in list_of_dates:
+      lnod = [x for x in self._d['data'] if self.get_date_from_timestamp(x[self._ld._ts_index]) == d]
+      if lnod:
+        dtod = list(set([x[self._ld._ts_index] for x in lnod]))
+        
+      dailytot['Requested Subtasks'].append([d,self.get_avg_requested_subtasks_on_date(lnod,dtod)])
+      dailytot['Subtasks Completed'].append([d,self.get_avg_subtasks_completed_on_date(lnod,dtod)])
+      # dailytot['Collected Results'].append([d,self.get_avg_collected_results_on_date(lnod,dtod)])
+      # dailytot['Finished Task'].append([d,self.get_avg_finished_task_on_date(lnod,dtod)])
+      # dailytot['Tasks'].append([d,self.get_avg_tasks_on_date(lnod,dtod)])
+
+    return dailytot
+
+  def get_avg_daily_failed_totals(self,cutoff_date):
+    dailytot = {
+      # 'Collected Results':[]
+      # 'Finished Task':[],
+      # 'Tasks':[],
+      # 'Verified Results':[],
+      # 'Subtasks':[],
+      # 'Tasks Requested':[],
       'Failed':[],
       'Failed Subtasks':[],
-      'Finished Task':[],
       'Finished With Failures':[],
       'Not Downloadable Subtasks':[],
-      'Tasks':[],
       'Timed Out Subtasks':[],
-      'Verified Results':[],
-      'Subtasks':[],
       'Tasks Error':[],
-      'Tasks Requested':[],
       'Tasks Timeout':[]
     }
 
@@ -602,15 +747,10 @@ class Analyze_Data:
       if lnod:
         dtod = list(set([x[self._ld._ts_index] for x in lnod]))
         
-      if list_of_dates.index(d) > 0:
-        dailytot['New Unique'].append([d,self.get_avg_new_unique_node_count_on_date(d)])
-      dailytot['Subtasks Completed'].append([d,self.get_avg_subtasks_success_on_date(lnod,dtod)])
-      dailytot['Collected Results'].append([d,self.get_avg_collected_results_on_date(lnod,dtod)])
       dailytot['Failed'].append([d,self.get_avg_failed_on_date(lnod,dtod)])
       dailytot['Failed Subtasks'].append([d,self.get_avg_failed_subtasks_on_date(lnod,dtod)])
-      dailytot['Finished Task'].append([d,self.get_avg_finished_task_on_date(lnod,dtod)])
       dailytot['Finished With Failures'].append([d,self.get_avg_finished_with_fail_on_date(lnod,dtod)])
       dailytot['Not Downloadable Subtasks'].append([d,self.get_avg_not_downloadable_subtasks_on_date(lnod,dtod)])
-      dailytot['Tasks'].append([d,self.get_avg_tasks_on_date(lnod,dtod)])
+      
 
     return dailytot
