@@ -34,8 +34,7 @@ class Golem_Graphing():
       os.chdir(config.kascheri12_github_io_dir)
       os.system('git pull')
       os.system('git checkout master')
-      for fn in filenames:
-        os.system('git add ' + v_filepath)
+      os.system('git add ' + v_filepath)
       os.system('git commit -m "automated commit for ' + v_filepath.split("/")[-1] + '"')
       os.system('git push')
       os.chdir(od)
