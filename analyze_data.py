@@ -333,8 +333,8 @@ class Analyze_Data:
     self.inject_google_analytics(filepath)
     return filename
 
-  def print_avg_daily_subtask_totals(self,num_days_included):
-    print("Starting print_avg_daily_subtask_totals - " + self.get_pretty_time())
+  def print_avg_daily_subtasks_totals(self,num_days_included):
+    print("Starting print_avg_daily_subtasks_totals - " + self.get_pretty_time())
     filename = 'avg_daily_subtasks_totals.html'
     filepath = 'build_graphs/'+filename
     log_cutoff_date = dt.today() - timedelta(days=num_days_included)
@@ -492,45 +492,9 @@ class Analyze_Data:
     self.inject_google_analytics(filepath)
     return filename
 
-  def print_network_summary_over_time_graph(self,days_since_cutoff):
-    print("Starting print_network_summary_over_time_graph - " + self.get_pretty_time())
-    filename = 'golem-network.html'
-    filepath = 'build_graphs/'+filename
-    log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
-
-    x_axis = self.build_x_axis(log_cutoff_date)
-    y_axis_dict = self.build_y_axis_dict_for_network_summary(x_axis)
-    traces = []
-    
-    for key in y_axis_dict.keys():
-      traces.append(go.Scatter(
-      x = [x[0] for x in y_axis_dict[key]],
-      y = [x[1] for x in y_axis_dict[key]],
-      mode='lines',
-      connectgaps=False,
-      name=key
-      ))
-
-    fig = tools.make_subplots(rows=5, cols=1, specs=[[{}], [{}], [{}], [{}], [{}]],
-                              shared_xaxes=True, shared_yaxes=True,
-                              vertical_spacing=0.00001)
-
-    fig.append_trace(traces[0], 5, 1) # Node_Count
-    fig.append_trace(traces[3], 4, 1) # CPU_Cores
-    fig.append_trace(traces[2], 3, 1) # Resource Memory
-    fig.append_trace(traces[1], 2, 1) # Resource Size
-
-    fig['layout'].update(title='Golem Network Resources Summary',
-        xaxis = dict(title = 'Time'),
-        yaxis = dict(title = 'Summarization Metric'))
-
-    plotly.offline.plot(fig, filename=filepath, auto_open=False)
-    self.inject_google_analytics(filepath)
-    return filename
-
   def print_avg_daily_nodes_connected(self,num_days_included):
     print("Starting print_avg_daily_nodes_connected - " + self.get_pretty_time())
-    filename = 'daily_avg_nodes_connected_'+str(num_days_included)+'_days.html'
+    filename = 'avg_daily_nodes_connected.html'
     filepath = 'build_graphs/'+filename
     log_cutoff_date = dt.today() - timedelta(days=num_days_included)
 
@@ -578,6 +542,42 @@ class Analyze_Data:
 
     data = traces
     fig = dict(data=data,layout=layout)
+
+    plotly.offline.plot(fig, filename=filepath, auto_open=False)
+    self.inject_google_analytics(filepath)
+    return filename
+
+  def print_network_summary_over_time_graph(self,days_since_cutoff):
+    print("Starting print_network_summary_over_time_graph - " + self.get_pretty_time())
+    filename = 'golem-network.html'
+    filepath = 'build_graphs/'+filename
+    log_cutoff_date = dt.today() - timedelta(days=days_since_cutoff)
+
+    x_axis = self.build_x_axis(log_cutoff_date)
+    y_axis_dict = self.build_y_axis_dict_for_network_summary(x_axis)
+    traces = []
+
+    for key in y_axis_dict.keys():
+      traces.append(go.Scatter(
+      x = [x[0] for x in y_axis_dict[key]],
+      y = [x[1] for x in y_axis_dict[key]],
+      mode='lines',
+      connectgaps=False,
+      name=key
+      ))
+
+    fig = tools.make_subplots(rows=5, cols=1, specs=[[{}], [{}], [{}], [{}], [{}]],
+                              shared_xaxes=True, shared_yaxes=True,
+                              vertical_spacing=0.00001)
+
+    fig.append_trace(traces[0], 5, 1) # Node_Count
+    fig.append_trace(traces[3], 4, 1) # CPU_Cores
+    fig.append_trace(traces[2], 3, 1) # Resource Memory
+    fig.append_trace(traces[1], 2, 1) # Resource Size
+
+    fig['layout'].update(title='Golem Network Resources Summary',
+        xaxis = dict(title = 'Time'),
+        yaxis = dict(title = 'Summarization Metric'))
 
     plotly.offline.plot(fig, filename=filepath, auto_open=False)
     self.inject_google_analytics(filepath)
