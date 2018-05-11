@@ -53,8 +53,8 @@ class Golem_Graphing():
       self.move_and_commit_graph(a.print_avg_daily_nodes_connected(90))
       self.move_and_commit_graph(a.print_avg_daily_subtask_totals(90))
       self.move_and_commit_graph(a.print_avg_daily_failed_totals(90))
-      # self.move_and_commit_graph(a.print_new_unique_over_last_days_graph(30))
       # self.move_and_commit_graph(a.print_network_summary_over_time_graph(30))
+      # self.move_and_commit_graph(a.print_new_unique_over_last_days_graph(30))
     except:
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
