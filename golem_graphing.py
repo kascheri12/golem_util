@@ -23,7 +23,7 @@ class Golem_Graphing():
 
   def move_and_commit_graph(self,v_filepath):
     try:
-      copy(config.build_graphs_dir+fn,config.kascheri12_github_io_graphs_dir+fn)
+      copy(config.build_graphs_dir+v_filepath,config.kascheri12_github_io_graphs_dir+v_filepath)
     except:
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
@@ -35,8 +35,8 @@ class Golem_Graphing():
       os.system('git pull')
       os.system('git checkout master')
       for fn in filenames:
-        os.system('git add ' + fn)
-      os.system('git commit -m "automated commit for daily-golem-graphs"')
+        os.system('git add ' + v_filepath)
+      os.system('git commit -m "automated commit for ' + v_filepath.split("/")[-1] + '"')
       os.system('git push')
       os.chdir(od)
     except:
