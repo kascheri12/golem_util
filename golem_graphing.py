@@ -34,7 +34,7 @@ class Golem_Graphing():
       os.chdir(config.kascheri12_github_io_dir)
       os.system('git pull')
       os.system('git checkout master')
-      os.system('git add ' + v_filepath)
+      os.system('git add ' + config.kascheri12_github_io_graphs_dir+v_filepath)
       os.system('git commit -m "automated commit for ' + v_filepath.split("/")[-1] + '"')
       os.system('git push')
       os.chdir(od)
@@ -49,12 +49,12 @@ class Golem_Graphing():
     a = al.Analyze_Data()
 
     try:
-      self.move_and_commit_graph(a.print_avg_daily_subtask_totals(90))
+      self.move_and_commit_graph(a.print_avg_daily_subtasks_totals(90))
       self.move_and_commit_graph(a.print_avg_daily_nodes_connected(90))
-      self.move_and_commit_graph(a.print_avg_daily_subtask_totals(90))
+      self.move_and_commit_graph(a.print_avg_daily_unique_node_totals(90))
       self.move_and_commit_graph(a.print_avg_daily_failed_totals(90))
-      # self.move_and_commit_graph(a.print_network_summary_over_time_graph(30))
-      # self.move_and_commit_graph(a.print_new_unique_over_last_days_graph(30))
+      self.move_and_commit_graph(a.print_network_summary_over_time_graph(30))
+      self.move_and_commit_graph(a.print_new_unique_over_last_days_graph(30))
     except:
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
