@@ -50,4 +50,4 @@ class Load_Requestor_Data():
 
   def get_pretty_time(self):
     lt = time.localtime()
-    return time.strftime("%Y%m%d-%H:%M %Z",lt)
+    return time.strftime("%Y%m%d%H:%M",lt)
