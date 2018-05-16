@@ -43,11 +43,11 @@ class Load_Requestor_Data():
       nnl[i]['count_of_occurances'] = self.get_count_of_occurances_of_ip(nlo,nnl[i]['ip_address'])
     return nnl
 
-  def save_json_file_of_subtask_data(self):
-    nlo = self.build_final_obj()
-    with open(config.kascheri12_github_io_data_dir + get_pretty_time() + "_providor_node_data.json", 'w') as f:
-      json.dump(nlo,f)
-
   def get_pretty_time(self):
     lt = time.localtime()
-    return time.strftime("%Y%m%d%H:%M",lt)
+    return time.strftime("%Y%m%d%H%M",lt)
+
+  def save_json_file_of_subtask_data(self):
+    nlo = self.build_final_obj()
+    with open(config.kascheri12_github_io_data_dir + self.get_pretty_time() + "_providor_node_data.json", 'w') as f:
+      json.dump(nlo,f)
