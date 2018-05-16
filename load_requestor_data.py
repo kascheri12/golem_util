@@ -3,7 +3,7 @@ import subprocess, time
 class Load_Requestor_Data():
 
   def __init__(self):
-    self.d = self.load_new_data()
+    pass
 
   def build_node_list_obj_from_requests(self):
     list_of_task_ids = [j[0] for j in [x.split() for x in [y for y in str(subprocess.check_output(['golemcli','tasks','show'])).split("\\n")[2:-1]]]]
