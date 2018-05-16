@@ -22,17 +22,17 @@ class Load_Data():
     self._ss_index = header.index('subtasks_success')
     self._id_index = header.index('node_id')
     self._nn_index = header.index('node_name')
-    self._rs_rs_index = header.index('rs_requested_subtasks_cnt')
-    self._rs_cr_index = header.index('rs_collected_results_cnt')
-    self._rs_fc_index = header.index('rs_failed_cnt')
-    self._rs_fs_index = header.index('rs_failed_subtasks_cnt')
-    self._rs_ft_index = header.index('rs_finished_task_cnt')
-    self._rs_ff_index = header.index('rs_finished_with_failures_cnt')
-    self._rs_nd_index = header.index('rs_not_downloadable_subtasks_cnt')
-    self._rs_tc_index = header.index('rs_tasks_cnt')
-    self._rs_to_index = header.index('rs_timed_out_subtasks_cnt')
-    self._rs_vr_index = header.index('rs_verified_results_cnt')
-    self._rs_wo_index = header.index('rs_work_offers_cnt')
+    # self._rs_rs_index = header.index('rs_requested_subtasks_cnt')
+    # self._rs_cr_index = header.index('rs_collected_results_cnt')
+    # self._rs_fc_index = header.index('rs_failed_cnt')
+    # self._rs_fs_index = header.index('rs_failed_subtasks_cnt')
+    # self._rs_ft_index = header.index('rs_finished_task_cnt')
+    # self._rs_ff_index = header.index('rs_finished_with_failures_cnt')
+    # self._rs_nd_index = header.index('rs_not_downloadable_subtasks_cnt')
+    # self._rs_tc_index = header.index('rs_tasks_cnt')
+    # self._rs_to_index = header.index('rs_timed_out_subtasks_cnt')
+    # self._rs_vr_index = header.index('rs_verified_results_cnt')
+    # self._rs_wo_index = header.index('rs_work_offers_cnt')
     self._te_index = header.index('subtasks_error')
     self._tr_index = header.index('tasks_requested')
     self._tt_index = header.index('subtasks_timeout')
@@ -64,9 +64,9 @@ class Load_Data():
       'data':[],
       'header':[]
     }
-    for filename in [x for x in os.listdir('node_logs/') if x.find('network') != -1 or x.find('old_logs.log') != -1]:
+    for filename in [x for x in os.listdir('old_logs/') if x not in ['.DS_Store','old_logs']]:
       try:
-        with codecs.open('node_logs/'+filename,'rb',"UTF-8") as f:
+        with codecs.open('old_logs/'+filename,'rb',"UTF-8") as f:
           reader = csv.reader(f,delimiter=',')
           d = []
           first_row = True
