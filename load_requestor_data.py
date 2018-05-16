@@ -30,7 +30,7 @@ class Load_Requestor_Data():
 
   def get_max_performance_of_node(self, nlo, nip):
     return max([b['node_performance'] for b in [x for x in nlo if x['node_ip_address'] == nip]])
-    
+
   def build_final_obj(self):
     nlo = self.build_node_list_obj_from_requests()
     nnl = [{'ip_address':x} for x in set([m['node_ip_address'] for m in nlo])]
@@ -47,10 +47,7 @@ class Load_Requestor_Data():
     nlo = self.build_final_obj()
     with open(config.kascheri12_github_io_data_dir + get_pretty_time() + "_providor_node_data.json", 'w') as f:
       json.dump(nlo,f)
-    
 
-
-  def get_pretty_time(self):d
+  def get_pretty_time(self):
     lt = time.localtime()
     return time.strftime("%Y%m%d-%H:%M %Z",lt)
-    
