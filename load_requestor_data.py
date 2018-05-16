@@ -1,4 +1,4 @@
-import subprocess, time, requests
+import subprocess, time, requests, json
 
 class Load_Requestor_Data():
 
@@ -19,7 +19,7 @@ class Load_Requestor_Data():
         nni = {}
         for item in ni:
           try:
-            nni[item.split(": ")[0]] = item.split(": ")[1].replace('\'','')
+            nni[item.split(": ")[0]] = item.split(": ")[1].replace('\'','').replace('\\','')
           except:
             nni[item.split(": ")[0]] = None
         node_list_obj.append(nni)
@@ -42,3 +42,15 @@ class Load_Requestor_Data():
       nnl[i]['max_performance'] = self.get_max_performance_of_node(nlo,nnl[i]['ip_address'])
       nnl[i]['count_of_occurances'] = self.get_count_of_occurances_of_ip(nlo,nnl[i]['ip_address'])
     return nnl
+
+  def save_json_file_of_subtask_data(self, node_json):
+    nlo = self.build_final_obj()
+    with open(config.kascheri12_github_io_data_dir + get_pretty_time() + "_providor_node_data.json", 'w') as f:
+      json.dump(nlo,f)
+    
+
+
+  def get_pretty_time(self):d
+    lt = time.localtime()
+    return time.strftime("%Y%m%d-%H:%M %Z",lt)
+    
