@@ -24,11 +24,11 @@ class Load_Requestor_Data():
             nni[item.split(": ")[0]] = None
         node_list_obj.append(nni)
     return node_list_obj
-    
-  def get_count_of_occurances_of_ip(nlo, nip):
+
+  def get_count_of_occurances_of_ip(self, nlo, nip):
     return len([x for x in nlo if x['node_ip_address'] == nip])
 
-  def get_max_performance_of_node(nlo, nip):
+  def get_max_performance_of_node(self, nlo, nip):
     return max([b['node_performance'] for b in [x for x in nlo if x['node_ip_address'] == nip]])
     
   def build_final_obj(self):
@@ -42,4 +42,3 @@ class Load_Requestor_Data():
       nnl[i]['max_performance'] = self.get_max_performance_of_node(nlo,nnl[i]['ip_address'])
       nnl[i]['count_of_occurances'] = self.get_count_of_occurances_of_ip(nlo,nnl[i]['ip_address'])
     return nnl
-      
