@@ -49,5 +49,5 @@ class Load_Requestor_Data():
 
   def save_json_file_of_subtask_data(self):
     nlo = self.build_final_obj()
-    with open(config.kascheri12_github_io_data_dir + self.get_pretty_time() + "_providor_node_data.json", 'w') as f:
+    with open(config.build_graphs_dir + self.get_pretty_time() + "_providor_node_data.json", 'w') as f:
       json.dump(nlo,f)
