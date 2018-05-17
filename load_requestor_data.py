@@ -1,9 +1,13 @@
-import subprocess, time, requests, json, config
+import subprocess, time, requests, json, config, os
 
 class Load_Requestor_Data():
 
   def __init__(self):
-    pass
+    self.prep_build_graphs_dir()
+
+  def prep_build_graphs_dir(self):
+    if not os.path.isdir(config.build_graphs_dir):
+      os.mkdir(config.build_graphs_dir)
 
   def build_node_list_obj_from_requests(self):
     list_of_task_ids = [j[0] for j in [x.split() for x in [y for y in str(subprocess.check_output(['golemcli','tasks','show'])).split("\\n")[2:-1]]]]
