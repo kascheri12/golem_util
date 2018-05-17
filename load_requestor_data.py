@@ -51,3 +51,12 @@ class Load_Requestor_Data():
     nlo = self.build_final_obj()
     with open(config.build_graphs_dir + self.get_pretty_time() + "_providor_node_data.json", 'w') as f:
       json.dump(nlo,f)
+
+
+def main():
+
+  lrd1 = Load_Requestor_Data()
+  lrd1.save_json_file_of_subtask_data()
+  
+if __name__ == '__main__':
+    main()
