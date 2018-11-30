@@ -1,6 +1,6 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 import scan_nodes as sn
-import time, config
+import time, config, db
 from datetime import date
 from twisted.internet import task
 from twisted.internet import reactor
@@ -21,6 +21,7 @@ class Node_Logging():
     pretty_date = "%s%s%s" % (d.year,d.month,d.day)
     lt = time.localtime()
     pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
+    db_timestamp = time.strftime('%Y-%m-%d %H:%M:%S',lt)
     filename = 'network.log'
     log_dir = 'node_logs/'
     file_path = log_dir+filename
@@ -60,6 +61,15 @@ class Node_Logging():
       print("append_param:"+append_param)
       traceback.print_exc(file=sys.stdout)
       print(pt + " - Error with writing the file...")
+    
+    # Try writing the data to the database
+    try:
+      if active_nodes is not None and len(active_nodes) > 0:
+        conn = db.DB()
+        for node in active_nodes:
+          db.insert_node_record_data((db_timestamp, *tuple(active_nodes[0].values())[:-1]))
+    except:
+      print("Issues adding records to mysql database")
 
 def main():
 
