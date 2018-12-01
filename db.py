@@ -1,6 +1,6 @@
 import mysql.connector
 from mysql.connector import errorcode
-import config
+import config, time
 
 class DB():
   def __init__(self):
@@ -80,8 +80,15 @@ class DB():
     try:
       self.query(insert_node_record_query,node_snapshot)
       self._db.commit()
+    except mysql.connector.Error as e:
+      et = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
+      print(et+": DB.insert_node_record_data() Exception thrown inserting record")
+      print "Error code:", e.errno        # error number
+      print "SQLSTATE value:", e.sqlstate # SQLSTATE value
+      print "Error message:", e.msg       # error message
     except:
-      print("Exception thrown inserting record")
+      et = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
+      print(et+": DB.insert_node_record_data() Exception thrown inserting record")
   
 if __name__ == '__main__':
   main()
