@@ -3,9 +3,12 @@ from mysql.connector import errorcode
 import config, time
 
 class DB():
-  def __init__(self):
+  def __init__(self,env="TEST"):
     try:
-      self._db = mysql.connector.connect(**config.db_config)
+      if env == "PROD":
+        self._db = mysql.connector.connect(**config.db_config_prod)
+      elif env == "TEST":
+        self._db = mysql.connector.connect(**config.db_config_test)
       self._cursor = self._db.cursor()
     except mysql.connector.Error as err:
       if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
@@ -27,6 +30,8 @@ class DB():
     return self.cursor.fetchall()
   def fetchone(self):
     return self.cursor.fetchone()
+  def fetchfields(self):
+    return [i[0] for i in self.cursor.description]
   def insert_node_record_data(self,node_snapshot):
     insert_node_record_query = """ insert into network_01 (
                 snapshot_date,
