@@ -15,9 +15,9 @@ import load_data as ld
 
 class Analyze_Data:
 
-  def __init__(self):
-    self.conn = db.DB("PROD")
-    
+  def __init__(self,env):
+    self.conn = db.DB(env)
+
   def print_nodes(self,d,sort_method=None,ascending=False):
     cols = ['timestamp','version','node_name','subtasks_success','os','node_id','performance_lux','performance_blender','performance_general','cpu_cores']
     pd.set_option('display.max_columns',0)

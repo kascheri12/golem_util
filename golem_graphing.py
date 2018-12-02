@@ -70,7 +70,7 @@ class Golem_Graphing():
   def daily_graph_refresh(self):
     print("Begin daily_graph_refresh: "+self.get_pretty_time())
     filenames = []
-    a = al.Analyze_Data()
+    a = al.Analyze_Data("PROD")
 
     try:
       self.move_and_commit_graph(a.print_nodes_connected_by_date(90))
@@ -88,7 +88,7 @@ class Golem_Graphing():
 
   def refresh_golem_network_dashboard(self):
     print("Begin refresh_golem_network_dashboard: " + self.get_pretty_time())
-    a = al.Analyze_Data()
+    a = al.Analyze_Data("PROD")
     try:
       self.move_and_commit_page(a.print_golem_network_dashboard_page())
     except:
