@@ -1,4 +1,4 @@
-import csv, os, time, sys, plotly, traceback, codecs, db
+import csv, os, time, sys, plotly, traceback, codecs, db, math
 from distutils.version import LooseVersion
 import pandas as pd
 from datetime import datetime as dt
@@ -9,7 +9,6 @@ from plotly import tools
 import plotly.graph_objs as go
 from os import remove
 from shutil import move
-from math import isnan
 import load_data as ld
 
 
@@ -340,11 +339,30 @@ class Analyze_Data:
     mdf.close()
     return filename
   
+  def print_all_nodes_latest_snapshot(self):
+    print("Starting print_all_nodes_latest_snapshot : " + self.get_pretty_time())
+    filename = 'All-Nodes-Latest-Snapshot.md'
+    filepath = 'build_graphs/'+filename
+    
+    mdf_content = self.build_all_nodes_latest_snapshot_file_content()
+    
+    mdf = open(filepath,'w')
+    mdf.write(mdf_content)
+    mdf.close()
+    return filename
+    
+  def build_all_nodes_latest_snapshot_file_content(self):
+    base_md_string = self.return_base_md_page_string()
+    return base_md_string.format(title='All Nodes Latest Snapshot',datatables=self.build_markup_for_all_nodes_latest_snapshot_tabledata())
+    
   def build_dashboard_file_content(self):
     old_dashboard_string = self.return_old_golem_network_dashboard_markup()
     dashboard_file_content = old_dashboard_string.format(datatables=self.build_markup_for_all_network_tabledata())
     return dashboard_file_content
   
+  def build_markup_for_all_nodes_latest_snapshot_tabledata(self):
+    return self.build_html_markup_for_all_nodes()
+    
   def build_markup_for_all_network_tabledata(self):
     rv_html = ""
     table_categories = ['subtasks_success'
@@ -361,12 +379,33 @@ class Analyze_Data:
       rv_html += self.build_html_markup_for_table_category(category)
     return rv_html
 
+  def build_html_markup_for_all_nodes(self):
+    rv_html = """
+<div class='col-xs-12 col-lg-12' style='margin-top:10px;background-color:floralwhite;'>
+  <h3>All nodes latest snapshot</h3>
+  <div class='table-responsive'>
+    <table class='all_nodes_dt table compact display nowrap table-bordered table-sm' width='100%'>
+      <thead>
+        {thead}
+      </thead>
+      <tbody>
+        {tbody}
+      </tbody>
+    </table>
+  </div>
+</div>
+"""
+    qr = self.query_all_nodes_latest_snapshot()
+    header_table_markup = self.build_thead_from_results(qr[0])
+    body_table_markup = self.build_tbody_from_results(qr[1])
+    return rv_html.format(thead=header_table_markup,tbody=body_table_markup)
+    
   def build_html_markup_for_table_category(self,category):
     rv_html = """
-<div class='col-xs-12 col-lg-6 col-xl-4'>
+<div class='col-xs-12 col-lg-6 col-xl-4' style='padding-top:10px;'>
   <h5>Top {} {}</h5>
   <div class='table-responsive'>
-    <table class='top_dt table compact display nowrap table-bordered table-sm' width='100%'>
+    <table class='top_dt table display nowrap table-bordered table-sm' width='100%'>
       <thead>
         {}
       </thead>
@@ -417,6 +456,66 @@ class Analyze_Data:
       rv_markup += tr_html.format(item_row)
     return rv_markup
 
+  def query_all_nodes_latest_snapshot(self):
+    query_all_nodes_last_seen_state = """
+    select substr(n1.node_id,1,10) short_node_id
+            ,n2.snapshot_date
+            ,n2.node_name
+            ,n2.node_version
+            ,n2.last_seen
+            ,n2.os
+            ,n2.os_system
+            ,n2.os_release
+            ,n2.os_version
+            ,n2.os_windows_edition
+            ,n2.os_linux_distribution
+            ,n2.ip
+            ,n2.start_port
+            ,n2.end_port
+            ,n2.performance_general
+            ,n2.performance_blender
+            ,n2.performance_lux
+            ,n2.allowed_resource_size
+            ,n2.allowed_resource_memory
+            ,n2.cpu_cores
+            ,n2.min_price
+            ,n2.max_price
+            ,n2.subtasks_success
+            ,n2.subtasks_error
+            ,n2.subtasks_timeout
+            ,n2.p2p_protocol_version
+            ,n2.task_protocol_version
+            ,n2.tasks_requested
+            ,n2.known_tasks
+            ,n2.supported_tasks
+            ,n2.rs_tasks_cnt
+            ,n2.rs_finished_task_cnt
+            ,n2.rs_requested_subtasks_cnt
+            ,n2.rs_collected_results_cnt
+            ,n2.rs_verified_results_cnt
+            ,n2.rs_timed_out_subtasks_cnt
+            ,n2.rs_not_downloadable_subtasks_cnt
+            ,n2.rs_failed_subtasks_cnt
+            ,n2.rs_work_offers_cnt
+            ,n2.rs_finished_ok_cnt
+            ,n2.rs_finished_ok_total_time
+            ,n2.rs_finished_with_failures_cnt
+            ,n2.rs_finished_with_failures_total_time
+            ,n2.rs_failed_cnt
+            ,n2.rs_failed_total_time
+    from (
+      select node_id,
+        max(snapshot_date) snapshot_date
+      from network_01
+      group by node_id) n1
+    INNER JOIN network_01 n2
+        ON n2.node_id = n1.node_id
+        and n2.snapshot_date = n1.snapshot_date;
+    """
+    self.conn.query(query_all_nodes_last_seen_state)
+    return (self.conn.fetchfields(),self.conn.fetchall())
+    
+
   def query_top_results_category(self,num_of_res,category):
     query = """
 select n1.mss {}
@@ -451,12 +550,24 @@ title: Dashboard
 
 <br /><br />
 
+<div class="row">
+  <div class="col-xs-6">
+    <iframe style="width:100%;height:300px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
+  </div>
+</div>
+
+
+<br /><br />
+
 [comment]: <> (Inject of data tables)
 <div class='row'>
 {datatables}
 </div>
 
+<br /><br />
+### [All Nodes by Latest Snapshop](All-Nodes-Latest-Snapshot)
 
+<br /><br />
 <div id="Count-of-distinct-nodes-connected-by-date"></div>
 
 ### Count of distinct nodes connected by date
@@ -474,7 +585,7 @@ Pseudo code:
 
 <iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/nodes_connected_by_date.html"></iframe>
 
-
+<br /><br />
 <div id="Count-of-distinct-nodes-connected-by-date"></div>
 
 ### Top 50 successful subtasks past 90 days
@@ -583,6 +694,178 @@ Pseudo code:
 </details>
 """
     return rv
+
+
+  def return_base_md_page_string(self):
+    rv = """---
+title: {title}
+---
+
+# {title}
+
+<br /><br />
+
+[comment]: <> (Inject of data tables)
+<div class='row'>
+{datatables}
+</div>
+
+<br /><br />
+"""
+    return rv
+
+  def query_subtasks_success_change_past_date(self):
+    query_percentage_increase = """
+    select sum(n2.subtasks_success)
+        , ((sum(n2.subtasks_success) / a.sss) - 1) * 100 percentage_increase_over_yesterday
+        , date(n2.snapshot_date)
+    from (
+      select date(snapshot_date),
+              max(snapshot_date) msd
+      from network_01
+      group by date(snapshot_date)) n1
+    inner join network_01 n2
+      on n2.snapshot_date = n1.msd
+    LEFT join (select sum(n2.subtasks_success) sss
+                    , date(n2.snapshot_date) sd
+                from (
+                  select date(snapshot_date),
+                          max(snapshot_date) msd
+                  from network_01
+                  group by date(snapshot_date)) n1
+                inner join network_01 n2
+                  on n2.snapshot_date = n1.msd
+                group by n2.snapshot_date, date(n2.snapshot_date)) a
+      on a.sd = date(n2.snapshot_date) - INTERVAL 1 DAY
+    group by n2.snapshot_date, date(n2.snapshot_date), a.sss
+    order by date(n2.snapshot_date) desc
+    LIMIT 1;
+    """
+    self.conn.query(query_percentage_increase)
+    return (self.conn.fetchfields(),self.conn.fetchall())
+    
+
+  def print_meter_subtasks_success_change_past_day(self):
+    print("Starting print_meter_subtasks_success_change_past_day - " + self.get_pretty_time())
+    filename = 'meter_subtasks_success_change_past_day.html'
+    filepath = 'build_graphs/'+filename
+
+    qr = self.query_subtasks_success_change_past_date()
+    percentage = float(qr[1][0][1])
+    
+    base_chart = {
+        "values": [40, 10, 10, 10, 10, 10, 10],
+        "labels": ["-", "-50%", "-21%", "-6%", "6%", "21%", "50%"],
+        "domain": {"x": [0, .48]},
+        "marker": {
+            "colors": [
+                'rgb(255, 255, 255)',
+                'rgb(255, 255, 255)',
+                'rgb(255, 255, 255)',
+                'rgb(255, 255, 255)',
+                'rgb(255, 255, 255)',
+                'rgb(255, 255, 255)',
+                'rgb(255, 255, 255)'
+            ],
+            "line": {
+                "width": 1
+            }
+        },
+        "name": "Gauge Subtasks Success change past day",
+        "hole": .3,
+        "type": "pie",
+        "direction": "clockwise",
+        "rotation": 108,
+        "showlegend": False,
+        "hoverinfo": "none",
+        "textinfo": "label",
+        "textposition": "outside"
+    }
+    meter_chart = {
+        "values": [50, 10, 10, 10, 10, 10],
+        "labels": ["Percentage change subtasks success", "Extreme Decrease", "Decrease", "Neutral", "Increase", "Extreme Increase"],
+        "marker": {
+            'colors': [
+                'rgb(255, 255, 255)',
+                'rgb(255,0,0)',
+                'rgb(255,153,51)',
+                'rgb(255,255,0)',
+                'rgb(155,205,50)',
+                'rgb(0,255,0)'
+            ]
+        },
+        "domain": {"x": [0, 0.48]},
+        "name": "Gauge",
+        "hole": .3,
+        "type": "pie",
+        "direction": "clockwise",
+        "rotation": 90,
+        "showlegend": False,
+        "textinfo": "label",
+        "textposition": "inside",
+        "hoverinfo": "none"
+    }
+    
+    if percentage > 50:
+      percentage = 50
+    my_raw_value = 90 + (percentage * 1.8);
+    degrees = 180 - my_raw_value
+    radians = degrees * math.pi / 180;
+    h = 0.24
+    k = 0.5
+    r = 0.15
+    aX = h + h*(0.025 * math.cos((degrees-90) * math.pi / 180))
+    aY = k + h*(0.025 * math.sin((degrees-90) * math.pi / 180))
+    bX = h + h*(-0.025 * math.cos((degrees-90) * math.pi / 180))
+    bY = k + h*(-0.025 * math.sin((degrees-90) * math.pi / 180))
+    cX = h + h*(math.cos((radians)))
+    cY = k + h*(math.sin((radians)))
+
+    path = "M {} {} L {} {} L {} {} Z".format(aX,aY,bX,bY,cX,cY)
+
+    layout = {
+        'xaxis': {
+            'showticklabels': False,
+            'showgrid': False,
+            'zeroline': False,
+        },
+        'yaxis': {
+            'showticklabels': False,
+            'showgrid': False,
+            'zeroline': False,
+        },
+        'shapes': [
+            {
+                'type': 'path',
+                'path': path,
+                'fillcolor': 'rgba(44, 160, 101, 0.5)',
+                'line': {
+                    'width': 0.5
+                },
+                'xref': 'paper',
+                'yref': 'paper'
+            }
+        ],
+        'annotations': [
+            {
+                'xref': 'paper',
+                'yref': 'paper',
+                'x': 0.23,
+                'y': 0.45,
+                'text': str(percentage)+"%",
+                'showarrow': False
+            }
+        ]
+    }
+
+    # we don't want the boundary now
+    base_chart['marker']['line']['width'] = 0
+
+    fig = {"data": [base_chart, meter_chart],
+           "layout": layout}
+    plotly.offline.plot(fig, filename=filepath, auto_open=False)
+    self.inject_google_analytics(filepath)
+    return filename
 
   def print_avg_daily_subtasks_totals(self,num_days_included):
     print("Starting print_avg_daily_subtasks_totals - " + self.get_pretty_time())
@@ -936,7 +1219,7 @@ order by 4 desc,1;
   def get_float_value(self, f):
     try:
       x = float(f)
-      if not isnan(x):
+      if not math.isnan(x):
         return x
     except ValueError:
       return 0
@@ -1065,6 +1348,30 @@ order by 4 desc,1;
     order by max(rs_finished_task_cnt) desc 
     limit 20;
     """
+    query_percentage_increase = """
+    select sum(n2.subtasks_success)
+        , ((sum(n2.subtasks_success) / a.sss) - 1) * 100 percentage_increase_over_yesterday
+        , date(n2.snapshot_date)
+    from (
+      select date(snapshot_date),
+              max(snapshot_date) msd
+      from network_01
+      group by date(snapshot_date)) n1
+    inner join network_01 n2
+      on n2.snapshot_date = n1.msd
+    LEFT join (select sum(n2.subtasks_success) sss
+                    , date(n2.snapshot_date) sd
+                from (
+                  select date(snapshot_date),
+                          max(snapshot_date) msd
+                  from network_01
+                  group by date(snapshot_date)) n1
+                inner join network_01 n2
+                  on n2.snapshot_date = n1.msd
+                group by n2.snapshot_date, date(n2.snapshot_date)) a
+      on a.sd = date(n2.snapshot_date) - INTERVAL 1 DAY
+    group by n2.snapshot_date, date(n2.snapshot_date), a.sss;
+    """
     query_top_50_subtasks_success_past_90_days = """
     select max(n3.subtasks_success) subtasks_success
             , substr(n1.node_id,1,10) short_node_id
@@ -1115,19 +1422,21 @@ order by 4 desc,1;
     group by date(snapshot_date);
     """
     query_all_nodes_last_seen_state = """
-    select max(n2.snapshot_date) snapshot_date
-      ,substr(n1.node_id,1,10) short_node_id
-      ,n2.node_name
-      ,max(n2.subtasks_success) max_subtasks_success
-      ,max(n2.performance_general) max_perf_gen
-      --,(select n3.performance_general from network_01 n3 where n3.snapshot_date = max(n2.snapshot_date) and n3.node_id = n2.node_id) perf_gen_subquery
-      ,max(n2.performance_blender) max_perf_blender
-      ,max(n2.performance_lux) max_perf_lux
-    from (select distinct node_id from network_01) n1
+    select substr(n1.node_id,1,10) short_node_id
+        , n2.node_name
+        , n2.snapshot_date
+        , n2.cpu_cores
+        , n2.allowed_resource_size
+        , n2.allowed_resource_memory
+        -- , n1.node_id
+    from (
+      select node_id,
+        max(snapshot_date) snapshot_date
+      from network_01
+      group by node_id) n1
     INNER JOIN network_01 n2
         ON n2.node_id = n1.node_id
-    GROUP BY n1.node_id, substr(n1.node_id,1,10), n2.node_name
-    order by max(n2.subtasks_success) desc
+        and n2.snapshot_date = n1.snapshot_date
     LIMIT 20;
     """
     query_node_by_name = """

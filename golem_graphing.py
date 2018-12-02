@@ -75,6 +75,7 @@ class Golem_Graphing():
     try:
       self.move_and_commit_graph(a.print_nodes_connected_by_date(90))
       self.move_and_commit_graph(a.print_top_50_subtasks_success_by_date(90))
+      self.move_and_commit_graph(a.print_meter_subtasks_success_change_past_day())
       # self.move_and_commit_graph(a.print_avg_daily_subtasks_totals(90))
       # self.move_and_commit_graph(a.print_avg_daily_unique_node_totals(90))
       # self.move_and_commit_graph(a.print_avg_daily_failed_totals(90))
@@ -96,6 +97,17 @@ class Golem_Graphing():
       traceback.print_exc(file=sys.stdout)
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     print("End refresh_golem_network_dashboard: " + self.get_pretty_time())
+  
+  def refresh_all_node_latest_snapshop_page(self):
+    print("Begin refresh_all_node_latest_snapshop_page: " + self.get_pretty_time())
+    a = al.Analyze_Data("PROD")
+    try:
+      self.move_and_commit_page(a.print_all_nodes_latest_snapshot())
+    except:
+      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating page<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+      traceback.print_exc(file=sys.stdout)
+      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating page<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    print("End refresh_all_node_latest_snapshop_page: " + self.get_pretty_time())
 
 def main():
   
