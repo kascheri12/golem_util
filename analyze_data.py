@@ -472,7 +472,7 @@ Pseudo code:
     * return len(all_nodes_logged_on_date) / len(all_timestamps_logged_on_date)
 </details>
 
-<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/nodes_connected_by_date.html"></iframe>
+<iframe style="width:100%;height:600px" src="{{{ base }}}/{{{ site.graphs_dir }}}/nodes_connected_by_date.html"></iframe>
 
 
 <div id="Count-of-distinct-nodes-connected-by-date"></div>
@@ -486,7 +486,7 @@ This graph is of the top 50 highest successful subtask counts, inspecting each n
 
 </details>
 
-<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/top_50_subtasks_success_by_date.html"></iframe>
+<iframe style="width:100%;height:600px" src="{{{ base }}}/{{{ site.graphs_dir }}}/top_50_subtasks_success_by_date.html"></iframe>
 
 
 
@@ -504,7 +504,7 @@ This is a summary of some standard resources along with a basic active node coun
 
 </details>
 
-<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/golem-network.html"></iframe>
+<iframe style="width:100%;height:600px" src="{{{ base }}}/{{{ site.graphs_dir }}}/golem-network.html"></iframe>
 
 
 <div id="Average-Daily-Subtasks-Totals"></div>
@@ -532,14 +532,14 @@ The reason that the average total completed subtasks on a given date is greater 
 
 </details>
 
-<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/avg_daily_subtasks_totals.html"></iframe>
+<iframe style="width:100%;height:600px" src="{{{ base }}}/{{{ site.graphs_dir }}}/avg_daily_subtasks_totals.html"></iframe>
 
 
 <div id="Average-Daily-Failed-Totals"></div>
 
 ### Average Daily Failed Totals
 
-<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/avg_daily_failed_totals.html"></iframe>
+<iframe style="width:100%;height:600px" src="{{{ base }}}/{{{ site.graphs_dir }}}/avg_daily_failed_totals.html"></iframe>
 
 <div id="Average-New-Unique-Node-Count-per-Day"></div>
 
@@ -557,7 +557,7 @@ Pseudo code:
   * return len(new_unique_nodes_on_date)/len(distinct_timestamps_on_date)
 </details>
 
-<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/avg_daily_unique_totals.html"></iframe>
+<iframe style="width:100%;height:600px" src="{{{ base }}}/{{{ site.graphs_dir }}}/avg_daily_unique_totals.html"></iframe>
 
 
 <div id="New-Unique-Node-Count-per-Snapshot"></div>
@@ -578,7 +578,7 @@ Pseudo code:
       * avg_new_for_ts = len(new_nodes_this_ts) / cnt_distinct_ts_for_new_nodes
 </details>
 
-<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/new_unique_node_count_per_snapshot.html"></iframe>
+<iframe style="width:100%;height:600px" src="{{{ base }}}/{{{ site.graphs_dir }}}/new_unique_node_count_per_snapshot.html"></iframe>
 
 </details>
 """
