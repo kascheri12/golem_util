@@ -1,4 +1,4 @@
-import csv, os, time, sys, plotly, traceback, codecs
+import csv, os, time, sys, plotly, traceback, codecs, db
 from distutils.version import LooseVersion
 import pandas as pd
 from datetime import datetime as dt
@@ -15,13 +15,8 @@ import load_data as ld
 
 class Analyze_Data:
 
-  def __init__(self, v_ld=None):
-    if v_ld is not None:
-      self._ld = v_ld
-      self._d = self._ld.get_data()
-    else:
-      self._ld = ld.Load_Data()
-      self._d = self._ld.get_data()
+  def __init__(self):
+    self.conn = db.DB("PROD")
     
   def print_nodes(self,d,sort_method=None,ascending=False):
     cols = ['timestamp','version','node_name','subtasks_success','os','node_id','performance_lux','performance_blender','performance_general','cpu_cores']
@@ -333,6 +328,262 @@ class Analyze_Data:
     self.inject_google_analytics(filepath)
     return filename
 
+  def print_golem_network_dashboard_page(self):
+    print("Starting print_golem_network_dashboard_page : " + self.get_pretty_time())
+    filename = 'Golem-Network-Dashboard.md'
+    filepath = 'build_graphs/'+filename
+    
+    mdf_content = self.build_dashboard_file_content()
+    
+    mdf = open(filepath,'w')
+    mdf.write(mdf_content)
+    mdf.close()
+    return filename
+  
+  def build_dashboard_file_content(self):
+    old_dashboard_string = self.return_old_golem_network_dashboard_markup()
+    dashboard_file_content = old_dashboard_string.format(datatables=self.build_markup_for_all_network_tabledata())
+    return dashboard_file_content
+  
+  def build_markup_for_all_network_tabledata(self):
+    rv_html = ""
+    table_categories = ['subtasks_success'
+        ,'subtasks_error','subtasks_timeout'
+        ,'tasks_requested','rs_tasks_cnt'
+        ,'rs_finished_task_cnt','rs_requested_subtasks_cnt'
+        ,'rs_collected_results_cnt','rs_verified_results_cnt'
+        ,'rs_timed_out_subtasks_cnt','rs_not_downloadable_subtasks_cnt'
+        ,'rs_failed_subtasks_cnt','rs_work_offers_cnt'
+        ,'rs_finished_ok_cnt'
+        ,'rs_finished_with_failures_cnt'
+        ,'rs_failed_cnt','cpu_cores']
+    for category in table_categories:
+      rv_html += self.build_html_markup_for_table_category(category)
+    return rv_html
+
+  def build_html_markup_for_table_category(self,category):
+    rv_html = """
+<div class='col-xs-12 col-lg-6 col-xl-4'>
+  <h5>Top {} {}</h5>
+  <div class='table-responsive'>
+    <table class='top_dt table compact display nowrap table-bordered table-sm' width='100%'>
+      <thead>
+        {}
+      </thead>
+      <tbody>
+        {}
+      </tbody>
+    </table>
+  </div>
+</div>
+"""
+    query_res = self.query_top_results_category(50,category)
+    header_table_markup = self.build_thead_from_results(query_res[0])
+    body_table_markup = self.build_tbody_from_results(query_res[1])
+    if category == 'subtasks_success':
+      return rv_html.format(50,'Subtasks Success',header_table_markup,body_table_markup)
+    elif category == 'rs_tasks_cnt':
+      return rv_html.format(50,'RS Tasks Count',header_table_markup,body_table_markup)
+    elif category == 'rs_finished_task_cnt':
+      return rv_html.format(50,'RS Finished Task Count',header_table_markup,body_table_markup)
+    elif category == 'rs_finished_ok_cnt':
+      return rv_html.format(50,'RS Finished Ok Count',header_table_markup,body_table_markup)
+    elif category == 'subtasks_error':
+      return rv_html.format(50,'Subtasks Error',header_table_markup,body_table_markup)
+    elif category == 'subtasks_timeout':
+      return rv_html.format(50,'Subtasks Timeout',header_table_markup,body_table_markup)
+    elif category == 'cpu_cores':
+      return rv_html.format(50,'CPU Core Count',header_table_markup,body_table_markup)
+    return ""
+  
+  def build_thead_from_results(self, header_list):
+    rv_markup = ""
+    for item in header_list:
+      rv_markup += "<th scope='col'>{}</th>".format(item)
+    return "<tr>{}</tr>".format(rv_markup)
+
+  def build_tbody_from_results(self, data_rows):
+    rv_markup = ""
+    is_first_column = True
+    tr_html = "<tr>{}</tr>"
+    for row in data_rows:
+      item_row = ""
+      for item in row:
+        if is_first_column:
+          is_first_column = False
+          item_row += format("<td scope='row'>{}</td>".format(item))
+        else:
+          item_row += format("<td>{}</td>".format(item))
+      rv_markup += tr_html.format(item_row)
+    return rv_markup
+
+  def query_top_results_category(self,num_of_res,category):
+    query = """
+select n1.mss {}
+        , n2.node_name
+        , substr(n1.node_id,1,10) short_node_id
+        , n2.snapshot_date
+        , n2.cpu_cores
+        , n2.allowed_resource_size
+        , n2.allowed_resource_memory
+from (
+  select node_id,
+    max(snapshot_date) snapshot_date,
+    max({}) mss
+  from network_01
+  group by node_id
+  order by mss desc
+  LIMIT {}) n1
+inner join network_01 n2
+  on n2.node_id = n1.node_id
+  and n2.snapshot_date = n1.snapshot_date
+order by n1.mss desc, n1.snapshot_date asc;
+"""
+    self.conn.query(query.format(category,category,num_of_res))
+    return (self.conn.fetchfields(),self.conn.fetchall())
+    
+  def return_old_golem_network_dashboard_markup(self):
+    rv = """---
+title: Dashboard
+---
+
+# Golem Network Dashboard
+
+<br /><br />
+
+[comment]: <> (Inject of data tables)
+<div class='row'>
+{datatables}
+</div>
+
+
+<div id="Count-of-distinct-nodes-connected-by-date"></div>
+
+### Count of distinct nodes connected by date
+
+<details>
+<summary>Click to expand details</summary>
+
+This one is pretty straight-forward. Snapshots only include active nodes, inactive node data is not being collected during a snapshot.
+
+Pseudo code:
+  * [get_avg_nodes_connected_on_date(date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L625)
+    * Find all_dist_timestamps_logged_on_date from all_nodes_logged_on_date
+    * return len(all_nodes_logged_on_date) / len(all_timestamps_logged_on_date)
+</details>
+
+<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/nodes_connected_by_date.html"></iframe>
+
+
+<div id="Count-of-distinct-nodes-connected-by-date"></div>
+
+### Top 50 successful subtasks past 90 days
+
+<details>
+<summary>Click to expand details</summary>
+
+This graph is of the top 50 highest successful subtask counts, inspecting each nodes' value over the past ninety days.
+
+</details>
+
+<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/top_50_subtasks_success_by_date.html"></iframe>
+
+
+
+<details>
+<summary>Show other graphs</summary>
+
+<div id="Golem-Network-Summary"></div>
+
+### Golem Network Summary
+
+<details>
+<summary>Click to expand details</summary>
+
+This is a summary of some standard resources along with a basic active node count. The three values for CPU Cores, Allowed Resource Memory, and Allowed Resource Size are found based on summing the corresponding values of the active nodes in a snapshot and dividing each by the number of snapshots.
+
+</details>
+
+<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/golem-network.html"></iframe>
+
+
+<div id="Average-Daily-Subtasks-Totals"></div>
+
+### Average Daily Subtask Totals
+
+<details>
+<summary>Click to expand details</summary>
+
+This is a summary of some standard resources along with a basic active node count. The three values for CPU Cores, Allowed Resource Memory, and Allowed Resource Size are found based on summing the corresponding values of the active nodes in a snapshot and dividing each by the number of snapshots.
+
+This one shows the average values per day of snapshots of new unique nodes, subtasks requested, and subtasks computed on the date. Many nodes can come and go throughout the day so I thought that an average amongst the snapshots collected per day would work as a standard daily metric for these graphs.
+
+The function that builds these values is [get_avg_daily_subtask_totals()](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L701).
+
+Here's pseudo code for the functions:
+  * [get_avg_requested_subtasks_on_date(list_nodes_on_date,distinct_timestamps_on_date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L646)
+    * total_count_requested_subtasks = sum( requested_subtasks ) in list_nodes_on_date
+    * return total_count_requested_subtasks / len(distinct_timestamp_on_date)
+  * [get_avg_subtasks_completed_on_date(list_nodes_on_date,distinct_timestamps_on_date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L650)
+    * total_count_requested_subtasks = sum( requested_subtasks ) in list_nodes_on_date
+    * return total_count_subtasks_success / len(distinct_timestamps_on_date)
+  
+The reason that the average total completed subtasks on a given date is greater than the average requested subtasks is because this is only a snapshot in time of the nodes that are connected. A node that has completed subtasks for another might still be connected to the network while the requested has since left the network thereby removing that count from future snapshots while it is disconnected.
+
+</details>
+
+<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/avg_daily_subtasks_totals.html"></iframe>
+
+
+<div id="Average-Daily-Failed-Totals"></div>
+
+### Average Daily Failed Totals
+
+<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/avg_daily_failed_totals.html"></iframe>
+
+<div id="Average-New-Unique-Node-Count-per-Day"></div>
+
+### Average New Unique Node Count per Day
+
+<details>
+<summary>Click to expand details</summary>
+
+Node ID's collected and referenced below are only ones collected in the time that I've been collecting data.
+
+Pseudo code:
+* [get_avg_new_unique_node_count_on_date(date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L630)
+  * Gather lists of distinct_node_ids_logged_on_date, distinct_timestamps_on_date, and distinct_node_ids_logged_before_date
+  * Get new_unique_nodes_on_date from distinct_node_ids_logged_on_date that are not in distinct_node_ids_logged_before_date
+  * return len(new_unique_nodes_on_date)/len(distinct_timestamps_on_date)
+</details>
+
+<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/avg_daily_unique_totals.html"></iframe>
+
+
+<div id="New-Unique-Node-Count-per-Snapshot"></div>
+
+### New Unique Node Count per Snapshot
+
+<details>
+<summary>Click to expand details</summary>
+
+This one takes the longest to build because of the iterative nature of continuing to compare a growing list of values in the past that are not newly unique nodes anymore.
+
+Pseudo code:
+  * [build_y_axis_dict_for_new_unique_over_last_days(x_axis)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L258)
+    * Iterate throughout each timestamp on the x_axis
+      * Find distinct_ids_before_ts
+      * Then find new_nodes_this_ts from all_nodes_this_ts not in distinct_id_before_ts
+      * Find cnt_distinct_ts_for_new_nodes
+      * avg_new_for_ts = len(new_nodes_this_ts) / cnt_distinct_ts_for_new_nodes
+</details>
+
+<iframe style="width:100%;height:600px" src="{{ base }}/{{ site.graphs_dir }}/new_unique_node_count_per_snapshot.html"></iframe>
+
+</details>
+"""
+    return rv
+
   def print_avg_daily_subtasks_totals(self,num_days_included):
     print("Starting print_avg_daily_subtasks_totals - " + self.get_pretty_time())
     filename = 'avg_daily_subtasks_totals.html'
@@ -492,26 +743,82 @@ class Analyze_Data:
     self.inject_google_analytics(filepath)
     return filename
 
-  def print_avg_daily_nodes_connected(self,num_days_included):
-    print("Starting print_avg_daily_nodes_connected - " + self.get_pretty_time())
-    filename = 'avg_daily_nodes_connected.html'
-    filepath = 'build_graphs/'+filename
-    log_cutoff_date = dt.today() - timedelta(days=num_days_included)
-
+  def print_top_50_subtasks_success_by_date(self,num_days_included):
+    print("Starting top_50_subtasks_success_by_date - " + self.get_pretty_time())
+    filename = 'top_50_subtasks_success_by_date.html'
+    filepath = 'build_graphs/'+filename      
+    query_top_50_subtasks_success_by_date = """
+select max(n3.subtasks_success) subtasks_success
+        , substr(n1.node_id,1,10) short_node_id
+        , n2.node_name
+        , date(n3.snapshot_date) snapshot_date
+        , n1.node_id
+from (
+  select node_id,
+    max(snapshot_date) snapshot_date,
+    max(subtasks_success) mss
+  from network_01
+  group by node_id
+  order by mss desc
+  LIMIT 50) n1
+inner join network_01 n2
+  on n2.node_id = n1.node_id
+  and n2.snapshot_date = n1.snapshot_date
+inner join network_01 n3
+  on n3.node_id = n1.node_id
+  and n3.snapshot_date > (n1.snapshot_date - INTERVAL {interval} DAY)
+group by n1.node_id, n2.node_name, date(n3.snapshot_date)
+order by 4 desc,1;
+"""
+    self.conn.query(query_top_50_subtasks_success_by_date.format(interval=num_days_included))
+    qr = self.conn.fetchall()
+    dd = list(sorted(list(set([x[3] for x in qr]))))
+    node_ids = list(set([x[4] for x in qr]))
     traces = []
-    plot_pairs = []
-    list_of_dates = sorted(self.get_list_of_dates_for_data(log_cutoff_date))
-    for d in list_of_dates:
-      plot_pairs.append([d,self.get_avg_nodes_connected_on_date(d)])
+    for node in node_ids:
+      traces.append(go.Scatter(
+        x = [dt.strftime(x,'%Y-%m-%d') for x in dd],
+        y = list(sorted([x[0] for x in qr if x[4] == node])),
+        name = list(set([x[2] for x in qr if x[4] == node]))[0]
+      ))
+    data = traces
 
+    # Edit the layout
+    layout = dict(title = 'Top 50 Subtasks Success By Date',
+                  xaxis = dict(title = 'Date'),
+                  yaxis = dict(title = 'Subtasks Success'),
+                  )
+
+    fig = dict(data=data, layout=layout)
+    plotly.offline.plot(fig, filename=filepath, auto_open=False)
+    self.inject_google_analytics(filepath)
+    return filename
+
+  def print_nodes_connected_by_date(self,num_days_included):
+    print("Starting print_nodes_connected_by_date - " + self.get_pretty_time())
+    filename = 'nodes_connected_by_date.html'
+    filepath = 'build_graphs/'+filename
+    # log_cutoff_date = dt.today() - timedelta(days=num_days_included)
+
+    query_daily_distinct_count = """
+    select date(snapshot_date) snapshot_date
+      , count(distinct node_id) distinct_cnt 
+    from network_01
+    where date(snapshot_date) > (date(snapshot_date) - INTERVAL {interval} DAY)
+    group by date(snapshot_date);
+    """
+    self.conn.query(query_daily_distinct_count.format(interval=num_days_included))
+    qr = self.conn.fetchall()
+    
+    traces = []
     traces.append(go.Bar(
-    x = [x[0] for x in plot_pairs],
-    y = [x[1] for x in plot_pairs],
-    name='Avg Nodes Connected'
+    x = [x[0] for x in qr],
+    y = [x[1] for x in qr],
+    name='Distinct Nodes Connected by Date (Past {interval} days)'.format(interval=num_days_included)
     ))
 
     layout = go.Layout(
-        title='Daily Average Nodes Connected',
+        title='Distinct Nodes Connected by Date (Past {interval} days)'.format(interval=num_days_included),
         xaxis=dict(
             tickfont=dict(
                 size=14,
@@ -519,7 +826,7 @@ class Analyze_Data:
             )
         ),
         yaxis=dict(
-            title='',
+            title='Distinct count of nodes',
             titlefont=dict(
                 size=16,
                 color='rgb(107, 107, 107)'
@@ -529,15 +836,7 @@ class Analyze_Data:
                 color='rgb(107, 107, 107)'
             )
         ),
-        legend=dict(
-            x=0,
-            y=1.0,
-            bgcolor='rgba(255, 255, 255, 0)',
-            bordercolor='rgba(255, 255, 255, 0)'
-        ),
-        barmode='group',
-        bargap=0.15,
-        bargroupgap=0.1
+        bargap=0.15
     )
 
     data = traces
@@ -754,3 +1053,143 @@ class Analyze_Data:
       
 
     return dailytot
+
+  def scratch_sql(self):
+    conn = db.DB()
+    my_query = """
+    select max(rs_finished_task_cnt) max_ts_finished_task_cnt
+      , substr(node_id,1,10) node_id
+      , node_name 
+    from network_01 
+    group by node_id, node_name 
+    order by max(rs_finished_task_cnt) desc 
+    limit 20;
+    """
+    query_top_50_subtasks_success_past_90_days = """
+    select max(n3.subtasks_success) subtasks_success
+            , substr(n1.node_id,1,10) short_node_id
+            , n2.node_name
+            , date(n3.snapshot_date) snapshot_date
+    from (
+      select node_id,
+        max(snapshot_date) snapshot_date,
+        max(subtasks_success) mss
+      from network_01
+      group by node_id
+      order by mss desc
+      LIMIT 50) n1
+    inner join network_01 n2
+      on n2.node_id = n1.node_id
+      and n2.snapshot_date = n1.snapshot_date
+    inner join network_01 n3
+      on n3.node_id = n1.node_id
+      and n3.snapshot_date > (n1.snapshot_date - INTERVAL 90 DAY)
+    group by n1.node_id, n2.node_name, date(n3.snapshot_date)
+    order by 4,1;
+    """
+    query_subtasks_success_top_50 = """
+    select n1.mss subtasks_success
+            , substr(n1.node_id,1,10) short_node_id
+            , n2.node_name
+            , n2.snapshot_date
+            , n2.cpu_cores
+            , n2.allowed_resource_size
+            , n2.allowed_resource_memory
+    from (
+      select node_id,
+        max(snapshot_date) snapshot_date,
+        max(subtasks_success) mss
+      from network_01
+      group by node_id
+      order by mss desc
+      LIMIT 50) n1
+    inner join network_01 n2
+      on n2.node_id = n1.node_id
+      and n2.snapshot_date = n1.snapshot_date
+    order by n1.mss desc, n1.snapshot_date asc;
+    """
+    query_daily_distinct_count = """
+    select date(snapshot_date) snapshot_date
+      , count(distinct node_id) distinct_cnt 
+    from network_01 
+    group by date(snapshot_date);
+    """
+    query_all_nodes_last_seen_state = """
+    select max(n2.snapshot_date) snapshot_date
+      ,substr(n1.node_id,1,10) short_node_id
+      ,n2.node_name
+      ,max(n2.subtasks_success) max_subtasks_success
+      ,max(n2.performance_general) max_perf_gen
+      --,(select n3.performance_general from network_01 n3 where n3.snapshot_date = max(n2.snapshot_date) and n3.node_id = n2.node_id) perf_gen_subquery
+      ,max(n2.performance_blender) max_perf_blender
+      ,max(n2.performance_lux) max_perf_lux
+    from (select distinct node_id from network_01) n1
+    INNER JOIN network_01 n2
+        ON n2.node_id = n1.node_id
+    GROUP BY n1.node_id, substr(n1.node_id,1,10), n2.node_name
+    order by max(n2.subtasks_success) desc
+    LIMIT 20;
+    """
+    query_node_by_name = """
+    select 
+    n2.unique_node_id
+    ,n2.snapshot_date
+    ,n2.node_id
+    ,n2.node_name
+    -- ,n2.node_version
+    -- ,n2.last_seen
+    -- ,n2.os
+    -- ,n2.ip
+    -- ,n2.start_port
+    -- ,n2.end_port
+    -- ,n2.performance_general
+    -- ,n2.performance_blender
+    -- ,n2.performance_lux
+    -- ,n2.allowed_resource_size
+    -- ,n2.allowed_resource_memory
+    -- ,n2.cpu_cores
+    -- ,n2.min_price
+    -- ,n2.max_price
+    -- ,n2.subtasks_success
+    -- ,n2.subtasks_error
+    -- ,n2.subtasks_timeout
+    -- ,n2.p2p_protocol_version
+    -- ,n2.task_protocol_version
+    -- ,n2.tasks_requested
+    -- ,n2.known_tasks
+    -- ,n2.supported_tasks
+    -- ,n2.rs_tasks_cnt
+    -- ,n2.rs_finished_task_cnt
+    -- ,n2.rs_requested_subtasks_cnt
+    -- ,n2.rs_collected_results_cnt
+    -- ,n2.rs_verified_results_cnt
+    -- ,n2.rs_timed_out_subtasks_cnt
+    -- ,n2.rs_not_downloadable_subtasks_cnt
+    -- ,n2.rs_failed_subtasks_cnt
+    -- ,n2.rs_work_offers_cnt
+    -- ,n2.rs_finished_ok_cnt
+    -- ,n2.rs_finished_ok_total_time
+    -- ,n2.rs_finished_with_failures_cnt
+    -- ,n2.rs_finished_with_failures_total_time
+    -- ,n2.rs_failed_cnt
+    -- ,n2.rs_failed_total_time
+    -- ,n2.os_system
+    -- ,n2.os_release
+    -- ,n2.os_version
+    -- ,n2.os_windows_edition
+    -- ,n2.os_linux_distribution
+    from (select node_id
+                , max(snapshot_date) msd
+                from network_01
+                where 1=1
+                -- and node_id = ''
+                and node_name = 'kascheri12'
+                group by node_id
+                ) n1
+    inner join network_01 n2
+      ON n2.node_id = n1.node_id
+      and n2.snapshot_date = n1.msd
+    where 1 = 1;
+    """
+    conn.query(my_query)
+    
