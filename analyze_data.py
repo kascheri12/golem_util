@@ -377,6 +377,7 @@ class Analyze_Data:
         ,'rs_failed_cnt','cpu_cores']
     for category in table_categories:
       rv_html += self.build_html_markup_for_table_category(category)
+    rv_html += self.build_html_markup_for_perc_change()
     return rv_html
 
   def build_html_markup_for_all_nodes(self):
@@ -395,7 +396,24 @@ class Analyze_Data:
   </div>
 </div>
 """
-    qr = self.query_all_nodes_latest_snapshot()
+
+  def build_html_markup_for_perc_change(self):
+    rv_html = """
+<div class='col-xs-12 col-lg-12' style='margin-top:10px;'>
+  <h3>Percent Change Sum(Subtasks Success)</h3>
+  <div class='table-responsive'>
+    <table class='top_dt table display nowrap table-bordered table-sm' width='100%'>
+      <thead>
+        {thead}
+      </thead>
+      <tbody>
+        {tbody}
+      </tbody>
+    </table>
+  </div>
+</div>
+"""
+    qr = self.query_subtasks_success_change_past_date_limit(20)
     header_table_markup = self.build_thead_from_results(qr[0])
     body_table_markup = self.build_tbody_from_results(qr[1])
     return rv_html.format(thead=header_table_markup,tbody=body_table_markup)
@@ -729,7 +747,7 @@ title: {title}
 """
     return rv
 
-  def query_subtasks_success_change_past_date(self):
+  def query_subtasks_success_change_past_date_limit(self,limit_num):
     query_percentage_increase = """
     select sum(n2.subtasks_success)
         , ((sum(n2.subtasks_success) / a.sss) - 1) * 100 percentage_increase_over_yesterday
@@ -754,9 +772,9 @@ title: {title}
       on a.sd = date(n2.snapshot_date) - INTERVAL 1 DAY
     group by n2.snapshot_date, date(n2.snapshot_date), a.sss
     order by date(n2.snapshot_date) desc
-    LIMIT 1;
+    LIMIT {limit_num};
     """
-    self.conn.query(query_percentage_increase)
+    self.conn.query(query_percentage_increase.format(limit_num=limit_num))
     return (self.conn.fetchfields(),self.conn.fetchall())
     
 
@@ -765,7 +783,7 @@ title: {title}
     filename = 'meter_subtasks_success_change_past_day.html'
     filepath = 'build_graphs/'+filename
 
-    qr = self.query_subtasks_success_change_past_date()
+    qr = self.query_subtasks_success_change_past_date_limit(1)
     percentage = float(qr[1][0][1])
     
     base_chart = {
