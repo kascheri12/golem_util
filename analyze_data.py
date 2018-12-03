@@ -384,16 +384,14 @@ class Analyze_Data:
     rv_html = """
 <div class='col-xs-12 col-lg-12' style='margin-top:10px;background-color:floralwhite;'>
   <h3>All nodes latest snapshot</h3>
-  <div class='table-responsive'>
-    <table class='all_nodes_dt table compact display nowrap table-bordered table-sm' width='100%'>
-      <thead>
-        {thead}
-      </thead>
-      <tbody>
-        {tbody}
-      </tbody>
-    </table>
-  </div>
+  <table class='all_nodes_dt table compact display nowrap table-bordered table-sm' width='100%'>
+    <thead>
+      {thead}
+    </thead>
+    <tbody>
+      {tbody}
+    </tbody>
+  </table>
 </div>
 """
 
@@ -401,16 +399,14 @@ class Analyze_Data:
     rv_html = """
 <div class='col-xs-12 col-sm-12 col-lg-12 col-xl-12' style='padding:10px;'>
   <h4>Percent change of total subtasks success by day</h4>
-  <div class='table-responsive'>
-    <table id='perc-change-subtasks-success' class='table display nowrap table-bordered table-sm' width='100%'>
-      <thead>
-        {thead}
-      </thead>
-      <tbody>
-        {tbody}
-      </tbody>
-    </table>
-  </div>
+  <table id='perc-change-subtasks-success' class='table display nowrap table-bordered table-sm' width='100%'>
+    <thead>
+      {thead}
+    </thead>
+    <tbody>
+      {tbody}
+    </tbody>
+  </table>
 </div>
 """
     qr = self.query_subtasks_success_change_past_date_limit(20)
@@ -422,16 +418,14 @@ class Analyze_Data:
     rv_html = """
 <div class='col-xs-12 col-lg-6 col-xl-4' style='padding:10px;'>
   <h5>Top {} {}</h5>
-  <div class='table-responsive'>
-    <table class='top_dt table display nowrap table-bordered table-sm' width='100%'>
-      <thead>
-        {}
-      </thead>
-      <tbody>
-        {}
-      </tbody>
-    </table>
-  </div>
+  <table class='top_dt table display nowrap table-bordered table-sm' width='100%'>
+    <thead>
+      {}
+    </thead>
+    <tbody>
+      {}
+    </tbody>
+  </table>
 </div>
 """
     query_res = self.query_top_results_category(50,category)
