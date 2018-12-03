@@ -399,7 +399,7 @@ class Analyze_Data:
 
   def build_html_markup_for_perc_change(self):
     rv_html = """
-<div class='col-xs-12 col-sm-12 col-lg-12 col-xl-12' style='margin-top:10px;'>
+<div class='col-xs-12 col-sm-12 col-lg-12 col-xl-12' style='padding:10px;'>
   <h4>Percent Change Sum(Subtasks Success)</h4>
   <div class='table-responsive'>
     <table class='top_dt table display nowrap table-bordered table-sm' width='100%'>
@@ -420,7 +420,7 @@ class Analyze_Data:
     
   def build_html_markup_for_table_category(self,category):
     rv_html = """
-<div class='col-xs-12 col-lg-6 col-xl-4' style='padding-top:10px;'>
+<div class='col-xs-12 col-lg-6 col-xl-4' style='padding:10px;'>
   <h5>Top {} {}</h5>
   <div class='table-responsive'>
     <table class='top_dt table display nowrap table-bordered table-sm' width='100%'>
