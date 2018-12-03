@@ -552,7 +552,13 @@ title: Dashboard
 
 ### Percentage change in subtasks success past day
 
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
+<div class="row">
+  <div class='col-xs-12 col-lg-6'>
+    <canvas id='guage_percent_change_subtasks_success_past_day'></canvas>
+  </div>
+</div>
+
+<iframe style="width:50%;height:600px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
 
 <br /><br />
 
@@ -821,8 +827,8 @@ title: {title}
     path = "M {} {} L {} {} L {} {} Z".format(aX,aY,bX,bY,cX,cY)
 
     layout = {
-        'width': 3000,
-        'height': 1200,
+        'width': 1200,
+        'height': 600,
         'xaxis': {
             'showticklabels': False,
             'showgrid': False,
