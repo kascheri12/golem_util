@@ -592,7 +592,7 @@ title: Dashboard
 
 <script type='javascript'>
 $(document).ready(function() {{
-init_gauge({guage_percent_change_subtasks_success_past_day_value})
+init_gauge({guage_percent_change_subtasks_success_past_day_value});
 }});
 </script>
 
