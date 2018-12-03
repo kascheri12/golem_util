@@ -400,7 +400,7 @@ class Analyze_Data:
   def build_html_markup_for_perc_change(self):
     rv_html = """
 <div class='col-xs-12 col-sm-12 col-lg-12 col-xl-12' style='padding:10px;'>
-  <h4>Percent Change Sum(Subtasks Success)</h4>
+  <h4>Percent change of total subtasks success by day</h4>
   <div class='table-responsive'>
     <table id='perc-change-subtasks-success' class='table display nowrap table-bordered table-sm' width='100%'>
       <thead>
@@ -588,7 +588,7 @@ title: Dashboard
   <div class='col-xs-12 col-lg-4'>
     <div id='preview' style='position:relative;float:left;display:block;'>
       <canvas style='position:relative;display:inline-block;' id='guage_percent_change_subtasks_success_past_day'></canvas>
-      <span style='position:absolute;text-align:center;left:0;right:0;' id='span_guage_percent_change_subtasks_success_past_day'></span>
+      <span style='position:absolute;text-align:center;left:0;right:0;bottom:0;' id='span_guage_percent_change_subtasks_success_past_day'></span>
     </div>
   </div>
 </div>
@@ -614,7 +614,7 @@ title: Dashboard
     limitMax: false,     // If false, max value increases automatically if value > maxValue
     limitMin: false,     // If true, the min value of the gauge will be fixed
     colorStart: '#CF0E00',   // Colors
-    colorStop: '#47DA37',    // just experiment with them
+    colorStop: '#E0E0E0',    // just experiment with them
     strokeColor: '#E0E0E0',  // to see which ones work best for you
     generateGradient: true,
     highDpiSupport: true,     // High resolution support
