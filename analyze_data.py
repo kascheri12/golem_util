@@ -594,8 +594,7 @@ title: Dashboard
 </div>
 
 
-<script type='javascript'>
-
+<script>
   $(document).ready(function() {{
     var opts = {{
     angle: 0, // The span of the gauge arc
