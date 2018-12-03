@@ -631,8 +631,6 @@ title: Dashboard
   
 </script>
 
-<iframe style="width:100%;height:400px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
-
 <br />
 
 [comment]: <> (Inject of data tables)
