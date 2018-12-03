@@ -579,13 +579,13 @@ title: Dashboard
 <details>
 <summary>Click to expand details</summary>
 
-  This value represents the percentage change of the sum of subtasks_success of active nodes in the latest snapshot and the same metric from yesterday's last snapshot.
+  <p>This value represents the percentage change of the sum of subtasks_success of active nodes in the latest snapshot and the same metric from yesterday's last snapshot.</p>
 
-  ###### Analysis
+  <h6>Analysis</h6>
 
-  There are many reasons for drastic movement here even if the same extreme movement is not reflected in the node count.
+  <p>There are many reasons for drastic movement here even if the same extreme movement is not reflected in the node count.</p>
 
-  A single node with a large number of subtasks_success might exit the network for a time and this would demonstrate a dtrasitc decrease in this metric but the overall node count would not change so drastically.
+  <p>A single node with a large number of subtasks_success might exit the network for a time and this would demonstrate a dtrasitc decrease in this metric but the overall node count would not change so drastically.</p>
 </details>
 
 <iframe style="width:100%;height:400px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
@@ -788,7 +788,7 @@ title: {title}
     
     base_chart = {
         "values": [40, 10, 10, 10, 10, 10, 10],
-        "labels": [],
+        "labels": [""],
         "domain": {"x": [0, .48]},
         "marker": {
             "colors": [
