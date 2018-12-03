@@ -375,9 +375,9 @@ class Analyze_Data:
         ,'rs_finished_ok_cnt'
         ,'rs_finished_with_failures_cnt'
         ,'rs_failed_cnt','cpu_cores']
+    rv_html += self.build_html_markup_for_perc_change()
     for category in table_categories:
       rv_html += self.build_html_markup_for_table_category(category)
-    rv_html += self.build_html_markup_for_perc_change()
     return rv_html
 
   def build_html_markup_for_all_nodes(self):
@@ -399,7 +399,7 @@ class Analyze_Data:
 
   def build_html_markup_for_perc_change(self):
     rv_html = """
-<div class='col-xs-12 col-lg-12' style='margin-top:10px;'>
+<div class='col-xs-12' style='margin-top:10px;'>
   <h4>Percent Change Sum(Subtasks Success)</h4>
   <div class='table-responsive'>
     <table class='top_dt table display nowrap table-bordered table-sm' width='100%'>
@@ -749,9 +749,10 @@ title: {title}
 
   def query_subtasks_success_change_past_date_limit(self,limit_num):
     query_percentage_increase = """
-    select sum(n2.subtasks_success) sum_subtasks_success
+    select 
+        date(n2.snapshot_date) snapshot_date
+        , sum(n2.subtasks_success) sum_subtasks_success
         , ((sum(n2.subtasks_success) / a.sss) - 1) * 100 percentage_increase_over_prev_day
-        , date(n2.snapshot_date) snapshot_date
     from (
       select date(snapshot_date),
               max(snapshot_date) msd
@@ -787,7 +788,7 @@ title: {title}
     
     base_chart = {
         "values": [40, 10, 10, 10, 10, 10, 10],
-        "labels": ["-", "-", "-", "-", "-", "-", "-"],
+        "labels": [],
         "domain": {"x": [0, .48]},
         "marker": {
             "colors": [
