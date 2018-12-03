@@ -357,7 +357,7 @@ class Analyze_Data:
     
   def build_dashboard_file_content(self):
     old_dashboard_string = self.return_old_golem_network_dashboard_markup()
-    dashboard_file_content = old_dashboard_string.format(datatables=self.build_markup_for_all_network_tabledata())
+    dashboard_file_content = old_dashboard_string.format(datatables=self.build_markup_for_all_network_tabledata(),guage_percent_change_subtasks_success_past_day_value=self.query_subtasks_success_change_past_date_limit(1)[1][0][2])
     return dashboard_file_content
   
   def build_markup_for_all_nodes_latest_snapshot_tabledata(self):
@@ -570,12 +570,6 @@ title: Dashboard
 
 #### Percentage change in subtasks success past day
 
-[comment]: <> (<div class="row">)
-[comment]: <> (  <div class='col-xs-12 col-lg-6'>)
-[comment]: <> (    <canvas id='guage_percent_change_subtasks_success_past_day'></canvas>)
-[comment]: <> (  </div>)
-[comment]: <> (</div>)
-
 <details>
 <summary><strong>Details</strong></summary>
 
@@ -587,7 +581,44 @@ title: Dashboard
 
   <p>A single node with a large number of subtasks_success might exit the network for a time and this would demonstrate a dtrasitc decrease in this metric but the overall node count would not change so drastically.</p>
 </details>
+
 <br />
+
+<div class="row">
+  <div class='col-xs-12 col-lg-4'>
+    <canvas id='guage_percent_change_subtasks_success_past_day'></canvas>
+  </div>
+</div>
+
+<script type='javascript'>
+$(document).ready(function() {
+  var opts = {
+    angle: 0.15, // The span of the gauge arc
+    lineWidth: 0.44, // The line thickness
+    radiusScale: 1, // Relative radius
+    pointer: {
+      length: 0.6, // // Relative to gauge radius
+      strokeWidth: 0.035, // The thickness
+      color: '#000000' // Fill color
+    },
+    limitMax: false,     // If false, max value increases automatically if value > maxValue
+    limitMin: false,     // If true, the min value of the gauge will be fixed
+    colorStart: '#CF0E00',   // Colors
+    colorStop: '#47DA37',    // just experiment with them
+    strokeColor: '#E0E0E0',  // to see which ones work best for you
+    generateGradient: true,
+    highDpiSupport: true,     // High resolution support
+    
+  };
+  var target = document.getElementById('guage_percent_change_subtasks_success_past_day'); // your canvas element
+  var gauge = new Gauge(target).setOptions(opts); // create sexy gauge!
+  gauge.maxValue = 50; // set max gauge value
+  gauge.setMinValue(-50);  // Prefer setter over gauge.minValue = 0
+  gauge.animationSpeed = 32; // set animation speed (32 is default value)
+  gauge.set({guage_percent_change_subtasks_success_past_day_value}); // set actual value
+});
+</script>
+
 <iframe style="width:100%;height:400px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
 
 <br />
@@ -615,7 +646,7 @@ Pseudo code:
 <ul>
   <li>[get_avg_nodes_connected_on_date(date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L625)</li>
   <ul>
-    <li>Find all_dist_timestamps_logged_on_date from all_nodes_logged_on_date
+    <li>Find all_dist_timestamps_logged_on_date from all_nodes_logged_on_date</li>
     <li>return len(all_nodes_logged_on_date) / len(all_timestamps_logged_on_date)</li>
   </ul>
 </ul>
@@ -669,12 +700,18 @@ Pseudo code:
 <p>The function that builds these values is [get_avg_daily_subtask_totals()](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L701).</p>
 <p>
 Here's pseudo code for the functions:
-  * [get_avg_requested_subtasks_on_date(list_nodes_on_date,distinct_timestamps_on_date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L646)
-    * total_count_requested_subtasks = sum( requested_subtasks ) in list_nodes_on_date
-    * return total_count_requested_subtasks / len(distinct_timestamp_on_date)
-  * [get_avg_subtasks_completed_on_date(list_nodes_on_date,distinct_timestamps_on_date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L650)
-    * total_count_requested_subtasks = sum( requested_subtasks ) in list_nodes_on_date
-    * return total_count_subtasks_success / len(distinct_timestamps_on_date)
+<ul>
+  <li>[get_avg_requested_subtasks_on_date(list_nodes_on_date,distinct_timestamps_on_date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L646)</li>
+  <ul>
+    <li>total_count_requested_subtasks = sum( requested_subtasks ) in list_nodes_on_date</li>
+    <li>return total_count_requested_subtasks / len(distinct_timestamp_on_date)</li>
+  </ul>
+  <li>[get_avg_subtasks_completed_on_date(list_nodes_on_date,distinct_timestamps_on_date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L650)</li>
+  <ul>
+    <li>total_count_requested_subtasks = sum( requested_subtasks ) in list_nodes_on_date</li>
+    <li>return total_count_subtasks_success / len(distinct_timestamps_on_date)</li>
+  </ul>
+</ul>
 </p>
 
 <p>The reason that the average total completed subtasks on a given date is greater than the average requested subtasks is because this is only a snapshot in time of the nodes that are connected. A node that has completed subtasks for another might still be connected to the network while the requested has since left the network thereby removing that count from future snapshots while it is disconnected.</p>
@@ -701,10 +738,14 @@ Here's pseudo code for the functions:
 
 <p>
 Pseudo code:
-* [get_avg_new_unique_node_count_on_date(date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L630)
-  * Gather lists of distinct_node_ids_logged_on_date, distinct_timestamps_on_date, and distinct_node_ids_logged_before_date
-  * Get new_unique_nodes_on_date from distinct_node_ids_logged_on_date that are not in distinct_node_ids_logged_before_date
-  * return len(new_unique_nodes_on_date)/len(distinct_timestamps_on_date)
+<ul>
+  <li>[get_avg_new_unique_node_count_on_date(date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L630)</li>
+  <ul>
+    <li>Gather lists of distinct_node_ids_logged_on_date, distinct_timestamps_on_date, and distinct_node_ids_logged_before_date</li>
+    <li>Get new_unique_nodes_on_date from distinct_node_ids_logged_on_date that are not in distinct_node_ids_logged_before_date</li>
+    <li>return len(new_unique_nodes_on_date)/len(distinct_timestamps_on_date)</li>
+  </ul>
+</ul>
 </p>
 </details>
 <br />
@@ -721,12 +762,18 @@ Pseudo code:
 <p>This one takes the longest to build because of the iterative nature of continuing to compare a growing list of values in the past that are not newly unique nodes anymore.</p>
 <p>
 Pseudo code:
-  * [build_y_axis_dict_for_new_unique_over_last_days(x_axis)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L258)
-    * Iterate throughout each timestamp on the x_axis
-      * Find distinct_ids_before_ts
-      * Then find new_nodes_this_ts from all_nodes_this_ts not in distinct_id_before_ts
-      * Find cnt_distinct_ts_for_new_nodes
-      * avg_new_for_ts = len(new_nodes_this_ts) / cnt_distinct_ts_for_new_nodes
+<ul>
+  <li>[build_y_axis_dict_for_new_unique_over_last_days(x_axis)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L258)</li>
+  <ul>
+    <li>Iterate throughout each timestamp on the x_axis</li>
+    <ul>
+      <li>Find distinct_ids_before_ts</li>
+      <li>Then find new_nodes_this_ts from all_nodes_this_ts not in distinct_id_before_ts</li>
+      <li>Find cnt_distinct_ts_for_new_nodes</li>
+      <li>avg_new_for_ts = len(new_nodes_this_ts) / cnt_distinct_ts_for_new_nodes</li>
+    </ul>
+  </ul>
+</ul>
 </p>
 </details>
 <br />
