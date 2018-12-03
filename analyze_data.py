@@ -586,9 +586,13 @@ title: Dashboard
 
 <div class="row">
   <div class='col-xs-12 col-lg-4'>
-    <canvas id='guage_percent_change_subtasks_success_past_day'></canvas>
+    <div id='preview' style='position:relative;float:left;display:block;'>
+      <canvas style='position:relative;display:inline-block;' id='guage_percent_change_subtasks_success_past_day'></canvas>
+      <span style='position:absolute;text-align:center;left:0;right:0;' id='span_guage_percent_change_subtasks_success_past_day'></span>
+    </div>
   </div>
 </div>
+
 
 <script type='javascript'>
 $(document).ready(function() {{
