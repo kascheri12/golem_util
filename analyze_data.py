@@ -552,11 +552,23 @@ title: Dashboard
 
 ### Percentage change in subtasks success past day
 
-<div class="row">
-  <div class='col-xs-12 col-lg-6'>
-    <canvas id='guage_percent_change_subtasks_success_past_day'></canvas>
-  </div>
-</div>
+[comment]: <> (<div class="row">)
+[comment]: <> (  <div class='col-xs-12 col-lg-6'>)
+[comment]: <> (    <canvas id='guage_percent_change_subtasks_success_past_day'></canvas>)
+[comment]: <> (  </div>)
+[comment]: <> (</div>)
+
+<details>
+<summary>Click to expand details</summary>
+
+This value represents the percentage change of the sum of subtasks_success of active nodes in the latest snapshot and the same metric from yesterday's last snapshot.
+
+##### Analysis
+
+There are many reasons for drastic movement here even if the same extreme movement is not reflected in the node count.
+
+A single node with a large number of subtasks_success might exit the network for a time and this would demonstrate a dtrasitc decrease in this metric but the overall node count would not change so drastically.
+</details>
 
 <iframe style="width:100%;height:400px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
 
@@ -758,7 +770,7 @@ title: {title}
     
     base_chart = {
         "values": [40, 10, 10, 10, 10, 10, 10],
-        "labels": ["-", "-50%", "-21%", "-6%", "6%", "21%", "50%"],
+        "labels": ["-", "", "", "", "", "", ""],
         "domain": {"x": [0, .48]},
         "marker": {
             "colors": [
@@ -775,7 +787,7 @@ title: {title}
             }
         },
         "name": "Gauge Subtasks Success change past day",
-        "hole": .6,
+        "hole": .4,
         "type": "pie",
         "direction": "clockwise",
         "rotation": 108,
@@ -799,7 +811,7 @@ title: {title}
         },
         "domain": {"x": [0, 0.48]},
         "name": "Gauge",
-        "hole": .6,
+        "hole": .4,
         "type": "pie",
         "direction": "clockwise",
         "rotation": 90,
@@ -816,7 +828,6 @@ title: {title}
     radians = degrees * math.pi / 180;
     h = 0.24
     k = 0.5
-    r = 0.3
     aX = h + h*(0.025 * math.cos((degrees-90) * math.pi / 180))
     aY = k + h*(0.025 * math.sin((degrees-90) * math.pi / 180))
     bX = h + h*(-0.025 * math.cos((degrees-90) * math.pi / 180))
