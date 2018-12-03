@@ -402,7 +402,7 @@ class Analyze_Data:
 <div class='col-xs-12 col-sm-12 col-lg-12 col-xl-12' style='padding:10px;'>
   <h4>Percent Change Sum(Subtasks Success)</h4>
   <div class='table-responsive'>
-    <table class='top_dt table display nowrap table-bordered table-sm' width='100%'>
+    <table id='perc-change-subtasks-success' class='table display nowrap table-bordered table-sm' width='100%'>
       <thead>
         {thead}
       </thead>
@@ -577,7 +577,7 @@ title: Dashboard
 [comment]: <> (</div>)
 
 <details>
-<summary>Details</summary>
+<summary><strong>Details</strong></summary>
 
   <p>This value represents the percentage change of the sum of subtasks_success of active nodes in the latest snapshot and the same metric from yesterday's last snapshot.</p>
 
@@ -587,7 +587,7 @@ title: Dashboard
 
   <p>A single node with a large number of subtasks_success might exit the network for a time and this would demonstrate a dtrasitc decrease in this metric but the overall node count would not change so drastically.</p>
 </details>
-
+<br />
 <iframe style="width:100%;height:400px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
 
 <br />
@@ -606,16 +606,22 @@ title: Dashboard
 ### Count of distinct nodes connected by date
 
 <details>
-<summary>Details</summary>
+<summary><strong>Details</strong></summary>
 
-This one is pretty straight-forward. Snapshots only include active nodes, inactive node data is not being collected during a snapshot.
+<p>This one is pretty straight-forward. Snapshots only include active nodes, inactive node data is not being collected during a snapshot.</p>
 
+<p>
 Pseudo code:
-  * [get_avg_nodes_connected_on_date(date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L625)
-    * Find all_dist_timestamps_logged_on_date from all_nodes_logged_on_date
-    * return len(all_nodes_logged_on_date) / len(all_timestamps_logged_on_date)
+<ul>
+  <li>[get_avg_nodes_connected_on_date(date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L625)</li>
+  <ul>
+    <li>Find all_dist_timestamps_logged_on_date from all_nodes_logged_on_date
+    <li>return len(all_nodes_logged_on_date) / len(all_timestamps_logged_on_date)</li>
+  </ul>
+</ul>
+</p>
 </details>
-
+<br />
 <iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/nodes_connected_by_date.html"></iframe>
 
 <br /><br />
@@ -624,12 +630,12 @@ Pseudo code:
 ### Top 50 successful subtasks past 90 days
 
 <details>
-<summary>Details</summary>
+<summary><strong>Details</strong></summary>
 
-This graph is of the top 50 highest successful subtask counts, inspecting each nodes' value over the past ninety days.
+<p>This graph is of the top 50 highest successful subtask counts, inspecting each nodes' value over the past ninety days.</p>
 
 </details>
-
+<br />
 <iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/top_50_subtasks_success_by_date.html"></iframe>
 
 <details>
@@ -640,12 +646,12 @@ This graph is of the top 50 highest successful subtask counts, inspecting each n
 ### Golem Network Summary
 
 <details>
-<summary>Details</summary>
+<summary><strong>Details</strong></summary>
 
-This is a summary of some standard resources along with a basic active node count. The three values for CPU Cores, Allowed Resource Memory, and Allowed Resource Size are found based on summing the corresponding values of the active nodes in a snapshot and dividing each by the number of snapshots.
+<p>This is a summary of some standard resources along with a basic active node count. The three values for CPU Cores, Allowed Resource Memory, and Allowed Resource Size are found based on summing the corresponding values of the active nodes in a snapshot and dividing each by the number of snapshots.</p>
 
 </details>
-
+<br />
 <iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/golem-network.html"></iframe>
 
 
@@ -654,14 +660,14 @@ This is a summary of some standard resources along with a basic active node coun
 ### Average Daily Subtask Totals
 
 <details>
-<summary>Details</summary>
+<summary><strong>Details</strong></summary>
 
-This is a summary of some standard resources along with a basic active node count. The three values for CPU Cores, Allowed Resource Memory, and Allowed Resource Size are found based on summing the corresponding values of the active nodes in a snapshot and dividing each by the number of snapshots.
+<p>This is a summary of some standard resources along with a basic active node count. The three values for CPU Cores, Allowed Resource Memory, and Allowed Resource Size are found based on summing the corresponding values of the active nodes in a snapshot and dividing each by the number of snapshots.</p>
 
-This one shows the average values per day of snapshots of new unique nodes, subtasks requested, and subtasks computed on the date. Many nodes can come and go throughout the day so I thought that an average amongst the snapshots collected per day would work as a standard daily metric for these graphs.
+<p>This one shows the average values per day of snapshots of new unique nodes, subtasks requested, and subtasks computed on the date. Many nodes can come and go throughout the day so I thought that an average amongst the snapshots collected per day would work as a standard daily metric for these graphs.</p>
 
-The function that builds these values is [get_avg_daily_subtask_totals()](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L701).
-
+<p>The function that builds these values is [get_avg_daily_subtask_totals()](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L701).</p>
+<p>
 Here's pseudo code for the functions:
   * [get_avg_requested_subtasks_on_date(list_nodes_on_date,distinct_timestamps_on_date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L646)
     * total_count_requested_subtasks = sum( requested_subtasks ) in list_nodes_on_date
@@ -669,18 +675,19 @@ Here's pseudo code for the functions:
   * [get_avg_subtasks_completed_on_date(list_nodes_on_date,distinct_timestamps_on_date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L650)
     * total_count_requested_subtasks = sum( requested_subtasks ) in list_nodes_on_date
     * return total_count_subtasks_success / len(distinct_timestamps_on_date)
-  
-The reason that the average total completed subtasks on a given date is greater than the average requested subtasks is because this is only a snapshot in time of the nodes that are connected. A node that has completed subtasks for another might still be connected to the network while the requested has since left the network thereby removing that count from future snapshots while it is disconnected.
+</p>
+
+<p>The reason that the average total completed subtasks on a given date is greater than the average requested subtasks is because this is only a snapshot in time of the nodes that are connected. A node that has completed subtasks for another might still be connected to the network while the requested has since left the network thereby removing that count from future snapshots while it is disconnected.</p>
 
 </details>
-
+<br />
 <iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/avg_daily_subtasks_totals.html"></iframe>
 
 
 <div id="Average-Daily-Failed-Totals"></div>
 
 ### Average Daily Failed Totals
-
+<br />
 <iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/avg_daily_failed_totals.html"></iframe>
 
 <div id="Average-New-Unique-Node-Count-per-Day"></div>
@@ -688,17 +695,19 @@ The reason that the average total completed subtasks on a given date is greater 
 ### Average New Unique Node Count per Day
 
 <details>
-<summary>Details</summary>
+<summary><strong>Details</strong></summary>
 
-Node ID's collected and referenced below are only ones collected in the time that I've been collecting data.
+<p>Node ID's collected and referenced below are only ones collected in the time that I've been collecting data.</p>
 
+<p>
 Pseudo code:
 * [get_avg_new_unique_node_count_on_date(date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L630)
   * Gather lists of distinct_node_ids_logged_on_date, distinct_timestamps_on_date, and distinct_node_ids_logged_before_date
   * Get new_unique_nodes_on_date from distinct_node_ids_logged_on_date that are not in distinct_node_ids_logged_before_date
   * return len(new_unique_nodes_on_date)/len(distinct_timestamps_on_date)
+</p>
 </details>
-
+<br />
 <iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/avg_daily_unique_totals.html"></iframe>
 
 
@@ -707,10 +716,10 @@ Pseudo code:
 ### New Unique Node Count per Snapshot
 
 <details>
-<summary>Details</summary>
+<summary><strong>Details</strong></summary>
 
-This one takes the longest to build because of the iterative nature of continuing to compare a growing list of values in the past that are not newly unique nodes anymore.
-
+<p>This one takes the longest to build because of the iterative nature of continuing to compare a growing list of values in the past that are not newly unique nodes anymore.</p>
+<p>
 Pseudo code:
   * [build_y_axis_dict_for_new_unique_over_last_days(x_axis)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L258)
     * Iterate throughout each timestamp on the x_axis
@@ -718,8 +727,9 @@ Pseudo code:
       * Then find new_nodes_this_ts from all_nodes_this_ts not in distinct_id_before_ts
       * Find cnt_distinct_ts_for_new_nodes
       * avg_new_for_ts = len(new_nodes_this_ts) / cnt_distinct_ts_for_new_nodes
+</p>
 </details>
-
+<br />
 <iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/new_unique_node_count_per_snapshot.html"></iframe>
 
 </details>
