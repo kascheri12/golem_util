@@ -400,7 +400,7 @@ class Analyze_Data:
   def build_html_markup_for_perc_change(self):
     rv_html = """
 <div class='col-xs-12 col-lg-12' style='margin-top:10px;'>
-  <h3>Percent Change Sum(Subtasks Success)</h3>
+  <h4>Percent Change Sum(Subtasks Success)</h4>
   <div class='table-responsive'>
     <table class='top_dt table display nowrap table-bordered table-sm' width='100%'>
       <thead>
@@ -568,7 +568,7 @@ title: Dashboard
 
 <br /><br />
 
-### Percentage change in subtasks success past day
+#### Percentage change in subtasks success past day
 
 [comment]: <> (<div class="row">)
 [comment]: <> (  <div class='col-xs-12 col-lg-6'>)
@@ -579,13 +579,13 @@ title: Dashboard
 <details>
 <summary>Click to expand details</summary>
 
-This value represents the percentage change of the sum of subtasks_success of active nodes in the latest snapshot and the same metric from yesterday's last snapshot.
+  This value represents the percentage change of the sum of subtasks_success of active nodes in the latest snapshot and the same metric from yesterday's last snapshot.
 
-##### Analysis
+  ###### Analysis
 
-There are many reasons for drastic movement here even if the same extreme movement is not reflected in the node count.
+  There are many reasons for drastic movement here even if the same extreme movement is not reflected in the node count.
 
-A single node with a large number of subtasks_success might exit the network for a time and this would demonstrate a dtrasitc decrease in this metric but the overall node count would not change so drastically.
+  A single node with a large number of subtasks_success might exit the network for a time and this would demonstrate a dtrasitc decrease in this metric but the overall node count would not change so drastically.
 </details>
 
 <iframe style="width:100%;height:400px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
@@ -749,9 +749,9 @@ title: {title}
 
   def query_subtasks_success_change_past_date_limit(self,limit_num):
     query_percentage_increase = """
-    select sum(n2.subtasks_success)
-        , ((sum(n2.subtasks_success) / a.sss) - 1) * 100 percentage_increase_over_yesterday
-        , date(n2.snapshot_date)
+    select sum(n2.subtasks_success) sum_subtasks_success
+        , ((sum(n2.subtasks_success) / a.sss) - 1) * 100 percentage_increase_over_prev_day
+        , date(n2.snapshot_date) snapshot_date
     from (
       select date(snapshot_date),
               max(snapshot_date) msd
@@ -777,7 +777,6 @@ title: {title}
     self.conn.query(query_percentage_increase.format(limit_num=limit_num))
     return (self.conn.fetchfields(),self.conn.fetchall())
     
-
   def print_meter_subtasks_success_change_past_day(self):
     print("Starting print_meter_subtasks_success_change_past_day - " + self.get_pretty_time())
     filename = 'meter_subtasks_success_change_past_day.html'
@@ -788,7 +787,7 @@ title: {title}
     
     base_chart = {
         "values": [40, 10, 10, 10, 10, 10, 10],
-        "labels": ["-", "", "", "", "", "", ""],
+        "labels": ["-", "-", "-", "-", "-", "-", "-"],
         "domain": {"x": [0, .48]},
         "marker": {
             "colors": [
@@ -816,7 +815,7 @@ title: {title}
     }
     meter_chart = {
         "values": [50, 10, 10, 10, 10, 10],
-        "labels": ["Percentage change subtasks success", "Extreme Decrease", "Decrease", "Neutral", "Increase", "Extreme Increase"],
+        "labels": ["Percentage change sum of subtasks success", "Extreme Decrease", "Decrease", "Neutral", "Increase", "Extreme Increase"],
         "marker": {
             'colors': [
                 'rgb(255, 255, 255)',
