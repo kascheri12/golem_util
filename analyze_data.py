@@ -625,9 +625,8 @@ title: Dashboard
     gauge.maxValue = 50; // set max gauge value
     gauge.setMinValue(-50);  // Prefer setter over gauge.minValue = 0
     gauge.animationSpeed = 32; // set animation speed (32 is default value)
-    gauge.set(pin_value); // set actual value
+    gauge.set({guage_percent_change_subtasks_success_past_day_value}); // set actual value
     gauge.setTextField(document.getElementById('span_guage_percent_change_subtasks_success_past_day'),3);
-    init_gauge({guage_percent_change_subtasks_success_past_day_value});
   }});
   
 </script>
