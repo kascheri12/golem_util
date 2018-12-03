@@ -75,7 +75,7 @@ class Golem_Graphing():
     try:
       self.move_and_commit_graph(a.print_nodes_connected_by_date(90))
       self.move_and_commit_graph(a.print_top_50_subtasks_success_by_date(90))
-      self.move_and_commit_graph(a.print_meter_subtasks_success_change_past_day())
+
       # self.move_and_commit_graph(a.print_avg_daily_subtasks_totals(90))
       # self.move_and_commit_graph(a.print_avg_daily_unique_node_totals(90))
       # self.move_and_commit_graph(a.print_avg_daily_failed_totals(90))
