@@ -566,7 +566,7 @@ title: Dashboard
 
 # Golem Network Dashboard
 
-<br /><br />
+<br />
 
 #### Percentage change in subtasks success past day
 
@@ -577,11 +577,11 @@ title: Dashboard
 [comment]: <> (</div>)
 
 <details>
-<summary>Click to expand details</summary>
+<summary>Details</summary>
 
   <p>This value represents the percentage change of the sum of subtasks_success of active nodes in the latest snapshot and the same metric from yesterday's last snapshot.</p>
 
-  <h6>Analysis</h6>
+  <h5>Analysis</h5>
 
   <p>There are many reasons for drastic movement here even if the same extreme movement is not reflected in the node count.</p>
 
@@ -590,7 +590,7 @@ title: Dashboard
 
 <iframe style="width:100%;height:400px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
 
-<br /><br />
+<br />
 
 [comment]: <> (Inject of data tables)
 <div class='row'>
@@ -606,7 +606,7 @@ title: Dashboard
 ### Count of distinct nodes connected by date
 
 <details>
-<summary>Click to expand details</summary>
+<summary>Details</summary>
 
 This one is pretty straight-forward. Snapshots only include active nodes, inactive node data is not being collected during a snapshot.
 
@@ -624,15 +624,13 @@ Pseudo code:
 ### Top 50 successful subtasks past 90 days
 
 <details>
-<summary>Click to expand details</summary>
+<summary>Details</summary>
 
 This graph is of the top 50 highest successful subtask counts, inspecting each nodes' value over the past ninety days.
 
 </details>
 
 <iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/top_50_subtasks_success_by_date.html"></iframe>
-
-
 
 <details>
 <summary>Show other graphs</summary>
@@ -642,7 +640,7 @@ This graph is of the top 50 highest successful subtask counts, inspecting each n
 ### Golem Network Summary
 
 <details>
-<summary>Click to expand details</summary>
+<summary>Details</summary>
 
 This is a summary of some standard resources along with a basic active node count. The three values for CPU Cores, Allowed Resource Memory, and Allowed Resource Size are found based on summing the corresponding values of the active nodes in a snapshot and dividing each by the number of snapshots.
 
@@ -656,7 +654,7 @@ This is a summary of some standard resources along with a basic active node coun
 ### Average Daily Subtask Totals
 
 <details>
-<summary>Click to expand details</summary>
+<summary>Details</summary>
 
 This is a summary of some standard resources along with a basic active node count. The three values for CPU Cores, Allowed Resource Memory, and Allowed Resource Size are found based on summing the corresponding values of the active nodes in a snapshot and dividing each by the number of snapshots.
 
@@ -690,7 +688,7 @@ The reason that the average total completed subtasks on a given date is greater 
 ### Average New Unique Node Count per Day
 
 <details>
-<summary>Click to expand details</summary>
+<summary>Details</summary>
 
 Node ID's collected and referenced below are only ones collected in the time that I've been collecting data.
 
@@ -709,7 +707,7 @@ Pseudo code:
 ### New Unique Node Count per Snapshot
 
 <details>
-<summary>Click to expand details</summary>
+<summary>Details</summary>
 
 This one takes the longest to build because of the iterative nature of continuing to compare a growing list of values in the past that are not newly unique nodes anymore.
 
@@ -784,11 +782,10 @@ title: {title}
     filepath = 'build_graphs/'+filename
 
     qr = self.query_subtasks_success_change_past_date_limit(1)
-    percentage = float(qr[1][0][1])
+    percentage = float(qr[1][0][2])
     
     base_chart = {
         "values": [40, 10, 10, 10, 10, 10, 10],
-        "labels": [""],
         "domain": {"x": [0, .48]},
         "marker": {
             "colors": [
@@ -811,8 +808,7 @@ title: {title}
         "rotation": 108,
         "showlegend": False,
         "hoverinfo": "none",
-        "textinfo": "label",
-        "textposition": "outside"
+        "textinfo": "none"
     }
     meter_chart = {
         "values": [50, 10, 10, 10, 10, 10],
