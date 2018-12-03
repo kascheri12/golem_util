@@ -550,12 +550,9 @@ title: Dashboard
 
 <br /><br />
 
-<div class="row">
-  <div class="col-xs-6">
-    <iframe style="width:100%;height:300px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
-  </div>
-</div>
+### Percentage change in subtasks success past day
 
+<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
 
 <br /><br />
 
@@ -772,7 +769,7 @@ title: {title}
             }
         },
         "name": "Gauge Subtasks Success change past day",
-        "hole": .3,
+        "hole": .6,
         "type": "pie",
         "direction": "clockwise",
         "rotation": 108,
@@ -796,7 +793,7 @@ title: {title}
         },
         "domain": {"x": [0, 0.48]},
         "name": "Gauge",
-        "hole": .3,
+        "hole": .6,
         "type": "pie",
         "direction": "clockwise",
         "rotation": 90,
@@ -813,7 +810,7 @@ title: {title}
     radians = degrees * math.pi / 180;
     h = 0.24
     k = 0.5
-    r = 0.15
+    r = 0.3
     aX = h + h*(0.025 * math.cos((degrees-90) * math.pi / 180))
     aY = k + h*(0.025 * math.sin((degrees-90) * math.pi / 180))
     bX = h + h*(-0.025 * math.cos((degrees-90) * math.pi / 180))
@@ -824,6 +821,8 @@ title: {title}
     path = "M {} {} L {} {} L {} {} Z".format(aX,aY,bX,bY,cX,cY)
 
     layout = {
+        'width': 3000,
+        'height': 1200,
         'xaxis': {
             'showticklabels': False,
             'showgrid': False,
