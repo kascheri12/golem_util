@@ -558,7 +558,7 @@ title: Dashboard
   </div>
 </div>
 
-<iframe style="width:50%;height:600px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
+<iframe style="width:100%;height:400px" src="https://kascheri12.github.io/graphs/meter_subtasks_success_change_past_day.html"></iframe>
 
 <br /><br />
 
