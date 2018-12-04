@@ -825,7 +825,7 @@ title: {title}
                   on n2.snapshot_date = n1.msd
                 group by n2.snapshot_date, date(n2.snapshot_date)) a
       on a.sd = date(n2.snapshot_date) - INTERVAL 1 DAY
-    group by n2.snapshot_date, date(n2.snapshot_date), a.sss
+    group by n2.snapshot_date, date(n2.snapshot_date), a.sss, a.sse, a.sst
     order by date(n2.snapshot_date) desc
     LIMIT {limit_num};
     """
