@@ -659,7 +659,7 @@ $(document).ready(function() {{
   gauge3.animationSpeed = 75; // set animation speed (32 is default value)
   gauge3.set({gauge_percent_change_subtasks_error_past_day_value}); // set actual value
   gauge3.setTextField(document.getElementById('span_gauge_percent_change_subtasks_error_past_day'),3);
-}}
+}});
 
 </script>
 
