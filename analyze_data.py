@@ -610,7 +610,8 @@ title: Dashboard
 
 <script>
 $(document).ready(function() {{
-  var opts = {{
+  var opts1,opts2,opts3;
+  var opts1 = opts2 = opts3 = {{
   angle: 0, // The span of the gauge arc
   lineWidth: 0.44, // The line thickness
   radiusScale: 1, // Relative radius
@@ -638,22 +639,21 @@ $(document).ready(function() {{
   var target2 = document.getElementById('gauge_percent_change_subtasks_timeout_past_day'); // your canvas element
   var target3 = document.getElementById('gauge_percent_change_subtasks_error_past_day'); // your canvas element
 
-  var gauge1 = new Gauge(target1).setOptions(opts); // create sexy gauge!
-  var gauge2 = new Gauge(target2).setOptions(opts); // create sexy gauge!
-  var gauge3 = new Gauge(target3).setOptions(opts); // create sexy gauge!
-  
+  var gauge1 = new Gauge(target1).setOptions(opts1); // create sexy gauge!
   gauge1.maxValue = 50; // set max gauge value
   gauge1.setMinValue(-50);  // Prefer setter over gauge.minValue = 0
   gauge1.animationSpeed = 75; // set animation speed (32 is default value)
   gauge1.set({gauge_percent_change_subtasks_success_past_day_value}); // set actual value
   gauge1.setTextField(document.getElementById('span_gauge_percent_change_subtasks_success_past_day'),3);
   
+  var gauge2 = new Gauge(target2).setOptions(opts2); // create sexy gauge!
   gauge2.maxValue = 50; // set max gauge value
   gauge2.setMinValue(-50);  // Prefer setter over gauge.minValue = 0
   gauge2.animationSpeed = 75; // set animation speed (32 is default value)
   gauge2.set({gauge_percent_change_subtasks_timeout_past_day_value}); // set actual value
   gauge2.setTextField(document.getElementById('span_gauge_percent_change_subtasks_timeout_past_day'),3);
   
+  var gauge3 = new Gauge(target3).setOptions(opts3); // create sexy gauge!
   gauge3.maxValue = 50; // set max gauge value
   gauge3.setMinValue(-50);  // Prefer setter over gauge.minValue = 0
   gauge3.animationSpeed = 75; // set animation speed (32 is default value)
