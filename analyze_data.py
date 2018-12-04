@@ -567,7 +567,7 @@ title: Dashboard
 
 <br />
 
-#### Percentage change in subtasks success past day
+#### Percentage change in past day
 
 <details>
 <summary><strong>Details</strong></summary>
@@ -585,18 +585,21 @@ title: Dashboard
 
 <div class="row">
   <div class='col-xs-12 col-lg-4'>
+    <h5>Subtasks Success</h5>
     <div id='preview' style='position:relative;float:left;display:block;'>
       <canvas style='position:relative;display:inline-block;' id='gauge_percent_change_subtasks_success_past_day'></canvas>
       <span style='position:absolute;text-align:center;left:0;right:0;bottom:0;' id='snap_gauge_percent_change_subtasks_success_past_day'></span>
     </div>
   </div>
   <div class='col-xs-12 col-lg-4'>
+    <h5>Subtasks Timeout</h5>
     <div id='preview' style='position:relative;float:left;display:block;'>
       <canvas style='position:relative;display:inline-block;' id='gauge_percent_change_subtasks_timeout_past_day'></canvas>
       <span style='position:absolute;text-align:center;left:0;right:0;bottom:0;' id='snap_gauge_percent_change_subtasks_timeout_past_day'></span>
     </div>
   </div>
   <div class='col-xs-12 col-lg-4'>
+    <h5>Subtasks Error</h5>
     <div id='preview' style='position:relative;float:left;display:block;'>
       <canvas style='position:relative;display:inline-block;' id='gauge_percent_change_subtasks_error_past_day'></canvas>
       <span style='position:absolute;text-align:center;left:0;right:0;bottom:0;' id='snap_gauge_percent_change_subtasks_error_past_day'></span>
@@ -606,12 +609,46 @@ title: Dashboard
 
 
 <script>
-  $(document).ready(function() {{
-    init_gauge('gauge_percent_change_subtasks_success_past_day',{gauge_percent_change_subtasks_success_past_day_value});
-    init_gauge('gauge_percent_change_subtasks_timeout_past_day',{gauge_percent_change_subtasks_timeout_past_day_value});
-    init_gauge('gauge_percent_change_subtasks_error_past_day',{gauge_percent_change_subtasks_error_past_day_value});
-  }});
-  
+$(document).ready(function() {{
+  init_gauge('gauge_percent_change_subtasks_success_past_day',{gauge_percent_change_subtasks_success_past_day_value});
+  init_gauge('gauge_percent_change_subtasks_timeout_past_day',{gauge_percent_change_subtasks_timeout_past_day_value});
+  init_gauge('gauge_percent_change_subtasks_error_past_day',{gauge_percent_change_subtasks_error_past_day_value});
+}});
+
+
+var init_gauge = function init_gauge(element,percentage) {{
+  var opts = {{
+  angle: 0, // The span of the gauge arc
+  lineWidth: 0.44, // The line thickness
+  radiusScale: 1, // Relative radius
+  pointer: {{
+    length: 0.6, // // Relative to gauge radius
+    strokeWidth: 0.035, // The thickness
+    color: '#000000' // Fill color
+  }},
+  staticLabels: {{
+    font: "20px sans-serif",  // Specifies font
+    labels: [-50,-30,-10,10,30,50],  // Print labels at these values
+    color: "#000000",  // Optional: Label text color
+    fractionDigits: 0  // Optional: Numerical precision. 0=round off.
+  }},
+  limitMax: false,     // If false, max value increases automatically if value > maxValue
+  limitMin: false,     // If true, the min value of the gauge will be fixed
+  colorStart: '#CF0E00',   // Colors
+  colorStop: '#E0E0E0',    // just experiment with them
+  strokeColor: '#E0E0E0',  // to see which ones work best for you
+  generateGradient: true,
+  highDpiSupport: true,     // High resolution support
+  }};
+  var target = document.getElementById(element); // your canvas element
+  var gauge = new Gauge(target).setOptions(opts); // create sexy gauge!
+  gauge.maxValue = 50; // set max gauge value
+  gauge.setMinValue(-50);  // Prefer setter over gauge.minValue = 0
+  gauge.animationSpeed = 32; // set animation speed (32 is default value)
+  gauge.set(percentage); // set actual value
+  gauge.setTextField(document.getElementById('span_'+element),3);
+}}
+
 </script>
 
 <br />
