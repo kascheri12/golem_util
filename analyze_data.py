@@ -595,7 +595,7 @@ title: Dashboard
     <h5>Subtasks Timeout</h5>
     <div id='preview' style='position:relative;float:left;display:block;'>
       <canvas style='position:relative;display:inline-block;' id='gauge_percent_change_subtasks_timeout_past_day'></canvas>
-      <span style='position:absolute;text-align:center;left:0;right:0;bottom:0;' id='return_base_md_page_string_gauge_percent_change_subtasks_timeout_past_day'></span>
+      <span style='position:absolute;text-align:center;left:0;right:0;bottom:0;' id='span_gauge_percent_change_subtasks_timeout_past_day'></span>
     </div>
   </div>
   <div class='col-xs-12 col-lg-4'>
