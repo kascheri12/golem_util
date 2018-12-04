@@ -358,11 +358,11 @@ class Analyze_Data:
   def build_dashboard_file_content(self):
     old_dashboard_string = self.return_old_golem_network_dashboard_markup()
     qr = self.query_subtasks_success_change_past_date_limit(1)[1][0]
-    dashboard_file_content = old_dashboard_string
-      .format(datatables=self.build_markup_for_all_network_tabledata() \
-        ,gauge_percent_change_subtasks_success_past_day_value = qr[2] \
-        ,gauge_percent_change_subtasks_timeout_past_day_value = qr[4] \
-        ,gauge_percent_change_subtasks_error_past_day_value = qr[6])
+    dashboard_file_content = old_dashboard_string.format( \
+      datatables=self.build_markup_for_all_network_tabledata() \
+      ,gauge_percent_change_subtasks_success_past_day_value = qr[2] \
+      ,gauge_percent_change_subtasks_timeout_past_day_value = qr[4] \
+      ,gauge_percent_change_subtasks_error_past_day_value = qr[6])
     return dashboard_file_content
   
   def build_markup_for_all_nodes_latest_snapshot_tabledata(self):
