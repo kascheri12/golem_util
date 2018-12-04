@@ -357,7 +357,12 @@ class Analyze_Data:
     
   def build_dashboard_file_content(self):
     old_dashboard_string = self.return_old_golem_network_dashboard_markup()
-    dashboard_file_content = old_dashboard_string.format(datatables=self.build_markup_for_all_network_tabledata(),guage_percent_change_subtasks_success_past_day_value=self.query_subtasks_success_change_past_date_limit(1)[1][0][2])
+    qr = self.query_subtasks_success_change_past_date_limit(1)[1][0]
+    dashboard_file_content = old_dashboard_string
+      .format(datatables=self.build_markup_for_all_network_tabledata() \
+        ,gauge_percent_change_subtasks_success_past_day_value = qr[2] \
+        ,gauge_percent_change_subtasks_timeout_past_day_value = qr[4] \
+        ,gauge_percent_change_subtasks_error_past_day_value = qr[6])
     return dashboard_file_content
   
   def build_markup_for_all_nodes_latest_snapshot_tabledata(self):
@@ -581,8 +586,20 @@ title: Dashboard
 <div class="row">
   <div class='col-xs-12 col-lg-4'>
     <div id='preview' style='position:relative;float:left;display:block;'>
-      <canvas style='position:relative;display:inline-block;' id='guage_percent_change_subtasks_success_past_day'></canvas>
-      <span style='position:absolute;text-align:center;left:0;right:0;bottom:0;' id='span_guage_percent_change_subtasks_success_past_day'></span>
+      <canvas style='position:relative;display:inline-block;' id='gauge_percent_change_subtasks_success_past_day'></canvas>
+      <span style='position:absolute;text-align:center;left:0;right:0;bottom:0;' id='snap_gauge_percent_change_subtasks_success_past_day'></span>
+    </div>
+  </div>
+  <div class='col-xs-12 col-lg-4'>
+    <div id='preview' style='position:relative;float:left;display:block;'>
+      <canvas style='position:relative;display:inline-block;' id='gauge_percent_change_subtasks_timeout_past_day'></canvas>
+      <span style='position:absolute;text-align:center;left:0;right:0;bottom:0;' id='snap_gauge_percent_change_subtasks_timeout_past_day'></span>
+    </div>
+  </div>
+  <div class='col-xs-12 col-lg-4'>
+    <div id='preview' style='position:relative;float:left;display:block;'>
+      <canvas style='position:relative;display:inline-block;' id='gauge_percent_change_subtasks_error_past_day'></canvas>
+      <span style='position:absolute;text-align:center;left:0;right:0;bottom:0;' id='snap_gauge_percent_change_subtasks_error_past_day'></span>
     </div>
   </div>
 </div>
@@ -590,37 +607,9 @@ title: Dashboard
 
 <script>
   $(document).ready(function() {{
-    var opts = {{
-    angle: 0, // The span of the gauge arc
-    lineWidth: 0.44, // The line thickness
-    radiusScale: 1, // Relative radius
-    pointer: {{
-      length: 0.6, // // Relative to gauge radius
-      strokeWidth: 0.035, // The thickness
-      color: '#000000' // Fill color
-    }},
-    staticLabels: {{
-      font: "20px sans-serif",  // Specifies font
-      labels: [-50,-30,-10,10,30,50],  // Print labels at these values
-      color: "#000000",  // Optional: Label text color
-      fractionDigits: 0  // Optional: Numerical precision. 0=round off.
-    }},
-    limitMax: false,     // If false, max value increases automatically if value > maxValue
-    limitMin: false,     // If true, the min value of the gauge will be fixed
-    colorStart: '#CF0E00',   // Colors
-    colorStop: '#E0E0E0',    // just experiment with them
-    strokeColor: '#E0E0E0',  // to see which ones work best for you
-    generateGradient: true,
-    highDpiSupport: true,     // High resolution support
-
-    }};
-    var target = document.getElementById('guage_percent_change_subtasks_success_past_day'); // your canvas element
-    var gauge = new Gauge(target).setOptions(opts); // create sexy gauge!
-    gauge.maxValue = 50; // set max gauge value
-    gauge.setMinValue(-50);  // Prefer setter over gauge.minValue = 0
-    gauge.animationSpeed = 32; // set animation speed (32 is default value)
-    gauge.set({guage_percent_change_subtasks_success_past_day_value}); // set actual value
-    gauge.setTextField(document.getElementById('span_guage_percent_change_subtasks_success_past_day'),3);
+    init_gauge('gauge_percent_change_subtasks_success_past_day',{gauge_percent_change_subtasks_success_past_day_value});
+    init_gauge('gauge_percent_change_subtasks_timeout_past_day',{gauge_percent_change_subtasks_timeout_past_day_value});
+    init_gauge('gauge_percent_change_subtasks_error_past_day',{gauge_percent_change_subtasks_error_past_day_value});
   }});
   
 </script>
@@ -811,7 +800,11 @@ title: {title}
     select 
         date(n2.snapshot_date) snapshot_date
         , sum(n2.subtasks_success) sum_subtasks_success
-        , ((sum(n2.subtasks_success) / a.sss) - 1) * 100 percentage_increase_over_prev_day
+        , ((sum(n2.subtasks_success) / a.sss) - 1) * 100 percent_increase_prev_day_subtask_success
+        , sum(n2.subtasks_error) sum_subtasks_error
+        , ((sum(n2.subtasks_error) / a.sse) - 1) * 100 percent_increase_prev_day_subtask_error
+        , sum(n2.subtasks_timeout) sum_subtasks_timeout
+        , ((sum(n2.subtasks_timeout) / a.sst) - 1) * 100 percent_increase_prev_day_subtask_timeout
     from (
       select date(snapshot_date),
               max(snapshot_date) msd
@@ -820,6 +813,8 @@ title: {title}
     inner join network_01 n2
       on n2.snapshot_date = n1.msd
     LEFT join (select sum(n2.subtasks_success) sss
+                    , sum(s2.subtasks_error) sse
+                    , sum(s2.subtasks_timeout) sst
                     , date(n2.snapshot_date) sd
                 from (
                   select date(snapshot_date),
