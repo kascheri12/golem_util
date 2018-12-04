@@ -813,8 +813,8 @@ title: {title}
     inner join network_01 n2
       on n2.snapshot_date = n1.msd
     LEFT join (select sum(n2.subtasks_success) sss
-                    , sum(s2.subtasks_error) sse
-                    , sum(s2.subtasks_timeout) sst
+                    , sum(n2.subtasks_error) sse
+                    , sum(n2.subtasks_timeout) sst
                     , date(n2.snapshot_date) sd
                 from (
                   select date(snapshot_date),
