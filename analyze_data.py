@@ -850,10 +850,10 @@ title: {title}
         date(n2.snapshot_date) snapshot_date
         , sum(n2.subtasks_success) sum_subtasks_success
         , ((sum(n2.subtasks_success) / a.sss) - 1) * 100 percent_increase_prev_day_subtask_success
-        , sum(n2.subtasks_error) sum_subtasks_error
-        , ((sum(n2.subtasks_error) / a.sse) - 1) * 100 percent_increase_prev_day_subtask_error
         , sum(n2.subtasks_timeout) sum_subtasks_timeout
         , ((sum(n2.subtasks_timeout) / a.sst) - 1) * 100 percent_increase_prev_day_subtask_timeout
+        , sum(n2.subtasks_error) sum_subtasks_error
+        , ((sum(n2.subtasks_error) / a.sse) - 1) * 100 percent_increase_prev_day_subtask_error
     from (
       select date(snapshot_date),
               max(snapshot_date) msd
