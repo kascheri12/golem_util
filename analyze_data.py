@@ -686,7 +686,7 @@ $(document).ready(function() {{
 <p>Upgraded to sql database; [link to sql query](https://github.com/kascheri12/golem_util/blob/2d735f74a1f4b16f4e3b9eb58d75d01e9fedcf7b/analyze_data.py#L1221)</p>
 </details>
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/nodes_connected_by_date.html"></iframe>
+<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/nodes_connected_by_date"></iframe>
 
 <br /><br />
 <div id="Count-of-distinct-nodes-connected-by-date"></div>
@@ -700,7 +700,7 @@ $(document).ready(function() {{
 
 </details>
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/top_50_subtasks_success_by_date.html"></iframe>
+<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/top_50_subtasks_success_by_date"></iframe>
 
 <details>
 <summary>Show other graphs</summary>
@@ -720,7 +720,7 @@ $(document).ready(function() {{
 
 </details>
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/golem-network.html"></iframe>
+<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/golem-network"></iframe>
 
 
 <div id="Average-Daily-Subtasks-Totals"></div>
@@ -755,14 +755,14 @@ Here's pseudo code for the functions:
 
 </details>
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/avg_daily_subtasks_totals.html"></iframe>
+<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/avg_daily_subtasks_totals"></iframe>
 
 
 <div id="Average-Daily-Failed-Totals"></div>
 
 ### Average Daily Failed Totals
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/avg_daily_failed_totals.html"></iframe>
+<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/avg_daily_failed_totals"></iframe>
 
 <div id="Average-New-Unique-Node-Count-per-Day"></div>
 
@@ -786,7 +786,7 @@ Pseudo code:
 </p>
 </details>
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/avg_daily_unique_totals.html"></iframe>
+<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/avg_daily_unique_totals"></iframe>
 
 
 <div id="New-Unique-Node-Count-per-Snapshot"></div>
@@ -814,7 +814,7 @@ Pseudo code:
 </p>
 </details>
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/new_unique_node_count_per_snapshot.html"></iframe>
+<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/new_unique_node_count_per_snapshot"></iframe>
 
 </details>
 """
