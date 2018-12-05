@@ -1220,39 +1220,57 @@ order by 4 desc,1;
       from network_01
       where date(snapshot_date) > (date(snapshot_date) - INTERVAL 90 DAY)
       group by network, date(snapshot_date)
-      order by 2 desc, 3 desc, 1;
+      order by 1, 2 desc, 3 desc;
     """
     self.conn.query(query_daily_distinct_count.format(interval=num_days_included))
     qr = self.conn.fetchall()
     
     traces = []
     for row in list(set([x[0] for x in qr])):
+      if row == "mainnet":
+        my_marker=dict(
+          color='#181ea9',
+          line=dict(
+            color='rgb(0,48,107)',
+            width=1,
+          )
+        )
+      else:
+        my_marker=dict(
+          color='rgb(31, 119, 180)',
+          line=dict(
+            color='rgb(31, 0, 90)',
+            width=.5,
+          )
+        )
       traces.append(go.Bar(
         x = [x[1] for x in [x for x in qr if x[0] == row]],
         y = [x[2] for x in [x for x in qr if x[0] == row]],
-        name = '{name_label}'.format(name_label=row)
+        name = '{name_label}'.format(name_label=row),
+        marker=my_marker,
+        opacity=0.95
       ))
       
     layout = go.Layout(
-        title='Distinct Nodes Connected by Date (Limit {interval} days)'.format(interval=num_days_included),
-        xaxis=dict(
-            tickfont=dict(
-                size=14,
-                color='rgb(107, 107, 107)'
-            )
+      title='Distinct Nodes Connected by Date (Limit {interval} days)'.format(interval=num_days_included),
+      xaxis=dict(
+        tickfont=dict(
+          size=14,
+          color='rgb(107, 107, 107)'
+        )
+      ),
+      yaxis=dict(
+        title='Distinct count of nodes',
+        titlefont=dict(
+          size=16,
+          color='rgb(107, 107, 107)'
         ),
-        yaxis=dict(
-            title='Distinct count of nodes',
-            titlefont=dict(
-                size=16,
-                color='rgb(107, 107, 107)'
-            ),
-            tickfont=dict(
-                size=14,
-                color='rgb(107, 107, 107)'
-            )
-        ),
-        bargap=0.15
+        tickfont=dict(
+          size=14,
+          color='rgb(107, 107, 107)'
+        )
+      ),
+      bargap=0.15
     )
 
     data = traces
