@@ -691,7 +691,7 @@ $(document).ready(function() {{
 <br /><br />
 <div id="Count-of-distinct-nodes-connected-by-date"></div>
 
-### Top 50 successful subtasks past 90 days
+### Top 50 successful subtasks limit 90 days
 
 <details>
 <summary><strong>Details</strong></summary>
@@ -1227,11 +1227,11 @@ order by 4 desc,1;
     traces.append(go.Bar(
     x = [x[0] for x in qr],
     y = [x[1] for x in qr],
-    name='Distinct Nodes Connected by Date (Past {interval} days)'.format(interval=num_days_included)
+    name='Distinct Nodes Connected by Date (Limit {interval} days)'.format(interval=num_days_included)
     ))
 
     layout = go.Layout(
-        title='Distinct Nodes Connected by Date (Past {interval} days)'.format(interval=num_days_included),
+        title='Distinct Nodes Connected by Date (Limit {interval} days)'.format(interval=num_days_included),
         xaxis=dict(
             tickfont=dict(
                 size=14,
