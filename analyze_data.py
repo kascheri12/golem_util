@@ -683,7 +683,7 @@ $(document).ready(function() {{
 
 <p>This one is pretty straight-forward. Snapshots only include active nodes, inactive node data is not being collected during a snapshot.</p>
 
-<p>Upgraded to sql database; [link to sql query](https://github.com/kascheri12/golem_util/blob/2d735f74a1f4b16f4e3b9eb58d75d01e9fedcf7b/analyze_data.py#L1221)
+<p>Upgraded to sql database; [link to sql query](https://github.com/kascheri12/golem_util/blob/2d735f74a1f4b16f4e3b9eb58d75d01e9fedcf7b/analyze_data.py#L1221)</p>
 </details>
 <br />
 <iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/nodes_connected_by_date.html"></iframe>
