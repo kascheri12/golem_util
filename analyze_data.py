@@ -705,7 +705,9 @@ $(document).ready(function() {{
 <details>
 <summary>Show other graphs</summary>
 
-<h3>These graphs are here for historical purposes but they won't be updated anymore. I will be working to replace them with new sql queries to match but the extremely inefficient way that I was generating these graphs is now in the past.</h3>
+<br><br><br>
+<h2>These graphs are here for historical purposes but they won't be updated anymore. I will be working to replace them with new sql queries to match but the extremely inefficient way that I was generating these graphs is now in the past.</h2>
+<br><br>
 
 <div id="Golem-Network-Summary"></div>
 
