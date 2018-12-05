@@ -683,16 +683,7 @@ $(document).ready(function() {{
 
 <p>This one is pretty straight-forward. Snapshots only include active nodes, inactive node data is not being collected during a snapshot.</p>
 
-<p>
-Pseudo code:
-<ul>
-  <li>[get_avg_nodes_connected_on_date(date)](https://github.com/kascheri12/golem_util/blob/4b40695b16f120776a49613bf94678f732ef2b93/analyze_data.py#L625)</li>
-  <ul>
-    <li>Find all_dist_timestamps_logged_on_date from all_nodes_logged_on_date</li>
-    <li>return len(all_nodes_logged_on_date) / len(all_timestamps_logged_on_date)</li>
-  </ul>
-</ul>
-</p>
+<p>Upgraded to sql database; [link to sql query](https://github.com/kascheri12/golem_util/blob/2d735f74a1f4b16f4e3b9eb58d75d01e9fedcf7b/analyze_data.py#L1221)
 </details>
 <br />
 <iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/nodes_connected_by_date.html"></iframe>
@@ -713,6 +704,8 @@ Pseudo code:
 
 <details>
 <summary>Show other graphs</summary>
+
+<h3>These graphs are here for historical purposes but they won't be updated anymore. I will be working to replace them with new sql queries to match but the extremely inefficient way that I was generating these graphs is now in the past.</h3>
 
 <div id="Golem-Network-Summary"></div>
 
