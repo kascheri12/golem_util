@@ -1214,22 +1214,25 @@ order by 4 desc,1;
     # log_cutoff_date = dt.today() - timedelta(days=num_days_included)
 
     query_daily_distinct_count = """
-    select date(snapshot_date) snapshot_date
-      , count(distinct node_id) distinct_cnt 
-    from network_01
-    where date(snapshot_date) > (date(snapshot_date) - INTERVAL {interval} DAY)
-    group by date(snapshot_date);
+    select case when instr(task_protocol_version,'testnet') > 0 then 'testnet' else 'mainnet' end network
+        , date(snapshot_date) snapshot_date
+        , count(distinct node_id) distinct_cnt 
+      from network_01
+      where date(snapshot_date) > (date(snapshot_date) - INTERVAL 90 DAY)
+      group by network, date(snapshot_date)
+      order by 2 desc, 3 desc, 1;
     """
     self.conn.query(query_daily_distinct_count.format(interval=num_days_included))
     qr = self.conn.fetchall()
     
     traces = []
-    traces.append(go.Bar(
-    x = [x[0] for x in qr],
-    y = [x[1] for x in qr],
-    name='Distinct Nodes Connected by Date (Limit {interval} days)'.format(interval=num_days_included)
-    ))
-
+    for row in list(set([x[0] for x in qr])):
+      traces.append(go.Bar(
+        x = [x[1] for x in [x for x in qr if x[0] == row]],
+        y = [x[2] for x in [x for x in qr if x[0] == row]],
+        name = '{name_label}'.format(name_label=row)
+      ))
+      
     layout = go.Layout(
         title='Distinct Nodes Connected by Date (Limit {interval} days)'.format(interval=num_days_included),
         xaxis=dict(
