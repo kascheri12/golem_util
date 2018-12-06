@@ -628,12 +628,12 @@ $(document).ready(function() {{
   pointer: {{
     length: 0.6, // // Relative to gauge radius
     strokeWidth: 0.035, // The thickness
-    color: '#000000' // Fill color
+    color: '#aaa' // Fill color
   }},
   staticLabels: {{
     font: "20px sans-serif",  // Specifies font
     labels: [-50,-30,-10,10,30,50],  // Print labels at these values
-    color: "#000000",  // Optional: Label text color
+    color: "#aaa",  // Optional: Label text color
     fractionDigits: 0  // Optional: Numerical precision. 0=round off.
   }},
   limitMax: false,     // If false, max value increases automatically if value > maxValue
