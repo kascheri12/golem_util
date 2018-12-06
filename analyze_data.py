@@ -642,21 +642,21 @@ $(document).ready(function() {{
   var gauge1 = new Gauge(target1).setOptions(opts1); // create sexy gauge!
   gauge1.maxValue = 50; // set max gauge value
   gauge1.setMinValue(-50);  // Prefer setter over gauge.minValue = 0
-  gauge1.animationSpeed = 75; // set animation speed (32 is default value)
+  gauge1.animationSpeed = 10; // set animation speed (32 is default value)
   gauge1.set({gauge_percent_change_subtasks_success_past_day_value}); // set actual value
   gauge1.setTextField(document.getElementById('span_gauge_percent_change_subtasks_success_past_day'),3);
   
   var gauge2 = new Gauge(target2).setOptions(opts2); // create sexy gauge!
   gauge2.maxValue = 50; // set max gauge value
   gauge2.setMinValue(-50);  // Prefer setter over gauge.minValue = 0
-  gauge2.animationSpeed = 75; // set animation speed (32 is default value)
+  gauge2.animationSpeed = 10; // set animation speed (32 is default value)
   gauge2.set({gauge_percent_change_subtasks_timeout_past_day_value}); // set actual value
   gauge2.setTextField(document.getElementById('span_gauge_percent_change_subtasks_timeout_past_day'),3);
   
   var gauge3 = new Gauge(target3).setOptions(opts3); // create sexy gauge!
   gauge3.maxValue = 50; // set max gauge value
   gauge3.setMinValue(-50);  // Prefer setter over gauge.minValue = 0
-  gauge3.animationSpeed = 75; // set animation speed (32 is default value)
+  gauge3.animationSpeed = 10; // set animation speed (32 is default value)
   gauge3.set({gauge_percent_change_subtasks_error_past_day_value}); // set actual value
   gauge3.setTextField(document.getElementById('span_gauge_percent_change_subtasks_error_past_day'),3);
 }});
@@ -686,7 +686,7 @@ $(document).ready(function() {{
 <p>Upgraded to sql database; [link to sql query](https://github.com/kascheri12/golem_util/blob/2d735f74a1f4b16f4e3b9eb58d75d01e9fedcf7b/analyze_data.py#L1221)</p>
 </details>
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/nodes_connected_by_date"></iframe>
+<iframe id="iframe_nodes_connected_by_date" style="width:100%;height:600px" src=""></iframe>
 
 <br /><br />
 <div id="Count-of-distinct-nodes-connected-by-date"></div>
@@ -700,7 +700,7 @@ $(document).ready(function() {{
 
 </details>
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/top_50_subtasks_success_by_date"></iframe>
+<iframe id="iframe_top_50_subtasks_success_by_date" style="width:100%;height:600px" src=""></iframe>
 
 <details>
 <summary>Show other graphs</summary>
@@ -720,7 +720,7 @@ $(document).ready(function() {{
 
 </details>
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/golem-network"></iframe>
+<iframe id="iframe_golem-network" style="width:100%;height:600px" src=""></iframe>
 
 
 <div id="Average-Daily-Subtasks-Totals"></div>
@@ -755,14 +755,14 @@ Here's pseudo code for the functions:
 
 </details>
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/avg_daily_subtasks_totals"></iframe>
+<iframe id="iframe_avg_daily_subtasks_totals" style="width:100%;height:600px" src=""></iframe>
 
 
 <div id="Average-Daily-Failed-Totals"></div>
 
 ### Average Daily Failed Totals
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/avg_daily_failed_totals"></iframe>
+<iframe id="iframe_avg_daily_failed_totals" style="width:100%;height:600px" src=""></iframe>
 
 <div id="Average-New-Unique-Node-Count-per-Day"></div>
 
@@ -786,7 +786,7 @@ Pseudo code:
 </p>
 </details>
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/avg_daily_unique_totals"></iframe>
+<iframe id="iframe_avg_daily_unique_totals" style="width:100%;height:600px" src=""></iframe>
 
 
 <div id="New-Unique-Node-Count-per-Snapshot"></div>
@@ -814,7 +814,7 @@ Pseudo code:
 </p>
 </details>
 <br />
-<iframe style="width:100%;height:600px" src="https://kascheri12.github.io/graphs/new_unique_node_count_per_snapshot"></iframe>
+<iframe id="iframe_new_unique_node_count_per_snapshot" style="width:100%;height:600px" src=""></iframe>
 
 </details>
 """
