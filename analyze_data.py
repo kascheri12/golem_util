@@ -586,37 +586,46 @@ title: Dashboard
 <div class="row">
   <div class='col-xs-12 col-lg-4'>
     <h5>Subtasks Success</h5>
-    <div id='preview' style='position:relative;float:left;display:block;'>
-      <canvas style='position:relative;display:inline-block;' id='gauge_percent_change_subtasks_success_past_day'></canvas>
-      <span style='position:absolute;text-align:center;left:0;right:0;bottom:-5px;' id='span_gauge_percent_change_subtasks_success_past_day'></span>
+    <div class='category_div'>
+      <canvas class='canvas_gauge' id='gauge_percent_change_subtasks_success_past_day'></canvas>
+      <span class='span_gauge_value' id='span_gauge_percent_change_subtasks_success_past_day'></span>
     </div>
   </div>
   <div class='col-xs-12 col-lg-4'>
     <h5>Subtasks Timeout</h5>
-    <div id='preview' style='position:relative;float:left;display:block;'>
-      <canvas style='position:relative;display:inline-block;' id='gauge_percent_change_subtasks_timeout_past_day'></canvas>
-      <span style='position:absolute;text-align:center;left:0;right:0;bottom:-5px;' id='span_gauge_percent_change_subtasks_timeout_past_day'></span>
+    <div class='category_div'>
+      <canvas class='canvas_gauge' id='gauge_percent_change_subtasks_timeout_past_day'></canvas>
+      <span class='span_gauge_value' id='span_gauge_percent_change_subtasks_timeout_past_day'></span>
     </div>
   </div>
   <div class='col-xs-12 col-lg-4'>
     <h5>Subtasks Error</h5>
-    <div id='preview' style='position:relative;float:left;display:block;'>
-      <canvas style='position:relative;display:inline-block;' id='gauge_percent_change_subtasks_error_past_day'></canvas>
-      <span style='position:absolute;text-align:center;left:0;right:0;bottom:-5px;' id='span_gauge_percent_change_subtasks_error_past_day'></span>
+    <div class='category_div'>
+      <canvas class='canvas_gauge' id='gauge_percent_change_subtasks_error_past_day'></canvas>
+      <span class='span_gauge_value' id='span_gauge_percent_change_subtasks_error_past_day'></span>
     </div>
   </div>
 </div>
 
 <style>
-#span_gauge_percent_change_subtasks_success_past_day::after {
-  content: "%";
-}
-#span_gauge_percent_change_subtasks_timeout_past_day::after {
-  content: "%";
-}
-#span_gauge_percent_change_subtasks_error_past_day::after {
-  content: "%";
-}
+.canvas_gauge {{
+  position:relative;
+  display:inline-block;
+}}
+.span_gauge_value {{
+  position:absolute;
+  text-align:center;
+  left:0;right:0;bottom:-15px;
+  font-size:20px;
+}}
+.span_gauge_value::after {{
+  content: '%';
+}}
+.category_div {{
+  position:relative;
+  float:left;
+  display:block;
+}}
 </style>
 <script>
 $(document).ready(function() {{
@@ -631,9 +640,9 @@ $(document).ready(function() {{
     color: '#aaa' // Fill color
   }},
   staticLabels: {{
-    font: "20px sans-serif",  // Specifies font
+    font: '20px sans-serif',  // Specifies font
     labels: [-50,-30,-10,10,30,50],  // Print labels at these values
-    color: "#aaa",  // Optional: Label text color
+    color: '#aaa',  // Optional: Label text color
     fractionDigits: 0  // Optional: Numerical precision. 0=round off.
   }},
   limitMax: false,     // If false, max value increases automatically if value > maxValue
