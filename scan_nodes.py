@@ -1,10 +1,8 @@
 
-import sys
-import csv
+import sys, csv, time, requests
 import numpy as np
 import pandas as pd
-import requests
-import time
+import datetime as dt
 from math import floor
 
 dump_url = "https://stats.golem.network/dump"
@@ -17,10 +15,10 @@ def add_node_count_log():
     f.write("%s|%s\n" % (str(time.time()),get_active_node_count()))
 
 def get_active_node_list():
-  return filter_latest_minutes(load_recent_data(),5)
+  return load_recent_data()
 
 def get_active_node_count():
-  return len(filter_latest_minutes(load_recent_data(),5))
+  return len(load_recent_data())
 
 def load_print_kascheri_data():
   sort_by = ['last_seen']
@@ -63,34 +61,10 @@ def print_nodes(d,sort_method=None,ascending=False):
     print(df)
 
 def calc_last_seen_time(t):
-  seen_at = t
-  its_been = round(time.time()) - float(valid_seconds(seen_at))/1000
-  last_seen_obj = {
-    'seconds' : its_been
-    ,'minutes' : its_been/60
-    ,'hours' : its_been/60/60
-    ,'days' : its_been/60/60/24
-    ,'years' : its_been/60/60/24/365.25
-  }
-  return last_seen_obj
-
-def last_seen_obj_to_string(obj):
-  os = ""
-
-  if floor(obj['years']) >= 1:
-     os = "{:1.0f}y:".format(floor(obj['years']))
-     obj['days'] -= 365 * floor(obj['years'])
-  if floor(obj['days']) >= 1:
-    os += "{:1.0f}d:".format(floor(obj['days']))
-    obj['hours'] -= 24 * floor(obj['days'])
-  if floor(obj['hours']) >= 1:
-    os += "{:1.0f}h:".format(floor(obj['hours']))
-    obj['minutes'] -= (24 * floor(obj['days']) + 60 * floor(obj['hours']))
-  if floor(obj['minutes']) >= 1:
-    os += "{:1.0f}m:".format(floor(obj['minutes']))
-    obj['seconds'] -= (24 * floor(obj['days']) + 60 * floor(obj['hours']) + 60 * floor(obj['minutes']))
-  os+="{:1.0f}s".format(obj['seconds'])
-  return os
+  seen_at = dt.datetime.fromtimestamp(get_float(t)*.001)
+  now = dt.datetime.now()
+  its_been = (now - seen_at)
+  return str(its_been)
 
 def load_recent_data():
   return load_realtime_data()
@@ -140,16 +114,38 @@ def load_realtime_data():
   for row in t:
     c = row.split(',')
     node = {}
+    now = dt.datetime.now()
+    node_last_seen = dt.datetime.fromtimestamp(get_float(c[3])*.001)
+    if (now - node_last_seen).seconds > 300:
+      continue
     for i in range(len(header)):
       node[header[i]] = c[i]
-    node['last_seen_calc'] = last_seen_obj_to_string(calc_last_seen_time(node['last_seen']))
-    node['subtasks_success'] = get_float(node['subtasks_success'])
-    node['tasks_requested'] = get_float(node['tasks_requested'])
+    node['last_seen_calc'] = calc_last_seen_time(node['last_seen'])
+    node['performance_general'] = get_float(node['performance_general'])
     node['performance_blender'] = get_float(node['performance_blender'])
     node['performance_lux'] = get_float(node['performance_lux'])
-    node['performance_general'] = get_float(node['performance_general'])
+    node['allowed_resource_size'] = get_float(node['allowed_resource_size'])
+    node['allowed_resource_memory'] = get_float(node['allowed_resource_memory'])
+    node['min_price'] = get_float(node['min_price'])
+    node['max_price'] = get_float(node['max_price'])
+    node['subtasks_success'] = get_float(node['subtasks_success'])
+    node['subtasks_error'] = get_float(node['subtasks_error'])
+    node['subtasks_timeout'] = get_float(node['subtasks_timeout'])
+    node['tasks_requested'] = get_float(node['tasks_requested'])
     node['known_tasks'] = get_float(node['known_tasks'])
     node['supported_tasks'] = get_float(node['supported_tasks'])
+    node['rs_tasks_cnt'] = get_float(node['rs_tasks_cnt'])
+    node['rs_finished_task_cnt'] = get_float(node['rs_finished_task_cnt'])
+    node['rs_requested_subtasks_cnt'] = get_float(node['rs_requested_subtasks_cnt'])
+    node['rs_collected_results_cnt'] = get_float(node['rs_collected_results_cnt'])
+    node['rs_verified_results_cnt'] = get_float(node['rs_verified_results_cnt'])
+    node['rs_timed_out_subtasks_cnt'] = get_float(node['rs_timed_out_subtasks_cnt'])
+    node['rs_not_downloadable_subtasks_cnt'] = get_float(node['rs_not_downloadable_subtasks_cnt'])
+    node['rs_failed_subtasks_cnt'] = get_float(node['rs_failed_subtasks_cnt'])
+    node['rs_work_offers_cnt'] = get_float(node['rs_work_offers_cnt'])
+    node['rs_finished_ok_cnt'] = get_float(node['rs_finished_ok_cnt'])
+    node['rs_finished_with_failures_cnt'] = get_float(node['rs_finished_with_failures_cnt'])
+    node['rs_failed_cnt'] = get_float(node['rs_failed_cnt'])
     data_o.append(node)
   return data_o
 
