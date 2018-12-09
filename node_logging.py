@@ -11,6 +11,7 @@ class Node_Logging():
 
   def __init__(self):
     self._timeout = 5 * 60.0 # Five @ Sixty seconds
+    self._conn = db.DB("PROD")
 
   def take_network_snapshot(self):
     timestamp = str(round(time.time()))
@@ -28,10 +29,12 @@ class Node_Logging():
       print(pt + " - Error getting active nodes.. probably network connection")
     
     # Try writing the data to the database
-    if active_nodes is not None and len(active_nodes) > 0:
-      conn = db.DB("PROD")
-      for node in active_nodes:
-        conn.insert_node_record_data((db_timestamp, *tuple(node.values())[:-1]))
+    try:
+      if active_nodes is not None and len(active_nodes) > 0:
+        for node in active_nodes:
+          self._conn.insert_node_record_data((db_timestamp, *tuple(node.values())[:-1]))
+    except Exception as e: 
+      print(e)
 
 def main():
 

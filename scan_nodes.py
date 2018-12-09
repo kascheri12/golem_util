@@ -113,7 +113,8 @@ def load_realtime_data():
   t.pop(len(t)-1)
   for row in t:
     c = row.split(',')
-    if len(c) != 45:
+    if len(c) != len(header):
+      print('Node doesnt have the correct # of columns, name probably has a comma')
       continue
     node = {}
     now = dt.datetime.now()
