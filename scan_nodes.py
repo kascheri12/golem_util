@@ -113,6 +113,8 @@ def load_realtime_data():
   t.pop(len(t)-1)
   for row in t:
     c = row.split(',')
+    if len(c) != 45:
+      continue
     node = {}
     now = dt.datetime.now()
     try:
@@ -148,8 +150,11 @@ def load_realtime_data():
     node['rs_failed_subtasks_cnt'] = str(get_float(node['rs_failed_subtasks_cnt']))
     node['rs_work_offers_cnt'] = str(get_float(node['rs_work_offers_cnt']))
     node['rs_finished_ok_cnt'] = str(get_float(node['rs_finished_ok_cnt']))
+    node['rs_finished_ok_total_time'] = str(get_float(node['rs_finished_ok_total_time']))
     node['rs_finished_with_failures_cnt'] = str(get_float(node['rs_finished_with_failures_cnt']))
+    node['rs_finished_with_failures_total_time'] = str(get_float(node['rs_finished_with_failures_total_time']))
     node['rs_failed_cnt'] = str(get_float(node['rs_failed_cnt']))
+    node['rs_failed_total_time'] = str(get_float(node['rs_failed_total_time']))
     data_o.append(node)
   return data_o
 
