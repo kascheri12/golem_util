@@ -115,7 +115,11 @@ def load_realtime_data():
     c = row.split(',')
     node = {}
     now = dt.datetime.now()
-    node_last_seen = dt.datetime.fromtimestamp(get_float(c[3])*.001)
+    try:
+      node_last_seen = dt.datetime.fromtimestamp(get_float(c[3])*.001)
+    except:
+      print('Skipping: %s, last_seen: %s' % (c[0][:10], c[3]))
+      continue
     if (now - node_last_seen).seconds > 300:
       continue
     for i in range(len(header)):
