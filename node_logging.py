@@ -31,10 +31,7 @@ class Node_Logging():
     if active_nodes is not None and len(active_nodes) > 0:
       conn = db.DB("PROD")
       for node in active_nodes:
-        try:
-          conn.insert_node_record_data((db_timestamp, *tuple(str(node.values()))[:-1]))
-        except:
-          print("Could not insert records for %")
+        conn.insert_node_record_data((db_timestamp, *tuple(node.values())[:-1]))
 
 def main():
 
