@@ -133,6 +133,7 @@ def load_realtime_data():
     node['performance_lux'] = str(get_float(node['performance_lux']))
     node['allowed_resource_size'] = str(get_float(node['allowed_resource_size']))
     node['allowed_resource_memory'] = str(get_float(node['allowed_resource_memory']))
+    node['cpu_cores'] = str(get_float(node['cpu_cores']))
     node['min_price'] = str(get_float(node['min_price']))
     node['max_price'] = str(get_float(node['max_price']))
     node['subtasks_success'] = str(get_float(node['subtasks_success']))
