@@ -114,7 +114,7 @@ def load_realtime_data():
   for row in t:
     c = row.split(',')
     if len(c) != len(header):
-      print('Node ID: %s doesnt have the correct # of columns, ignoring record. name: %s | version: %s | last_seen %s' % (c[0][:10],c[1],c[2],c[3]))
+      print('%s: Node ID: %s doesnt have the correct # of columns, ignoring record. name: %s | version: %s | last_seen %s' % (dt.datetime.strftime(dt.datetime.now(),"%Y%m%d %H:%M%S"),c[0][:10],c[1],c[2],c[3]))
       continue
     node = {}
     now = dt.datetime.now()
