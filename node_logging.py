@@ -19,6 +19,7 @@ class Node_Logging():
     lt = time.localtime()
     pt = time.strftime("%Y%m%d-%H:%M%Z",lt)
     db_timestamp = time.strftime('%Y-%m-%d %H:%M:%S',lt)
+    active_nodes = []
 
     # Try retreiving the active nodes in the network
     try:
@@ -27,16 +28,13 @@ class Node_Logging():
       print(pt + " - Error getting active nodes.. probably network connection")
     
     # Try writing the data to the database
-    try:
-      if active_nodes is not None and len(active_nodes) > 0:
-        conn = db.DB()
-        for node in active_nodes:
-          try:
-            conn.insert_node_record_data((db_timestamp, *tuple(node.values())[:-1]))
-          except:
-            print("Could not insert records for %")
-    except:
-      print("Issues adding records to mysql database")
+    if active_nodes is not None and len(active_nodes) > 0:
+      conn = db.DB()
+      for node in active_nodes:
+        try:
+          conn.insert_node_record_data((db_timestamp, *tuple(node.values())[:-1]))
+        except:
+          print("Could not insert records for %")
 
 def main():
 
