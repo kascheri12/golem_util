@@ -32,7 +32,7 @@ class Node_Logging():
       conn = db.DB("PROD")
       for node in active_nodes:
         try:
-          conn.insert_node_record_data((db_timestamp, *tuple(node.values())[:-1]))
+          conn.insert_node_record_data((db_timestamp, *tuple(str(node.values()))[:-1]))
         except:
           print("Could not insert records for %")
 
