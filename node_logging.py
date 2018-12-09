@@ -31,7 +31,10 @@ class Node_Logging():
       if active_nodes is not None and len(active_nodes) > 0:
         conn = db.DB()
         for node in active_nodes:
-          conn.insert_node_record_data((db_timestamp, *tuple(node.values())[:-1]))
+          try:
+            conn.insert_node_record_data((db_timestamp, *tuple(node.values())[:-1]))
+          except:
+            print("Could not insert records for %")
     except:
       print("Issues adding records to mysql database")
 
