@@ -561,6 +561,7 @@ order by n1.mss desc, n1.snapshot_date asc;
   def return_old_golem_network_dashboard_markup(self):
     rv = """---
 title: Dashboard
+permalink: /dashboard/
 ---
 
 # Golem Network Dashboard
