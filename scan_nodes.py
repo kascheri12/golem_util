@@ -112,18 +112,18 @@ def load_realtime_data():
   t.pop(0)
   t.pop(len(t)-1)
   for row in t:
-    c = row.split(',')
-    if len(c) != len(header):
-      print('%s: Node ID: %s doesnt have the correct # of columns, ignoring record. name: %s | version: %s | last_seen %s' % (dt.datetime.strftime(dt.datetime.now(),"%Y%m%d %H:%M:%S"),c[0][:10],c[1],c[2],c[3]))
-      continue
     node = {}
-    now = dt.datetime.now()
+    c = row.split(',')
     try:
       node_last_seen = dt.datetime.fromtimestamp(get_float(c[3])*.001)
     except:
-      print('Skipping: %s, last_seen: %s' % (c[0][:10], c[3]))
+      print('Skipping: %s, last_seen: %s: Catch during conversion of last_seen column to datetime.' % (c[0][:10], c[3]))
       continue
+    now = dt.datetime.now()
     if (now - dt.timedelta(minutes=5)) > node_last_seen:
+      continue
+    if len(c) != len(header):
+      print('%s: Active node doesnt have the correct # of columns (row split:%s vs header:%s), ignoring record. name: %s | version: %s | last_seen %s' % (dt.datetime.strftime(dt.datetime.now(),"%Y%m%d %H:%M:%S"),str(len(c)),str(len(header)),c[1],c[2],c[3]))
       continue
     for i in range(len(header)):
       node[header[i]] = c[i]
