@@ -123,7 +123,7 @@ def load_realtime_data():
     except:
       print('Skipping: %s, last_seen: %s' % (c[0][:10], c[3]))
       continue
-    if (now - node_last_seen).seconds > 300:
+    if (now - dt.timedelta(minutes=5)) > node_last_seen:
       continue
     for i in range(len(header)):
       node[header[i]] = c[i]
