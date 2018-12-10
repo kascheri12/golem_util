@@ -329,7 +329,7 @@ class Analyze_Data:
 
   def print_golem_network_dashboard_page(self):
     print("Starting print_golem_network_dashboard_page : " + self.get_pretty_time())
-    filename = 'Golem-Network-Dashboard.md'
+    filename = 'Dashboard.md'
     filepath = 'build_graphs/'+filename
     
     mdf_content = self.build_dashboard_file_content()
