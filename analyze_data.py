@@ -691,7 +691,7 @@ $(document).ready(function() {{
 </div>
 
 <br /><br />
-### [All Nodes by Latest Snapshop](All-Nodes-Latest-Snapshot)
+### [All Nodes by Latest Snapshop](/pages/All-Nodes-Latest-Snapshot)
 
 <br /><br />
 <div id="Count-of-distinct-nodes-connected-by-date"></div>
