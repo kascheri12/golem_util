@@ -591,21 +591,21 @@ permalink: /dashboard/
 <br />
 
 <div class="row">
-  <div class='col-xs-12 col-lg-4'>
+  <div class='col-xs-12 col-lg-4' style='margin-bottom:20px;'>
     <h5>Subtasks Success</h5>
     <div class='category_div'>
       <canvas class='canvas_gauge' id='gauge_percent_change_subtasks_success_past_day'></canvas>
       <span class='span_gauge_value' id='span_gauge_percent_change_subtasks_success_past_day'></span>
     </div>
   </div>
-  <div class='col-xs-12 col-lg-4'>
+  <div class='col-xs-12 col-lg-4' style='margin-bottom:20px;'>
     <h5>Subtasks Timeout</h5>
     <div class='category_div'>
       <canvas class='canvas_gauge' id='gauge_percent_change_subtasks_timeout_past_day'></canvas>
       <span class='span_gauge_value' id='span_gauge_percent_change_subtasks_timeout_past_day'></span>
     </div>
   </div>
-  <div class='col-xs-12 col-lg-4'>
+  <div class='col-xs-12 col-lg-4' style='margin-bottom:20px;'>
     <h5>Subtasks Error</h5>
     <div class='category_div'>
       <canvas class='canvas_gauge' id='gauge_percent_change_subtasks_error_past_day'></canvas>
