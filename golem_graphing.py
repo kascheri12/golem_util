@@ -92,6 +92,7 @@ class Golem_Graphing():
     a = al.Analyze_Data("PROD")
     try:
       self.move_and_commit_page(a.print_golem_network_dashboard_page())
+      self.move_and_commit_page(a.print_all_nodes_latest_snapshot())
     except:
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
