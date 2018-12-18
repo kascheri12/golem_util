@@ -558,6 +558,7 @@ from (
 inner join network_01 n2
   on n2.node_id = n1.node_id
   and n2.snapshot_date = n1.snapshot_date
+where instr(n2.task_protocol_version,'testnet') = 0
 order by n1.mss desc, n1.snapshot_date asc;
 """
     self.conn.query(query.format(category,category,num_of_res))
@@ -892,8 +893,10 @@ title: {title}
                   group by date(snapshot_date)) n1
                 inner join network_01 n2
                   on n2.snapshot_date = n1.msd
+                where instr(n2.task_protocol_version,'testnet') = 0
                 group by n2.snapshot_date, date(n2.snapshot_date)) a
       on a.sd = date(n2.snapshot_date) - INTERVAL 1 DAY
+    where instr(n2.task_protocol_version,'testnet') = 0
     group by n2.snapshot_date, date(n2.snapshot_date), a.sss, a.sse, a.sst
     order by date(n2.snapshot_date) desc
     LIMIT {limit_num};
@@ -1196,12 +1199,14 @@ from (
     max(snapshot_date) snapshot_date,
     max(subtasks_success) mss
   from network_01
+  where instr(task_protocol_version,'testnet') = 0
   group by node_id
   order by mss desc
   LIMIT 50) n1
 inner join network_01 n2
   on n2.node_id = n1.node_id
   and n2.snapshot_date = n1.snapshot_date
+  and instr(n2.task_protocol_version,'testnet') = 0
 inner join network_01 n3
   on n3.node_id = n1.node_id
   and n3.snapshot_date > (n1.snapshot_date - INTERVAL {interval} DAY)
