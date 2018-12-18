@@ -399,6 +399,11 @@ class Analyze_Data:
   </table>
 </div>
 """
+    qr = self.query_all_nodes_latest_snapshot()
+    header_table_markup = self.build_thead_from_results(qr[0])
+    body_table_markup = self.build_tbody_from_results(qr[1])
+    return rv_html.format(thead=header_table_markup,tbody=body_table_markup)
+    
 
   def build_html_markup_for_perc_change(self):
     rv_html = """
