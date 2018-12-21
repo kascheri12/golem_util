@@ -1,7 +1,5 @@
 import time, config
 from datetime import date
-from twisted.internet import task
-from twisted.internet import reactor
 from shutil import move, copy
 import analyze_data as al
 import os, traceback, sys
@@ -70,7 +68,7 @@ class Golem_Graphing():
   def daily_graph_refresh(self):
     print("Begin daily_graph_refresh: "+self.get_pretty_time())
     filenames = []
-    a = al.Analyze_Data("PROD")
+    a = al.Analyze_Data()
 
     try:
       self.move_and_commit_graph(a.print_nodes_connected_by_date(90))
@@ -89,7 +87,7 @@ class Golem_Graphing():
 
   def refresh_golem_network_dashboard(self):
     print("Begin refresh_golem_network_dashboard: " + self.get_pretty_time())
-    a = al.Analyze_Data("PROD")
+    a = al.Analyze_Data()
     try:
       self.move_and_commit_page(a.print_golem_network_dashboard_page())
       self.move_and_commit_page(a.print_all_nodes_latest_snapshot())
@@ -101,7 +99,7 @@ class Golem_Graphing():
   
   def refresh_all_node_latest_snapshop_page(self):
     print("Begin refresh_all_node_latest_snapshop_page: " + self.get_pretty_time())
-    a = al.Analyze_Data("PROD")
+    a = al.Analyze_Data()
     try:
       self.move_and_commit_page(a.print_all_nodes_latest_snapshot())
     except:
@@ -113,20 +111,33 @@ class Golem_Graphing():
 def main():
   
   gg = Golem_Graphing()
+
+  if config.prod:
+    from twisted.internet import task
+    from twisted.internet import reactor
     
-  if gg._do_dashboard_refresh:
-    dr = task.LoopingCall(gg.refresh_golem_network_dashboard)
-    dr.start(gg._dashboard_refresh_timeout)
-  
-  if gg._do_daily_graph_refresh:
-    dgr = task.LoopingCall(gg.daily_graph_refresh)
-    dgr.start(gg._daily_refresh_graph_timeout)
-  
-  if gg._do_data_cleanup:
-    dc = task.LoopingCall(gg.data_cleanup)
-    dc.start(gg._do_data_cleanup_timeout)
-  
-  reactor.run()
+    if gg._do_dashboard_refresh:
+      dr = task.LoopingCall(gg.refresh_golem_network_dashboard)
+      dr.start(gg._dashboard_refresh_timeout)
+    
+    if gg._do_daily_graph_refresh:
+      dgr = task.LoopingCall(gg.daily_graph_refresh)
+      dgr.start(gg._daily_refresh_graph_timeout)
+    
+    if gg._do_data_cleanup:
+      dc = task.LoopingCall(gg.data_cleanup)
+      dc.start(gg._do_data_cleanup_timeout)
+
+    reactor.run()
+  else:
+    if gg._do_dashboard_refresh:
+      gg.refresh_golem_network_dashboard()
+    
+    if gg._do_daily_graph_refresh:
+      gg.daily_graph_refresh()
+    
+    if gg._do_data_cleanup:
+      gg.data_cleanup()
 
 if __name__ == '__main__':
   main()

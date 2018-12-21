@@ -3,11 +3,11 @@ from mysql.connector import errorcode
 import config, time
 
 class DB():
-  def __init__(self,env="TEST"):
+  def __init__(self):
     try:
-      if env == "PROD":
+      if config.db_prod:
         self._db = mysql.connector.connect(**config.db_config_prod)
-      elif env == "TEST":
+      else:
         self._db = mysql.connector.connect(**config.db_config_test)
       self._cursor = self._db.cursor()
     except mysql.connector.Error as err:

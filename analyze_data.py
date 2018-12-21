@@ -14,8 +14,8 @@ import load_data as ld
 
 class Analyze_Data:
 
-  def __init__(self,env):
-    self.conn = db.DB(env)
+  def __init__(self):
+    self.conn = db.DB()
 
   def print_nodes(self,d,sort_method=None,ascending=False):
     cols = ['timestamp','version','node_name','subtasks_success','os','node_id','performance_lux','performance_blender','performance_general','cpu_cores']
