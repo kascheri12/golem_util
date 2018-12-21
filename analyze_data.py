@@ -1215,10 +1215,10 @@ order by 4 desc,1;
 """
     self.conn.query(query_top_50_subtasks_success_by_date.format(interval=num_days_included))
     qr = self.conn.fetchall()
-    dd = list(sorted(list(set([x[3] for x in qr]))))
     node_ids = list(set([x[4] for x in qr]))
     traces = []
     for node in node_ids:
+      dd = list(sorted(list(set([x[3] for x in qr if x[4] == node]))))
       traces.append(go.Scatter(
         x = [dt.strftime(x,'%Y-%m-%d') for x in dd],
         y = list(sorted([x[0] for x in qr if x[4] == node])),
