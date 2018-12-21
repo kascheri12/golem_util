@@ -466,7 +466,7 @@ class Analyze_Data:
   def build_tbody_from_results(self, data_rows):
     rv_markup = ""
     is_first_column = True
-    tr_html = "<tr>{}</tr>"
+    tr_html = "<tr>{}</tr>\r\n"
     for row in data_rows:
       item_row = ""
       for item in row:
