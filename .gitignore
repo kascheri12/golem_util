@@ -12,3 +12,5 @@ config.py
 *.blend
 
 tmp.task
+
+build_graphs
