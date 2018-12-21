@@ -574,6 +574,12 @@ permalink: /dashboard/
 
 <br />
 
+#### Global Network Data History
+
+<iframe id="iframe_global_network_data_history" style="width:100%;height:600px" src=""></iframe>
+
+<br />
+
 #### Percentage change in past day
 
 <details>
