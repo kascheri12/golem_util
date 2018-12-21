@@ -1262,14 +1262,15 @@ order by n1.snapshot_date desc;
     if True:
       columns = {'cpu_cores':1,'ram':2,'disk':3,'nodes':4};
       for val in columns.keys():
+        xl, yl = ([] for i in range(2))
+        for mydate in dlist:
+          xl.append(dt.strftime(mydate,'%Y-%m-%d %H:%M:%S'))
+          yl.append([x[columns.get(val)] for x in qr if x[0] == mydate][0])
         traces.append(go.Scatter(
-          x = [dt.strftime(x,'%Y-%m-%d %H:%M:%S') for x in dlist],
-          y = [x[columns.get(val)] for x in qr],
+          x = xl,
+          y = yl,
           name = "{metric}".format(metric=val)
         ))
-        # print("{}".format(val))
-        # print("Len x: {}".format(len([dt.strftime(x,'%Y-%m-%d %H:%M:%S') for x in dlist])))
-        # print("Len y: {}".format(len(list(sorted([x[columns.get(val)] for x in qr])))))
     else:
       columns = {'cpu_cores':2,'ram':3,'disk':4,'nodes':5};
       for net in ['testnet','mainnet']:
