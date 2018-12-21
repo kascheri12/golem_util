@@ -11,7 +11,7 @@ class Node_Logging():
 
   def __init__(self):
     self._timeout = 5 * 60.0 # Five @ Sixty seconds
-    self._conn = db.DB("PROD")
+    self._conn = db.DB()
 
   def take_network_snapshot(self):
     timestamp = str(round(time.time()))

@@ -14,8 +14,8 @@ import load_data as ld
 
 class Analyze_Data:
 
-  def __init__(self,env):
-    self.conn = db.DB(env)
+  def __init__(self):
+    self.conn = db.DB()
 
   def print_nodes(self,d,sort_method=None,ascending=False):
     cols = ['timestamp','version','node_name','subtasks_success','os','node_id','performance_lux','performance_blender','performance_general','cpu_cores']
@@ -466,7 +466,7 @@ class Analyze_Data:
   def build_tbody_from_results(self, data_rows):
     rv_markup = ""
     is_first_column = True
-    tr_html = "<tr>{}</tr>"
+    tr_html = "<tr>{}</tr>\r\n"
     for row in data_rows:
       item_row = ""
       for item in row:
