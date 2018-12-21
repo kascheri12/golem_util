@@ -21,6 +21,21 @@ class Golem_Graphing():
     lt = time.localtime()
     return time.strftime("%Y%m%d-%H:%M %Z",lt)
 
+  def do_git_commit(self,dir,filepath):
+    try:
+      od = os.getcwd()
+      os.chdir(config.kascheri12_github_io_dir)
+      os.system('git pull')
+      os.system('git checkout master')
+      os.system('git add ' + dir + filepath)
+      os.system('git commit -m "automated commit for ' + filepath.split("/")[-1] + '"')
+      os.system('git push')
+      os.chdir(od)
+    except:
+      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+      traceback.print_exc(file=sys.stdout)
+      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+
   def move_and_commit_graph(self,v_filepath):
     try:
       copy(config.build_graphs_dir+v_filepath,config.kascheri12_github_io_graphs_dir+v_filepath)
@@ -28,21 +43,11 @@ class Golem_Graphing():
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-      
-    try:
-      od = os.getcwd()
-      os.chdir(config.kascheri12_github_io_dir)
-      os.system('git pull')
-      os.system('git checkout master')
-      os.system('git add ' + config.kascheri12_github_io_graphs_dir+v_filepath)
-      os.system('git commit -m "automated commit for ' + v_filepath.split("/")[-1] + '"')
-      os.system('git push')
-      os.chdir(od)
-    except:
-      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-      traceback.print_exc(file=sys.stdout)
-      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error during git process<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-  
+
+    # Only commit to git in prod
+    if config.prod:
+      do_git_commit(config.kascheri12_github_io_graphs_dir,v_filename)
+
   def move_and_commit_page(self,v_filepath):
     try:
       copy(config.build_graphs_dir + v_filepath, config.kascheri12_github_io_pages_dir + v_filepath)
@@ -51,19 +56,9 @@ class Golem_Graphing():
       traceback.print_exc(file=sys.stdout)
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error moving page<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     
-    try:
-      od = os.getcwd()
-      os.chdir(config.kascheri12_github_io_dir)
-      os.system('git pull')
-      os.system('git checkout master')
-      os.system('git add ' + config.kascheri12_github_io_pages_dir + v_filepath)
-      os.system('git commit -m "automated commit for ' + v_filepath.split("/")[-1] + '"')
-      os.system('git push')
-      os.chdir(od)
-    except:
-      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error committing page<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-      traceback.print_exc(file=sys.stdout)
-      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error committing page<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    # Only commit to git in prod
+    if config.prod:
+      do_git_commit(config.kascheri12_github_io_pages_dir,v_filename)
 
   def daily_graph_refresh(self):
     print("Begin daily_graph_refresh: "+self.get_pretty_time())
@@ -73,12 +68,6 @@ class Golem_Graphing():
     try:
       self.move_and_commit_graph(a.print_nodes_connected_by_date(90))
       self.move_and_commit_graph(a.print_top_50_subtasks_success_by_date(90))
-
-      # self.move_and_commit_graph(a.print_avg_daily_subtasks_totals(90))
-      # self.move_and_commit_graph(a.print_avg_daily_unique_node_totals(90))
-      # self.move_and_commit_graph(a.print_avg_daily_failed_totals(90))
-      # self.move_and_commit_graph(a.print_network_summary_over_time_graph(30))
-      # self.move_and_commit_graph(a.print_new_unique_over_last_days_graph(30))
     except:
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
