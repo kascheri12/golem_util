@@ -46,7 +46,7 @@ class Golem_Graphing():
 
     # Only commit to git in prod
     if config.prod:
-      do_git_commit(config.kascheri12_github_io_graphs_dir,v_filename)
+      self.do_git_commit(config.kascheri12_github_io_graphs_dir,v_filepath)
 
   def move_and_commit_page(self,v_filepath):
     try:
@@ -58,7 +58,7 @@ class Golem_Graphing():
     
     # Only commit to git in prod
     if config.prod:
-      do_git_commit(config.kascheri12_github_io_pages_dir,v_filename)
+      self.do_git_commit(config.kascheri12_github_io_pages_dir,v_filepath)
 
   def daily_graph_refresh(self):
     print("Begin daily_graph_refresh: "+self.get_pretty_time())
