@@ -24,7 +24,7 @@ class Golem_Graphing():
   def do_git_commit(self,dir,filepath):
     try:
       od = os.getcwd()
-      os.chdir(config.kascheri12_github_io_dir)
+      os.chdir(config.github_io_dir)
       os.system('git pull')
       os.system('git checkout master')
       os.system('git add ' + dir + filepath)
@@ -38,7 +38,7 @@ class Golem_Graphing():
 
   def move_and_commit_graph(self,v_filepath):
     try:
-      copy(config.build_graphs_dir+v_filepath,config.kascheri12_github_io_graphs_dir+v_filepath)
+      copy(config.build_graphs_dir+v_filepath,config.github_io_graphs_dir+v_filepath)
     except:
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error printing and/or moving graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
@@ -46,11 +46,11 @@ class Golem_Graphing():
 
     # Only commit to git in prod
     if config.prod:
-      self.do_git_commit(config.kascheri12_github_io_graphs_dir,v_filepath)
+      self.do_git_commit(config.github_io_graphs_dir,v_filepath)
 
   def move_and_commit_page(self,v_filepath):
     try:
-      copy(config.build_graphs_dir + v_filepath, config.kascheri12_github_io_pages_dir + v_filepath)
+      copy(config.build_graphs_dir + v_filepath, config.github_io_pages_dir + v_filepath)
     except:
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error moving page<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
@@ -58,7 +58,7 @@ class Golem_Graphing():
     
     # Only commit to git in prod
     if config.prod:
-      self.do_git_commit(config.kascheri12_github_io_pages_dir,v_filepath)
+      self.do_git_commit(config.github_io_pages_dir,v_filepath)
 
   def daily_graph_refresh(self):
     print("Begin daily_graph_refresh: "+self.get_pretty_time())
