@@ -574,6 +574,12 @@ permalink: /dashboard/
 
 <br />
 
+#### Global Network Data History
+
+<iframe id="iframe_global_network_data_history" style="width:100%;height:600px" src=""></iframe>
+
+<br />
+
 #### Percentage change in past day
 
 <details>
@@ -1237,6 +1243,74 @@ order by 4 desc,1;
     self.inject_google_analytics(filepath)
     return filename
 
+  def print_global_network_data_history(self,num_days_included):
+    print("Starting print_global_network_data_history - " + self.get_pretty_time())
+    filename = 'global_network_data_history.html'
+    filepath = 'build_graphs/'+filename
+    query_global_network_data_history = """
+select n1.snapshot_date
+    -- , case when instr(task_protocol_version,'testnet') = 0 then 'mainnet' else 'testnet' end network
+    , sum(n1.cpu_cores) cpu_cores
+    , sum(n1.allowed_resource_memory) ram
+    , sum(n1.allowed_resource_size) disk
+    , count(n1.node_id) nodes
+from network_01 n1
+where n1.snapshot_date > (n1.snapshot_date - INTERVAL {interval} DAY)
+group by n1.snapshot_date
+          -- , case when instr(task_protocol_version,'testnet') = 0 then 'mainnet' else 'testnet' end
+order by n1.snapshot_date desc;
+"""
+    self.conn.query(query_global_network_data_history.format(interval=num_days_included))
+    qr = self.conn.fetchall()
+    dlist = list(sorted(list(set([x[0] for x in qr]))))
+    traces = []
+    ## Change to False below to separate test/main
+    if True:
+      columns = {'cpu_cores':1,'ram':2,'disk':3,'nodes':4};
+      for val in columns.keys():
+        xl, yl = ([] for i in range(2))
+        for mydate in dlist:
+          xl.append(dt.strftime(mydate,'%Y-%m-%d %H:%M:%S'))
+          yl.append([x[columns.get(val)] for x in qr if x[0] == mydate][0])
+        traces.append(go.Scatter(
+          x = xl,
+          y = yl,
+          name = "{metric}".format(metric=val)
+        ))
+    else:
+      columns = {'cpu_cores':2,'ram':3,'disk':4,'nodes':5};
+      for net in ['testnet','mainnet']:
+        for val in columns.keys():
+          traces.append(go.Scatter(
+            x = [dt.strftime(x,'%Y-%m-%d') for x in dlist],
+            y = list(sorted([x[columns.get(val)] for x in qr if x[1] == net])),
+            name = "{network} {metric}".format(network=net,metric=val)
+          ))
+    data = traces
+
+    fig = tools.make_subplots(rows=2, cols=2, subplot_titles=('CPU_Cores', 'RAM',
+                                                              'Disk', 'Nodes'))
+    fig.append_trace(traces[0], 1, 1)
+    fig.append_trace(traces[1], 1, 2)
+    fig.append_trace(traces[2], 2, 1)
+    fig.append_trace(traces[3], 2, 2)
+
+    fig['layout']['xaxis1'].update(title='')
+    fig['layout']['xaxis2'].update(title='')
+    fig['layout']['xaxis3'].update(title='Timeline')
+    fig['layout']['xaxis4'].update(title='Timeline')
+
+    fig['layout']['yaxis1'].update(title='CPU Cores')
+    fig['layout']['yaxis2'].update(title='RAM')
+    fig['layout']['yaxis3'].update(title='Disk')
+    fig['layout']['yaxis4'].update(title='Nodes')
+
+    fig['layout'].update(title='Global Network Data History')
+    
+    plotly.offline.plot(fig, filename=filepath, auto_open=False)
+    self.inject_google_analytics(filepath)
+    return filename
+    
   def print_nodes_connected_by_date(self,num_days_included):
     print("Starting print_nodes_connected_by_date - " + self.get_pretty_time())
     filename = 'nodes_connected_by_date.html'
