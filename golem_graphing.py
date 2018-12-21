@@ -68,6 +68,7 @@ class Golem_Graphing():
     try:
       self.move_and_commit_graph(a.print_nodes_connected_by_date(90))
       self.move_and_commit_graph(a.print_top_50_subtasks_success_by_date(90))
+      self.move_and_commit_graph(a.print_global_network_data_history(90))
     except:
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating graph<<<<<<<<<<<<<<<<<<<<<<<<<<<")
       traceback.print_exc(file=sys.stdout)
