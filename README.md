@@ -64,6 +64,17 @@ In order to use the Node_Logging class
           ,os_windows_edition                    varchar(100)  NO         NULL
           ,os_linux_distribution                 varchar(100)  NO         NULL
         );
+        
+        create table golem_network_globe
+        (
+          ip                            varchar(20)  NOT NULL
+          ,port                         int(10)      NOT NULL
+          ,node_id                      varchar(100) NOT NULL
+          ,node_name                    varchar(100)
+          ,version                      varchar(50)
+          ,latitude                     varchar(50)
+          ,longitude                    varchar(50)
+        );
         ```
       * Copy `config.example.py` to `config.py` and change to appropriate values
       * At this point, you should be able to successfully instantiate a DB object used in following classes
