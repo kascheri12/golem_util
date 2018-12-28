@@ -13,6 +13,8 @@ class Golem_Graphing():
     self._daily_refresh_graph_timeout = 60 * 60 # 24hrs * 60min * 60sec
     self._do_dashboard_refresh = True
     self._dashboard_refresh_timeout = 60 * 60
+    self._do_globe_refresh = True
+    self._globe_refresh_timeout = 60 * 60
 
   def data_cleanup(self):
     pass
@@ -60,6 +62,18 @@ class Golem_Graphing():
     if config.prod:
       self.do_git_commit(config.github_io_pages_dir,v_filepath)
 
+  def move_and_commit_data(self,v_filepath):
+    try:
+      copy(config.build_graphs_dir + v_filepath, config.github_io_data_dir + v_filepath)
+    except:
+      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error moving data<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+      traceback.print_exc(file=sys.stdout)
+      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error moving data<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    
+    # Only commit to git in prod
+    if config.prod:
+      self.do_git_commit(config.github_io_data_dir,v_filepath)
+
   def daily_graph_refresh(self):
     print("Begin daily_graph_refresh: "+self.get_pretty_time())
     filenames = []
@@ -97,7 +111,20 @@ class Golem_Graphing():
       traceback.print_exc(file=sys.stdout)
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating page<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     print("End refresh_all_node_latest_snapshop_page: " + self.get_pretty_time())
-
+  
+  def refresh_globe_data():
+    print("Begin refresh_globe_data: " + self.get_pretty_time())
+    import golem_network_globe as gng
+    mgng = gng.Golem_Network_Globe()
+    mgng.add_update_globe_db()
+    try:
+      self.move_and_commit_data(mgng.save_json_file_of_network_globe_data())
+    except:
+      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating data<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+      traceback.print_exc(file=sys.stdout)
+      print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating data<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    print("End refresh_globe_data: " + self.get_pretty_time())
+  
 def main():
   
   gg = Golem_Graphing()
@@ -114,6 +141,10 @@ def main():
       dgr = task.LoopingCall(gg.daily_graph_refresh)
       dgr.start(gg._daily_refresh_graph_timeout)
     
+    if gg._do_globe_refresh:
+      t_globe_refresh = task.LoopingCall(gg.refresh_globe_data)
+      t_globe_refresh.start(gg._globe_refresh_timeout)
+    
     if gg._do_data_cleanup:
       dc = task.LoopingCall(gg.data_cleanup)
       dc.start(gg._do_data_cleanup_timeout)
@@ -125,6 +156,9 @@ def main():
     
     if gg._do_daily_graph_refresh:
       gg.daily_graph_refresh()
+    
+    if gg._do_globe_refresh:
+      gg.refresh_globe_data()
     
     if gg._do_data_cleanup:
       gg.data_cleanup()

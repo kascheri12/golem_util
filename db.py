@@ -94,6 +94,92 @@ class DB():
     except:
       et = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
       print(et+": DB.insert_node_record_data() Exception thrown inserting record")
+
+  def update_known_node_in_globe_db(self,node_info):
+    mq = """
+    update network_globe_01 
+        set ip = %s,
+        port = %s,
+        node_name = %s,
+        version = %s,
+        latitude = %s, 
+        longitude = %s
+    where node_id = %s;
+    """
+    try:
+      self.query(mq,node_info)
+      self._db.commit()
+    except mysql.connector.Error as e:
+      print(mq)
+      print(node_info)
+      et = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
+      print(et+": DB.update_known_node_in_globe_db() Exception thrown")
+      print ("Error code: ", e.errno)        # error number
+      print ("SQLSTATE value: ", e.sqlstate) # SQLSTATE value
+      print ("Error message: ", e.msg)       # error message
+    except:
+      et = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
+      print(et+": DB.update_known_node_in_globe_db() Exception thrown")
+  
+  def insert_known_node_into_globe_db(self,node_info):
+    mq = """
+    insert into network_globe_01 (ip,port,node_id,node_name,version,latitude,longitude) values (%s,%s,%s,%s,%s,%s,%s);
+    """
+    try:
+      self.query(mq,node_info)
+      self._db.commit()
+    except mysql.connector.Error as e:
+      et = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
+      print(et+": DB.insert_known_node_into_globe_db() Exception thrown inserting record")
+      print ("Error code: ", e.errno)        # error number
+      print ("SQLSTATE value: ", e.sqlstate) # SQLSTATE value
+      print ("Error message: ", e.msg)       # error message
+    except:
+      et = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
+      print(et+": DB.insert_known_node_into_globe_db() Exception thrown inserting record")
+  
+  def delete_node_from_globe_db(self,node_id):
+    mq = """
+    delete from network_globe_01 where node_id = %s;
+    """
+    try:
+      self.query(mq,node_id)
+      self._db.commit()
+    except mysql.connector.Error as e:
+      et = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
+      print(et+": DB.delete_node_from_globe_db() Exception thrown")
+      print ("Error code: ", e.errno)        # error number
+      print ("SQLSTATE value: ", e.sqlstate) # SQLSTATE value
+      print ("Error message: ", e.msg)       # error message
+    except:
+      print(mq)
+      print(node_id)
+      et = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
+      print(et+": DB.delete_node_from_globe_db() Exception thrown")
+  
+  def init_globe_db(self):
+    mq = """create table network_globe_01
+            (
+            ip                            varchar(20)  NOT NULL
+            ,port                         int(10)      NOT NULL
+            ,node_id                      varchar(100) NOT NULL
+            ,node_name                    varchar(100)
+            ,version                      varchar(50)
+            ,latitude                     varchar(50)
+            ,longitude                    varchar(50)
+            );"""
+    try:
+      self.query(mq)
+      self._db.commit()
+    except mysql.connector.Error as e:
+      et = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
+      print(et+": DB.init_globe_db() Exception thrown ")
+      print ("Error code: ", e.errno)        # error number
+      print ("SQLSTATE value: ", e.sqlstate) # SQLSTATE value
+      print ("Error message: ", e.msg)       # error message
+    except:
+      et = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
+      print(et+": DB.init_globe_db() Exception thrown ")
   
 if __name__ == '__main__':
   main()
