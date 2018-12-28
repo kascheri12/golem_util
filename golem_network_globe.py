@@ -59,10 +59,12 @@ class Golem_Network_Globe():
     return (round(geojson['latitude'],9),round(geojson['longitude'],9))
 
   def save_json_file_of_network_globe_data(self):
+    filename = "network_data.json"
     data_file = self.build_data_file_content()
-    with open(config.build_graphs_dir + "network_data.json", 'w') as f:
+    with open(config.build_graphs_dir + filename, 'w') as f:
       json.dump(data_file,f)
-      
+    return filename
+    
   def build_data_file_content(self):
     q = "select latitude,longitude,case when count(*) > 5 then 5 else count(*) end size from network_globe_01 group by latitude,longitude order by size;"
     self.conn.query(q)
