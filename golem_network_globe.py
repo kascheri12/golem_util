@@ -45,7 +45,7 @@ class Golem_Network_Globe():
       else:
         (lat,long) = self.get_lat_long_for_ip(node[0])
         # Node ID not found in db, insert record
-        self.conn.insert_known_node_into_globe_db((*tuple(node),long,lat))
+        self.conn.insert_known_node_into_globe_db((*tuple(node),lat,long))
     
     # List of nodes from db not known anymore
     not_known_anymore = [x for x in qr if x[2] not in [a[2] for a in list_known_nodes]]
@@ -57,7 +57,19 @@ class Golem_Network_Globe():
     req_str = "http://api.ipstack.com/{}?access_key=c43656dc64550aaaa42dfb34c29c9afb"
     geojson = requests.get(req_str.format(ip)).json()
     return (round(geojson['latitude'],9),round(geojson['longitude'],9))
-    
+
+  def save_json_file_of_network_globe_data(self):
+    data_file = self.build_data_file_content()
+    with open(config.build_graphs_dir + "network_data.json", 'w') as f:
+      json.dump(data_file,f)
+      
+  def build_data_file_content(self):
+    q = "select latitude,longitude,case when count(*) > 5 then 5 else count(*) end size from network_globe_01 group by latitude,longitude order by size;"
+    self.conn.query(q)
+    res = self.conn.fetchall()
+    rv = [{'latitude':x[0],'longitude':x[1],'size':x[2]} for x in res]
+    return rv
+
 def main():
 
   gng = Golem_Network_Globe()
