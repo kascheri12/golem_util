@@ -112,7 +112,7 @@ class Golem_Graphing():
       print(self.get_pretty_time() + " - >>>>>>>>>>>>>>>>>>>>>>>>>>>Error creating page<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     print("End refresh_all_node_latest_snapshop_page: " + self.get_pretty_time())
   
-  def refresh_globe_data():
+  def refresh_globe_data(self):
     print("Begin refresh_globe_data: " + self.get_pretty_time())
     import golem_network_globe as gng
     mgng = gng.Golem_Network_Globe()

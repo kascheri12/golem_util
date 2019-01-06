@@ -33,16 +33,15 @@ class Golem_Network_Globe():
       # Get list of qr nodes in latest known nodes snapshot
       does_exist = [x for x in qr if x[2] == node[2]]
       if len(does_exist) > 0:
-        # Init vars and Refresh lat/long if IP has changed
+        # Init lat/long vars
         lat = does_exist[0][5]
         long = does_exist[0][6]
+        # If IP address associated with db node_id doesn't match current IP address of node_id
         if does_exist[0][0] != node[0]:
           # Find lat/long associated with new IP
-          print('Old IP:{}  | Old Lat:{}  | Old Long:{}'.format(does_exist[0][0],does_exist[0][5],does_exist[0][6]))
-          (does_exist[0][5],does_exist[0][6]) = self.get_lat_long_for_ip(node[0])
-          lat = does_exist[0][5]
-          long = does_exist[0][6]
-          print('New IP:{}  | New Lat:{}  | New Long:{}'.format(does_exist[0][0],lat,long))
+          print('Old IP:{}  | Old Lat:{}  | Old Long:{}'.format(does_exist[0][0],lat,long))
+          (lat,long) = self.get_lat_long_for_ip(node[0])
+          print('New IP:{}  | New Lat:{}  | New Long:{}'.format(node[0],lat,long))
         # Found existing node_id; update ip, port, name, version, lat, long in db
         # print('Verify New IP:{}  | New Lat:{}  | New Long:{}'.format(does_exist[0][0],does_exist[0][5],does_exist[0][6]))
         self.conn.update_known_node_in_globe_db((node[0],node[1],node[3],node[4],lat,long,node[2]))
