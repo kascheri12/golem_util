@@ -23,7 +23,9 @@ class Create_Task:
     proc = Popen(command_str, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
   def add_new_task(self):
     print("Create new task %s" % dt.now())
-    command_str = " ".join([self.path_to_golemcli,"tasks","create",self.build_golem_header_task(self.difficulty_level)])
+    command_str = " ".join([self.path_to_golemcli,"-m","tasks","create",self.build_golem_header_task(self.difficulty_level)])
+    if not config.prod:
+      command_str = " ".join([self.path_to_golemcli,"tasks","create",self.build_golem_header_task(self.difficulty_level)])
     proc = Popen(command_str, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
 
   def build_golem_header_task(self,level):
@@ -43,7 +45,7 @@ class Create_Task:
       "name":"Golem Task Simple",
       "type": "Blender",
       "compute_on": "cpu",
-      "concent_enabled": "true",
+      # "concent_enabled": "true",
       "subtasks": subtasks,
       "options": {
           "frame_count": 1,
