@@ -10,7 +10,7 @@ class Create_Task:
 
   def __init__(self):
     self.init_start_timeout = 0 # 20 * 60
-    self.timeout = 5 * 60.0 # seconds
+    self.timeout = 30 * 60.0 # seconds
     self.difficulty_level = 3
     self.blend_file = config.blend_file
     self.path_to_golemcli = "golemcli"
